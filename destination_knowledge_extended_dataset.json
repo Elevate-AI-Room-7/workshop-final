@@ -1,0 +1,442 @@
+[
+  {
+    "id": "hanoi_01",
+    "text": "Hà Nội - Thủ đô nghìn năm văn hiến với nhiều di tích lịch sử và văn hóa. Du khách không nên bỏ qua Hồ Hoàn Kiếm và Đền Ngọc Sơn, Khu Phố Cổ với 36 phố phường, Văn Miếu - Quốc Tử Giám, Lăng Chủ tịch Hồ Chí Minh và Hoàng thành Thăng Long. Hà Nội có nền ẩm thực phong phú: phở, bún chả, chả cá, nem rán và cà phê trứng. Mùa đẹp nhất là mùa thu (từ tháng 9-11) và mùa xuân, khi tiết trời mát mẻ và có nhiều lễ hội truyền thống.",
+    "metadata": {
+      "location": "Hà Nội",
+      "category": "Văn hóa - Lịch sử - Ẩm thực"
+    }
+  },
+  {
+    "id": "haiphong_01",
+    "text": "Hải Phòng - Thành phố cảng lớn ở miền Bắc, nổi tiếng với biển và đảo gần kề. Điểm đến nổi bật gồm Đồ Sơn, Cát Bà (vườn quốc gia Cát Bà) với hệ sinh thái đa dạng và nhiều hoạt động biển, câu cá và leo núi. Hải Phòng cũng có đời sống ẩm thực biển phong phú như bánh đa cua, nem cua bể và các món hải sản tươi sống. Thành phố có giao thông thuận tiện để ra vịnh Hạ Long và các đảo vịnh Bắc Bộ.",
+    "metadata": {
+      "location": "Hải Phòng",
+      "category": "Biển - Thiên nhiên - Ẩm thực"
+    }
+  },
+  {
+    "id": "quangninh_01",
+    "text": "Quảng Ninh - Trung tâm du lịch miền Bắc với Vịnh Hạ Long, di sản thiên nhiên thế giới có hàng nghìn đảo đá vôi, hang động và hang Sửng Sốt, Đảo Titop. Du lịch biển kết hợp với trải nghiệm du thuyền, kayak và khám phá hang động. Khu du lịch Yên Tử là trung tâm hành hương Phật giáo nổi tiếng với cảnh quan núi rừng và chùa chiền. Ẩm thực địa phương nổi bật với hải sản tươi, sam biển và sá sùng.",
+    "metadata": {
+      "location": "Quảng Ninh",
+      "category": "Biển - Thiên nhiên - Tâm linh"
+    }
+  },
+  {
+    "id": "bacninh_01",
+    "text": "Bắc Ninh - Vùng đất cổ với truyền thống lễ hội và nghệ thuật quan họ Bắc Ninh. Nơi đây có nhiều đền, chùa và làng nghề truyền thống như làng gốm, dệt. Bắc Ninh gần Hà Nội, thuận tiện cho chuyến tham quan nửa ngày hoặc một ngày. Ẩm thực gồm các món dân dã và đặc sản địa phương, thường xuất hiện trong dịp lễ hội.",
+    "metadata": {
+      "location": "Bắc Ninh",
+      "category": "Văn hóa - Làng nghề - Gần Hà Nội"
+    }
+  },
+  {
+    "id": "bacgiang_01",
+    "text": "Bắc Giang - Tỉnh miền núi ven đô với nhiều thắng cảnh tự nhiên như Nhãn lồng Lục Ngạn, Khu du lịch Non Nước - Yên Tử nằm giáp ranh. Du lịch cộng đồng và trải nghiệm vườn trái cây, chợ quê là hoạt động phổ biến. Ẩm thực địa phương nổi bật với trái cây tươi và món ăn dân dã miền Bắc.",
+    "metadata": {
+      "location": "Bắc Giang",
+      "category": "Nông nghiệp - Thiên nhiên - Văn hóa"
+    }
+  },
+  {
+    "id": "laocai_01",
+    "text": "Lào Cai - Cửa ngõ đến Sa Pa và núi Fansipan, nổi tiếng với ruộng bậc thang, bản làng dân tộc và chợ tình Bắc Hà. Sa Pa có nhiều tuyến trekking, homestay và cảnh quan núi non hùng vĩ. Thời tiết mát mẻ quanh năm, thích hợp cho du lịch nghỉ dưỡng và khám phá văn hóa các dân tộc thiểu số. Ẩm thực gồm thắng cố, thịt xông khói và các món đặc sản của vùng núi.",
+    "metadata": {
+      "location": "Lào Cai",
+      "category": "Núi - Văn hóa - Trekking"
+    }
+  },
+  {
+    "id": "hagiang_01",
+    "text": "Hà Giang - Vùng cao nguyên đá với cung đường đèo Mã Pí Lèng, Đồng Văn, Lũng Cú (cột cờ Lũng Cú) và cao nguyên đá Đồng Văn được UNESCO công nhận là công viên địa chất toàn cầu. Hà Giang nổi bật với phong cảnh hoang sơ, chợ phiên vùng cao và văn hóa đa dạng của các dân tộc như H'Mông, Dao. Thời điểm đẹp để đi là mùa hoa tam giác mạch (tháng 10-12) và mùa hè mát mẻ.",
+    "metadata": {
+      "location": "Hà Giang",
+      "category": "Núi - Vùng cao - Văn hóa"
+    }
+  },
+  {
+    "id": "caobang_01",
+    "text": "Cao Bằng - Nổi tiếng với Thác Bản Giốc hùng vĩ nằm trên biên giới Việt - Trung, hang Pác Bó nơi Bác Hồ từng hoạt động, và các bản làng dân tộc với văn hóa truyền thống. Cao Bằng phù hợp cho du lịch khám phá, mạo hiểm và tìm hiểu lịch sử cách mạng. Ẩm thực địa phương sử dụng nhiều nguyên liệu rừng núi và gia vị đặc trưng.",
+    "metadata": {
+      "location": "Cao Bằng",
+      "category": "Thiên nhiên - Lịch sử - Phiêu lưu"
+    }
+  },
+  {
+    "id": "tuyenquang_01",
+    "text": "Tuyên Quang - Vùng đất yên bình với hồ Na Hang, thác Mơ và các khu rừng nguyên sinh. Du lịch trải nghiệm, đi thuyền trên hồ Na Hang, camping và trekking là các hoạt động phổ biến. Tỉnh còn lưu giữ nhiều di tích lịch sử cách mạng và văn hóa dân tộc.",
+    "metadata": {
+      "location": "Tuyên Quang",
+      "category": "Thiên nhiên - Lịch sử - Mạo hiểm"
+    }
+  },
+  {
+    "id": "backan_01",
+    "text": "Bắc Kạn - Nổi tiếng với hồ Ba Bể, một trong những hồ nước ngọt lớn và đẹp nhất Việt Nam, cùng vườn quốc gia Ba Bể với hệ sinh thái phong phú. Du khách có thể đi thuyền, kayaking, trekking và tham quan các bản làng người Tày, Nùng. Các chương trình du lịch cộng đồng và homestay giúp khách hiểu sâu hơn về văn hóa bản địa.",
+    "metadata": {
+      "location": "Bắc Kạn",
+      "category": "Hồ - Thiên nhiên - Văn hóa"
+    }
+  },
+  {
+    "id": "thainguyen_01",
+    "text": "Thái Nguyên - Vùng đất nổi tiếng với chè Thái Nguyên, có nhiều đồi chè xanh mướt và nhà máy chế biến chè. Ngoài du lịch nông nghiệp, du khách có thể ghé thăm các di tích lịch sử, núi Tam Đảo gần kề, và trải nghiệm ẩm thực Bắc Bộ. Thái Nguyên hợp cho các chuyến dã ngoại cuối tuần từ Hà Nội.",
+    "metadata": {
+      "location": "Thái Nguyên",
+      "category": "Nông nghiệp - Dã ngoại - Văn hóa"
+    }
+  },
+  {
+    "id": "phutho_01",
+    "text": "Phú Thọ - Vùng đất lịch sử với Đền Hùng là điểm hành hương lớn của cả nước. Ngoài ra tỉnh còn có nhiều danh lam thắng cảnh, suối nước nóng và cơ hội trải nghiệm văn hóa dân tộc. Thời điểm lễ hội Giỗ Tổ Hùng Vương thu hút đông đảo khách du lịch và người dân về tham dự.",
+    "metadata": {
+      "location": "Phú Thọ",
+      "category": "Tâm linh - Lịch sử - Văn hóa"
+    }
+  },
+  {
+    "id": "hoabinh_01",
+    "text": "Hòa Bình - Nổi bật với hồ Hòa Bình và nhiều khu du lịch sinh thái, suối nước nóng và cộng đồng dân tộc Mường. Khu vực Mai Châu gần đó nổi tiếng với bản làng, homestay và nghề dệt thổ cẩm truyền thống. Phù hợp cho du lịch dã ngoại, trải nghiệm văn hóa và nghỉ dưỡng ngắn ngày.",
+    "metadata": {
+      "location": "Hòa Bình",
+      "category": "Sinh thái - Văn hóa - Nghỉ dưỡng"
+    }
+  },
+  {
+    "id": "sonla_01",
+    "text": "Sơn La - Vùng cao với ruộng bậc thang, hồ và nhiều bản làng của các dân tộc thiểu số. Điểm đến nổi bật gồm đèo Pha Đin, Mộc Châu nổi tiếng với đồi chè, vườn mận, hoa mận vào mùa xuân. Du lịch nông nghiệp và trải nghiệm bản làng rất phát triển.",
+    "metadata": {
+      "location": "Sơn La",
+      "category": "Núi - Nông nghiệp - Văn hóa"
+    }
+  },
+  {
+    "id": "dienbien_01",
+    "text": "Điện Biên - Nổi tiếng lịch sử với chiến thắng Điện Biên Phủ, bản đồ di tích cách mạng, và khung cảnh núi rừng Tây Bắc. Du khách thường ghé thăm bảo tàng Điện Biên Phủ, Đồi A1, và khám phá các bản làng dân tộc. Mùa hoa ban nở vào mùa xuân tạo nên khung cảnh đẹp cho du lịch.",
+    "metadata": {
+      "location": "Điện Biên",
+      "category": "Lịch sử - Núi - Văn hóa"
+    }
+  },
+  {
+    "id": "laichau_01",
+    "text": "Lai Châu - Vùng núi hoang sơ, phù hợp cho trekking, khám phá bản làng và cung đường đèo nổi tiếng như Ô Quy Hồ. Tỉnh có nhiều cảnh quan đá vôi, thung lũng và rừng nguyên sinh. Du lịch mạo hiểm và trải nghiệm bản địa là điểm mạnh.",
+    "metadata": {
+      "location": "Lai Châu",
+      "category": "Núi - Phiêu lưu - Văn hóa"
+    }
+  },
+  {
+    "id": "yenbai_01",
+    "text": "Yên Bái - Nổi tiếng với ruộng bậc thang Mù Cang Chải, di sản văn hóa và cảnh quan thiên nhiên đẹp mắt, cùng nhiều bản làng dân tộc và trải nghiệm trekking. Thời điểm đẹp là mùa lúa chín khi ruộng bậc thang chuyển màu vàng rực. Du khách có thể kết hợp tham quan thị trấn Mù Cang Chải và thưởng thức ẩm thực dân tộc.",
+    "metadata": {
+      "location": "Yên Bái",
+      "category": "Núi - Thiên nhiên - Văn hóa"
+    }
+  },
+  {
+    "id": "ninhbinh_01",
+    "text": "Ninh Bình - 'Vạn lý trường thành trên cạn' với Tràng An, Tam Cốc - Bích Động, chùa Bái Đính và đầm Vân Long. Du khách có thể chèo thuyền trên sông, đi xe đạp qua làng quê, tham quan di tích lịch sử Hoa Lư. Ninh Bình được biết đến với cảnh quan đá vôi và các tour văn hóa đặc sắc.",
+    "metadata": {
+      "location": "Ninh Bình",
+      "category": "Thiên nhiên - Văn hóa - Tâm linh"
+    }
+  },
+  {
+    "id": "thanhhoa_01",
+    "text": "Thanh Hóa - Tỉnh lớn với bờ biển dài, bãi biển Sầm Sơn nổi tiếng, đảo Hòn Mê, và nhiều di tích lịch sử như Lam Kinh. Ngoài ra có vùng núi xinh đẹp như Pù Luông, Bến En. Thanh Hóa kết hợp được du lịch biển, nghỉ dưỡng và trải nghiệm văn hóa truyền thống vùng quê.",
+    "metadata": {
+      "location": "Thanh Hóa",
+      "category": "Biển - Núi - Văn hóa"
+    }
+  },
+  {
+    "id": "nghean_01",
+    "text": "Nghệ An - Tỉnh rộng lớn với nhiều cảnh quan: biển Cửa Lò, vườn quốc gia Pù Mát, khu di tích Kim Liên quê nội Bác Hồ và thành phố Vinh làm trung tâm kết nối. Nghệ An có nền ẩm thực đặc trưng, các lễ hội truyền thống và nhiều điểm sinh thái, biển đảo hấp dẫn.",
+    "metadata": {
+      "location": "Nghệ An",
+      "category": "Biển - Thiên nhiên - Lịch sử"
+    }
+  },
+  {
+    "id": "hatinh_01",
+    "text": "Hà Tĩnh - Tỉnh có bờ biển dài, bãi biển Thiên Cầm, Xuân Thành, đền Chế A Nan và nhiều cảnh quan thiên nhiên. Khu vực Hồng Lĩnh, vườn quốc gia Vũ Quang nổi bật với du lịch sinh thái và trekking. Hà Tĩnh cũng lưu giữ nhiều di tích lịch sử văn hóa và ẩm thực miền Trung.",
+    "metadata": {
+      "location": "Hà Tĩnh",
+      "category": "Biển - Sinh thái - Lịch sử"
+    }
+  },
+  {
+    "id": "quangbinh_01",
+    "text": "Quảng Bình - Nổi tiếng với hệ thống hang động Phong Nha - Kẻ Bàng như Sơn Đoòng, Hang Én, Động Phong Nha. Bãi biển Nhật Lệ ở Đồng Hới, suối nước nóng và các trải nghiệm trekking, zipline rất thu hút. Quảng Bình là điểm đến hấp dẫn cho người ưa phiêu lưu và khám phá thiên nhiên.",
+    "metadata": {
+      "location": "Quảng Bình",
+      "category": "Hang động - Phiêu lưu - Biển"
+    }
+  },
+  {
+    "id": "quangtri_01",
+    "text": "Quảng Trị - Nổi tiếng với các di tích chiến tranh, Cầu Hiền Lương, đường Trường Sơn, nghĩa trang Trường Sơn và bãi biển Cửa Việt. Du lịch lịch sử kết hợp tham quan các di tích cách mạng và khám phá các vùng biển yên bình. Vườn quốc gia Đakrông với nhiều cảnh quan núi rừng cũng rất nổi bật.",
+    "metadata": {
+      "location": "Quảng Trị",
+      "category": "Lịch sử - Biển - Thiên nhiên"
+    }
+  },
+  {
+    "id": "thua_thien_hue_01",
+    "text": "Thừa Thiên - Huế - Kinh đô xưa với Đại Nội Huế (di tích UNESCO), chùa Thiên Mụ, lăng tẩm vua Nguyễn và sông Hương thơ mộng. Huế nổi tiếng với ẩm thực cung đình như bún bò Huế, cơm cung đình và nhiều làn điệu dân ca. Du khách có thể đi thuyền trên sông Hương, đi xe đạp qua làng nghề truyền thống và thưởng thức văn hóa cung đình.",
+    "metadata": {
+      "location": "Thừa Thiên - Huế",
+      "category": "Lịch sử - Văn hóa - Ẩm thực"
+    }
+  },
+  {
+    "id": "danang_01",
+    "text": "Đà Nẵng - Thành phố biển năng động với bãi biển Mỹ Khê, bán đảo Sơn Trà, Bà Nà Hills và Cầu Rồng. Đà Nẵng thuận tiện khám phá Hội An và Mỹ Sơn gần đó. Thành phố kết hợp du lịch biển, nghỉ dưỡng và giải trí hiện đại.",
+    "metadata": {
+      "location": "Đà Nẵng",
+      "category": "Biển - Nghỉ dưỡng - Giải trí"
+    }
+  },
+  {
+    "id": "quangnam_01",
+    "text": "Quảng Nam - Vùng đất của Hội An cổ kính (di sản thế giới), Mỹ Sơn, và nhiều bãi biển đẹp. Hội An nổi tiếng với kiến trúc phố cổ, đèn lồng, nghề may áo dài và ẩm thực truyền thống. Du khách có thể kết hợp tham quan di sản văn hóa, biển và làng nghề thủ công.",
+    "metadata": {
+      "location": "Quảng Nam",
+      "category": "Di sản - Biển - Văn hóa"
+    }
+  },
+  {
+    "id": "quangngai_01",
+    "text": "Quảng Ngãi - Nổi bật với đảo Lý Sơn, bãi biển đẹp và nhiều khu du lịch sinh thái. Quảng Ngãi còn có lịch sử liên quan đến văn hóa Sa Huỳnh và Champa. Ẩm thực biển và hải sản tươi là điểm mạnh của tỉnh.",
+    "metadata": {
+      "location": "Quảng Ngãi",
+      "category": "Đảo - Biển - Lịch sử"
+    }
+  },
+  {
+    "id": "binhdinh_01",
+    "text": "Bình Định - Trung tâm văn hóa Champa với tháp Chăm như Tháp Đôi ở Quy Nhơn, bãi biển Quy Nhơn, Kỳ Co và Eo Gió nổi tiếng với khung cảnh biển hoang sơ. Bình Định cũng nổi tiếng với võ cổ truyền và ẩm thực hải sản miền Trung.",
+    "metadata": {
+      "location": "Bình Định",
+      "category": "Biển - Văn hóa - Phiêu lưu"
+    }
+  },
+  {
+    "id": "phuyen_01",
+    "text": "Phú Yên - Vùng biển với bãi biển Tuy Hòa, Gành Đá Dĩa, Vịnh Xuân Đài và nhiều cảnh quan hoang sơ. Phú Yên thu hút khách bởi vẻ đẹp tự nhiên, cảnh đồng quê và ẩm thực hải sản. Đây là điểm đến yên bình, ít ồn ào so với trung tâm du lịch lớn.",
+    "metadata": {
+      "location": "Phú Yên",
+      "category": "Biển - Thiên nhiên - Nghỉ dưỡng"
+    }
+  },
+  {
+    "id": "khanhhoa_01",
+    "text": "Khánh Hòa - Trung tâm du lịch biển với thành phố Nha Trang nổi tiếng, bãi tắm dài, đảo Hòn Tre, biển trong xanh và hệ sinh thái biển phong phú. Nha Trang có dịch vụ lặn biển, du thuyền và khu nghỉ dưỡng cao cấp, cùng các điểm du lịch văn hóa và tháp Chăm cổ.",
+    "metadata": {
+      "location": "Khánh Hòa",
+      "category": "Biển - Nghỉ dưỡng - Lặn biển"
+    }
+  },
+  {
+    "id": "ninhthuan_01",
+    "text": "Ninh Thuận - Vùng ven biển nổi bật với vườn nho Phan Rang, bãi biển Ninh Chữ, vườn quốc gia Núi Chúa và văn hóa Cham ở tháp Chàm. Khí hậu khô, nắng nhiều, phù hợp cho trải nghiệm xe địa hình, khám phá vườn nho và thưởng thức hải sản tươi.",
+    "metadata": {
+      "location": "Ninh Thuận",
+      "category": "Nông nghiệp - Biển - Văn hóa"
+    }
+  },
+  {
+    "id": "binhthuan_01",
+    "text": "Bình Thuận - Nổi tiếng với Mũi Né (cồn cát, resort), bãi biển dài, thể thao lướt ván và ẩm thực hải sản. Địa phương có nhiều khu nghỉ dưỡng, sân golf và cơ sở hạ tầng phục vụ du lịch biển. Mũi Né thu hút du khách cả trong và ngoài nước với các hoạt động giải trí ngoài trời.",
+    "metadata": {
+      "location": "Bình Thuận",
+      "category": "Biển - Nghỉ dưỡng - Thể thao biển"
+    }
+  },
+  {
+    "id": "kontum_01",
+    "text": "Kon Tum - Vùng cao nguyên Tây Nguyên với kiến trúc nhà thờ gỗ Kon Tum cổ, các bản làng dân tộc Bahnar, Jarai và khung cảnh rừng núi xanh mướt. Du lịch cộng đồng, trải nghiệm văn hóa và tham quan các làng nghề truyền thống là điểm nhấn. Cảnh quan sông Đăk Bla và các khu rừng nguyên sinh cũng rất hấp dẫn.",
+    "metadata": {
+      "location": "Kon Tum",
+      "category": "Văn hóa - Tây Nguyên - Sinh thái"
+    }
+  },
+  {
+    "id": "gialai_01",
+    "text": "Gia Lai - Cao nguyên với đồi cỏ, hồ nước và các thác nước nhỏ, như Hồ T'Nưng và thác Phú Cường. Vùng đất có nhiều bản làng dân tộc, cồng chiêng và lễ hội truyền thống. Du lịch khám phá, homestay và hành trình ghé thăm cầu treo, nông trại cà phê là trải nghiệm phổ biến.",
+    "metadata": {
+      "location": "Gia Lai",
+      "category": "Tây Nguyên - Nghệ thuật - Sinh thái"
+    }
+  },
+  {
+    "id": "daklak_01",
+    "text": "Đắk Lắk - Trung tâm cà phê Việt Nam với Buôn Đôn nổi tiếng về văn hóa săn voi truyền thống, cồng chiêng và cảnh quan hồ Lắk. Du khách có thể tham gia cưỡi voi (theo chính sách bảo tồn), homestay, thăm làng cà phê và bảo tồn rừng. Khí hậu mát mẻ, phong cảnh cao nguyên rộng lớn.",
+    "metadata": {
+      "location": "Đắk Lắk",
+      "category": "Cà phê - Tây Nguyên - Văn hóa"
+    }
+  },
+  {
+    "id": "daknong_01",
+    "text": "Đắk Nông - Vùng đất với nhiều thác nước đẹp như Dray Sáp, Dray Nur và hồ, rừng nguyên sinh, phù hợp cho du lịch mạo hiểm và sinh thái. Du lịch cộng đồng và khám phá nông nghiệp là hoạt động nổi bật, cùng các dự án bảo tồn thiên nhiên.",
+    "metadata": {
+      "location": "Đắk Nông",
+      "category": "Thác nước - Sinh thái - Phiêu lưu"
+    }
+  },
+  {
+    "id": "lamdong_01",
+    "text": "Lâm Đồng - Trung tâm du lịch cao nguyên với Đà Lạt nổi tiếng: hồ Xuân Hương, Thung Lũng Tình Yêu, chợ Đà Lạt, Vườn hoa, đồi chè Cầu Đất và nhiều công trình kiến trúc Pháp cổ. Đà Lạt thích hợp nghỉ dưỡng, tuần trăng mật, cắm trại và nông nghiệp hoa. Khí hậu mát mẻ quanh năm, nổi bật vào mùa hoa và lễ hội.",
+    "metadata": {
+      "location": "Lâm Đồng",
+      "category": "Nghỉ dưỡng - Hoa - Nông nghiệp"
+    }
+  },
+  {
+    "id": "tphcm_01",
+    "text": "TP. Hồ Chí Minh - Trung tâm kinh tế lớn nhất Việt Nam, sôi động với cuộc sống 24/7, khu phố thương mại, các khu ẩm thực đường phố và di tích như Dinh Độc Lập, Nhà thờ Đức Bà, Bưu điện Trung tâm. Ngoài ra còn có chợ Bến Thành, trung tâm mua sắm và cuộc sống về đêm đa dạng. Thành phố là cửa ngõ khám phá miền Nam và Đồng bằng sông Cửu Long.",
+    "metadata": {
+      "location": "TP. Hồ Chí Minh",
+      "category": "Đô thị - Ẩm thực - Mua sắm"
+    }
+  },
+  {
+    "id": "binhduong_01",
+    "text": "Bình Dương - Trung tâm công nghiệp với nhiều khu công nghiệp, trung tâm thương mại và công viên văn hóa. Du lịch chưa phát triển nhiều, song có các khu du lịch công nghiệp nhẹ, khu mua sắm và nhà hàng.",
+    "metadata": {
+      "location": "Bình Dương",
+      "category": "Đô thị - Công nghiệp"
+    }
+  },
+  {
+    "id": "binhphuoc_01",
+    "text": "Bình Phước - Nổi tiếng với vườn điều, cao su và nhiều di tích thiên nhiên, thích hợp cho du lịch nông nghiệp, trải nghiệm vườn trái cây và dã ngoại. Vùng đất có rừng, thác nhỏ và nhiều khu du lịch sinh thái gần TP.HCM.",
+    "metadata": {
+      "location": "Bình Phước",
+      "category": "Nông nghiệp - Sinh thái"
+    }
+  },
+  {
+    "id": "tayninh_01",
+    "text": "Tây Ninh - Nổi tiếng với Tòa Thánh Cao Đài với kiến trúc đặc sắc, Núi Bà Đen (đỉnh cao nhất Nam Bộ) là điểm trekking, có cáp treo và tuyến leo núi. Tây Ninh còn có vùng nông nghiệp và ẩm thực đặc trưng địa phương.",
+    "metadata": {
+      "location": "Tây Ninh",
+      "category": "Tâm linh - Núi - Văn hóa"
+    }
+  },
+  {
+    "id": "baria_vungtau_01",
+    "text": "Bà Rịa - Vũng Tàu - Tỉnh ven biển gần TP.HCM, nổi tiếng bãi biển Vũng Tàu, bãi Trước, bãi Sau, Hồ Tràm, Hồ Cốc và nhiều khu resort. Du lịch biển, nghỉ dưỡng và hải sản rất phát triển. Vũng Tàu còn có các điểm leo núi nhỏ, ngắm bình minh và hoàng hôn tuyệt đẹp.",
+    "metadata": {
+      "location": "Bà Rịa - Vũng Tàu",
+      "category": "Biển - Nghỉ dưỡng - Ẩm thực"
+    }
+  },
+  {
+    "id": "dongnai_01",
+    "text": "Đồng Nai - Gần TP.HCM với nhiều khu du lịch sinh thái, khu bảo tồn và hồ Trị An. Có công viên giải trí, làng du lịch sinh thái và du lịch ven sông, phù hợp cho các chuyến đi cuối tuần.",
+    "metadata": {
+      "location": "Đồng Nai",
+      "category": "Sinh thái - Nghỉ dưỡng - Giải trí"
+    }
+  },
+  {
+    "id": "longan_01",
+    "text": "Long An - Tỉnh đồng bằng với làng nghề truyền thống, kênh rạch và du lịch sông nước. Có cảnh quan sông nước, chợ nổi nhỏ và trải nghiệm nông nghiệp địa phương.",
+    "metadata": {
+      "location": "Long An",
+      "category": "Sông nước - Văn hóa - Nông nghiệp"
+    }
+  },
+  {
+    "id": "tiengiang_01",
+    "text": "Tiền Giang - Trung tâm miền Tây với cù lao, vườn trái cây, chợ nổi Cái Bè và trải nghiệm ẩm thực sông nước. Du khách có thể tham quan vườn trái cây và đi thuyền trên kênh rạch.",
+    "metadata": {
+      "location": "Tiền Giang",
+      "category": "Sông nước - Nông nghiệp - Ẩm thực"
+    }
+  },
+  {
+    "id": "bentre_01",
+    "text": "Bến Tre - Trung tâm du lịch sông nước, vườn dừa, trải nghiệm đi xuồng, tham quan vườn dừa, nghề làm kẹo dừa và ẩm thực Nam Bộ. Các tour homestay và trải nghiệm nông nghiệp rất phổ biến.",
+    "metadata": {
+      "location": "Bến Tre",
+      "category": "Sông nước - Nông nghiệp - Trải nghiệm"
+    }
+  },
+  {
+    "id": "travinh_01",
+    "text": "Trà Vinh - Vùng đồng bằng sông Cửu Long với văn hóa Khmer đặc sắc, có đền chùa Khmer, lễ hội Oóc Om Bok và ẩm thực phong phú. Du lịch kết hợp văn hóa, sông nước và làng nghề truyền thống.",
+    "metadata": {
+      "location": "Trà Vinh",
+      "category": "Văn hóa - Sông nước - Lễ hội"
+    }
+  },
+  {
+    "id": "vinhlong_01",
+    "text": "Vĩnh Long - Nổi tiếng với các cù lao, vườn trái cây, chợ nổi và ẩm thực miền Tây. Du khách có thể đi thuyền, ăn uống tại chợ nổi hoặc tham quan làng nghề truyền thống.",
+    "metadata": {
+      "location": "Vĩnh Long",
+      "category": "Sông nước - Nông nghiệp - Văn hóa"
+    }
+  },
+  {
+    "id": "cantho_01",
+    "text": "Cần Thơ - Trung tâm miền Tây với chợ nổi Cái Răng, vườn trái cây tại Cồn Chim và trải nghiệm sông nước phong phú. Thành phố có nhiều món ăn đặc sản miền Tây như bún mắm, lẩu mắm và bún cá. Là điểm dừng quan trọng cho hành trình Mekong.",
+    "metadata": {
+      "location": "Cần Thơ",
+      "category": "Sông nước - Ẩm thực - Văn hóa"
+    }
+  },
+  {
+    "id": "haugiang_01",
+    "text": "Hậu Giang - Vùng đồng bằng với vườn trái cây, sông nước và du lịch miệt vườn. Phù hợp trải nghiệm nông nghiệp, tham quan chợ quê và nghỉ ngơi yên bình.",
+    "metadata": {
+      "location": "Hậu Giang",
+      "category": "Sông nước - Nông nghiệp - Nghỉ dưỡng"
+    }
+  },
+  {
+    "id": "soctrang_01",
+    "text": "Sóc Trăng - Nổi tiếng với văn hóa Khmer, chùa Kh'leang và lễ hội dân gian, cùng các món ăn đặc sản như bún nước lèo. Có các khu du lịch sinh thái ven sông và vườn trái cây.",
+    "metadata": {
+      "location": "Sóc Trăng",
+      "category": "Văn hóa - Sông nước - Lễ hội"
+    }
+  },
+  {
+    "id": "baclieu_01",
+    "text": "Bạc Liêu - Vùng đất của cải lương và hát bội, có các điểm tham quan văn hóa như nhà công tử Bạc Liêu, cánh đồng muối và các hệ sinh thái ven biển. Kết hợp du lịch văn hóa và sinh thái ven biển.",
+    "metadata": {
+      "location": "Bạc Liêu",
+      "category": "Văn hóa - Sinh thái - Biển"
+    }
+  },
+  {
+    "id": "camau_01",
+    "text": "Cà Mau - Mũi Cà Mau là điểm cực Nam Việt Nam với rừng ngập mặn, rừng U Minh Hạ và trải nghiệm du thuyền trên rừng. Du lịch sinh thái, câu cá, thưởng thức hải sản và khám phá hệ sinh thái đầm lầy là điểm nổi bật.",
+    "metadata": {
+      "location": "Cà Mau",
+      "category": "Sinh thái - Biển - Rừng ngập mặn"
+    }
+  },
+  {
+    "id": "angiang_01",
+    "text": "An Giang - Vùng biên giới Tây Nam với Châu Đốc nổi tiếng về hành hương tại Miếu Bà Chúa Xứ, núi Sam, rừng tràm Trà Sư và ẩm thực đặc sắc như bún cá, lẩu cá linh. Du lịch tâm linh kết hợp trải nghiệm sinh thái và văn hóa Cham.",
+    "metadata": {
+      "location": "An Giang",
+      "category": "Tâm linh - Sinh thái - Ẩm thực"
+    }
+  },
+  {
+    "id": "kiengiang_01",
+    "text": "Kiên Giang - Nổi bật với quần đảo Phú Quốc (hòn ngọc Việt Nam), bãi Dài, rừng nguyên sinh và hệ sinh thái biển đa dạng. Ngoài Phú Quốc còn có Nam Du, Bà Lụa và các đảo nhỏ với trải nghiệm lặn biển, câu cá và nghỉ dưỡng. Là điểm đến biển quan trọng cho du lịch nghỉ dưỡng và sinh thái.",
+    "metadata": {
+      "location": "Kiên Giang",
+      "category": "Đảo - Biển - Nghỉ dưỡng"
+    }
+  }
+]
