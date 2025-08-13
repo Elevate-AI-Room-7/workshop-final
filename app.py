@@ -163,27 +163,51 @@ if user_input:
 # Display conversation
 for i, message in enumerate(st.session_state["messages"]):
     if message["role"] == "user":
-        # Custom HTML container for user messages (right-aligned)
+        # Custom HTML container for user messages (right-aligned with human icon)
         st.markdown(f"""
-        <div style="display: flex; justify-content: flex-end; margin: 1rem 0;">
+        <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin: 1rem 0;">
             <div style="background-color: #007acc; color: white; padding: 12px 16px; 
                         border-radius: 18px 18px 5px 18px; max-width: 70%; 
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-left: 20%;">
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-right: 8px;">
                 {message["content"]}
+            </div>
+            <div style="width: 32px; height: 32px; border-radius: 50%; background-color: #4CAF50; 
+                        display: flex; align-items: center; justify-content: center; 
+                        font-size: 16px; flex-shrink: 0;">
+                👤
             </div>
         </div>
         """, unsafe_allow_html=True)
     
     elif message["role"] == "assistant":
-        # Custom HTML container for assistant messages (left-aligned)
+        # Custom HTML container for assistant messages (left-aligned with AI icon)
         if message.get("error"):
-            st.error(message["content"])
+            # Error messages with AI icon
+            st.markdown(f"""
+            <div style="display: flex; justify-content: flex-start; align-items: flex-end; margin: 1rem 0;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background-color: #FF5722; 
+                            display: flex; align-items: center; justify-content: center; 
+                            font-size: 16px; flex-shrink: 0; margin-right: 8px;">
+                    🤖
+                </div>
+                <div style="background-color: #ffebee; color: #c62828; padding: 12px 16px; 
+                            border-radius: 18px 18px 18px 5px; max-width: 70%; 
+                            box-shadow: 0 1px 2px rgba(0,0,0,0.1); border-left: 4px solid #f44336;">
+                    ❌ {message["content"]}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
-            <div style="display: flex; justify-content: flex-start; margin: 1rem 0;">
+            <div style="display: flex; justify-content: flex-start; align-items: flex-end; margin: 1rem 0;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background-color: #2196F3; 
+                            display: flex; align-items: center; justify-content: center; 
+                            font-size: 16px; flex-shrink: 0; margin-right: 8px;">
+                    🤖
+                </div>
                 <div style="background-color: #f0f2f6; color: #262730; padding: 12px 16px; 
                             border-radius: 18px 18px 18px 5px; max-width: 70%; 
-                            box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-right: 20%;">
+                            box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
                     {message["content"]}
                 </div>
             </div>
@@ -191,10 +215,16 @@ for i, message in enumerate(st.session_state["messages"]):
             
             # TTS button for the latest message
             if i == len(st.session_state["messages"]) - 1 and not message.get("error"):
+                st.markdown("""
+                <div style="display: flex; justify-content: flex-start; margin-left: 40px;">
+                """, unsafe_allow_html=True)
+                
                 col1, col2 = st.columns([1, 4])
                 with col1:
                     create_audio_button(
                         text=message["content"],
                         key=f"tts_{i}_{hash(message['content'][:20])}"
                     )
+                
+                st.markdown("</div>", unsafe_allow_html=True)
 
