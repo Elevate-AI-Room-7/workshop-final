@@ -1,12 +1,12 @@
-# 🌍 AI Travel Assistant with RAG System
+# 🤖 AI Travel Assistant
 
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)](https://streamlit.io/)
+[![Pinecone](https://img.shields.io/badge/pinecone-3.0+-green.svg)](https://www.pinecone.io/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Release](https://img.shields.io/badge/version-v1.0.0-blue.svg)](https://github.com/Elevate-AI-Room-7/workshop-final/releases)
 
-Hệ thống trợ lý du lịch thông minh sử dụng **Retrieval-Augmented Generation (RAG)** với hai triển khai vector database:
-- **FAISS**: Vector database cục bộ
-- **Pinecone**: Vector database đám mây
+Trợ lý du lịch thông minh sử dụng **Retrieval-Augmented Generation (RAG)** với Pinecone vector database, tích hợp Weather API và Hotel booking system.
 
 ## 👥 Nhóm thực hiện - Nhóm 7
 - **ChauDN1** 
@@ -17,44 +17,44 @@ Hệ thống trợ lý du lịch thông minh sử dụng **Retrieval-Augmented G
 
 ## 🚀 Tính năng chính
 
-### 🔍 RAG System
-- **Vector Similarity Search**: Tìm kiếm thông tin từ cơ sở tri thức
-- **Conversational Memory**: Ghi nhớ lịch sử hội thoại
-- **Multi-mode**: RAG Only, Functions Only, RAG + Functions
+### 🤖 Unified Travel Planner Agent
+- **RAG System**: Tìm kiếm thông tin du lịch từ cơ sở tri thức vector
+- **Weather Integration**: Thông tin thời tiết thời gian thực từ OpenWeatherMap
+- **Hotel Booking**: Hệ thống đặt phòng khách sạn (demo)
+- **Conversational AI**: Hỗ trợ lập kế hoạch du lịch chi tiết
 
-### 🛠️ Function Calling
-- **Weather API**: Kiểm tra thời tiết thời gian thực
-- **Hotel Booking**: Đặt phòng khách sạn (mock)
-- **Attractions Search**: Tìm điểm tham quan
+### 🔍 RAG với Pinecone
+- **Vector Similarity Search**: Tìm kiếm semantic với Pinecone cloud database
+- **Azure OpenAI Embeddings**: text-embedding-3-small cho độ chính xác cao
+- **Smart Context Retrieval**: Lấy thông tin liên quan nhất từ knowledge base
 
-### 🎯 Vector Databases
-- **FAISS**: Tìm kiếm vector nhanh, lưu trữ local
-- **Pinecone**: Cloud vector database, scalable
-
-### 🎨 UI Features  
-- **Streamlit Interface**: Giao diện web thân thiện
-- **Text-to-Speech**: Chuyển văn bản thành giọng nói
-- **Real-time Chat**: Trò chuyện thời gian thực
+### 🎨 UI/UX
+- **Clean Interface**: Giao diện chat đơn giản, tập trung vào trải nghiệm
+- **Text-to-Speech**: Chuyển văn bản thành giọng nói tiếng Việt
+- **Real-time Chat**: Trò chuyện mượt mà với AI assistant
 
 ## 🏗️ Kiến trúc hệ thống
 
 ```
-📁 workshop-4/
-├── 📁 faiss/                    # FAISS Implementation
-│   ├── app.py                   # Streamlit App
-│   ├── rag_system.py           # RAG System với FAISS
-│   ├── demo.py                 # Demo script
-│   ├── test_system.py          # Unit tests
-│   ├── requirements.txt        # Dependencies
-│   ├── destination_knowledge_extended_dataset.json
-│   └── 📁 travel_faiss_index/  # FAISS index files
-├── 📁 pinecone/                # Pinecone Implementation  
-│   ├── app.py                  # Streamlit App
-│   ├── rag_system.py          # RAG System với Pinecone
-│   ├── demo.py                # Demo script
-│   ├── test_system.py         # Unit tests
-│   ├── requirements.txt       # Dependencies
+📁 workshop-final/
+├── 📁 src/                          # Source code chính
+│   ├── travel_planner_agent.py      # ✨ Unified Travel Agent
+│   ├── pinecone_rag_system.py       # 🔍 RAG System với Pinecone
+│   └── utils/
+│       └── tts.py                   # 🔊 Text-to-Speech utilities
+├── 📁 data/                         # Dataset
 │   └── destination_knowledge_extended_dataset.json
+├── 📁 config/                       # Configuration
+│   └── .env.example                 # Environment variables template
+├── 📁 scripts/                      # Setup scripts
+│   ├── fix_pinecone.bat            # Windows setup script
+│   └── fix_pinecone.sh             # Linux/Mac setup script
+├── 📁 docs/                        # Documentation
+│   ├── project_setup_report.md
+│   └── project_restructure_report.md
+├── app.py                          # 🚀 Main Streamlit application
+├── requirements.txt                # Python dependencies
+├── .gitignore                     # Git ignore rules
 └── README.md
 ```
 
@@ -62,23 +62,19 @@ Hệ thống trợ lý du lịch thông minh sử dụng **Retrieval-Augmented G
 
 - **Python**: 3.8 hoặc cao hơn
 - **RAM**: Tối thiểu 4GB (8GB khuyên dùng)
-- **Storage**: 2GB free space
-- **Internet**: Cần thiết cho APIs
+- **Storage**: 1GB free space
+- **Internet**: Cần thiết cho Pinecone, Azure OpenAI, Weather API
 
 ## 📦 Cài đặt
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Elevate-AI-Room-7/workshop-4.git
-cd workshop-4
+git clone https://github.com/Elevate-AI-Room-7/workshop-final.git
+cd workshop-final
 ```
 
-### 2. Cài đặt FAISS Version
-
+### 2. Tạo Virtual Environment
 ```bash
-# Di chuyển vào thư mục FAISS
-cd faiss
-
 # Tạo virtual environment
 python -m venv venv
 
@@ -87,162 +83,195 @@ python -m venv venv
 venv\Scripts\activate
 # Linux/Mac:
 source venv/bin/activate
-
-# Cài đặt dependencies
-pip install -r requirements.txt
 ```
 
-### 3. Cài đặt Pinecone Version
+### 3. Cài đặt Dependencies
 
+#### Option 1: Automatic Fix (Recommended)
 ```bash
-# Di chuyển vào thư mục Pinecone  
-cd pinecone
+# Windows
+scripts\fix_pinecone.bat
 
-# Tạo virtual environment
-python -m venv venv
+# Linux/Mac
+chmod +x scripts/fix_pinecone.sh
+scripts/fix_pinecone.sh
+```
 
-# Kích hoạt virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-# Cài đặt dependencies
+#### Option 2: Manual Installation
+```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Fix potential package conflicts
+pip uninstall pinecone-client -y
+pip install pinecone>=3.0.0
+pip install langchain-community>=0.0.10
 ```
 
 ## 🔑 Cấu hình Environment Variables
 
-Tạo file `.env` trong thư mục `faiss/` và `pinecone/` (có thể copy từ `.env.example`):
+Copy file cấu hình mẫu:
+```bash
+cp config/.env.example .env
+```
+
+Chỉnh sửa file `.env` với API keys của bạn:
 
 ```env
 # Azure OpenAI Configuration
 AZURE_OPENAI_API_KEY=your_azure_openai_api_key
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
-AZURE_OPENAI_MODEL=gpt-4o-mini
-AZURE_OPENAI_EMBEDDING_API_KEY=your_embedding_api_key  
+AZURE_OPENAI_MODEL=GPT-4o-mini
+
+# Azure OpenAI Embeddings Configuration
+AZURE_OPENAI_EMBEDDING_API_KEY=your_embedding_api_key
 AZURE_OPENAI_EMBEDDING_ENDPOINT=https://your-embedding-resource.openai.azure.com/
 AZURE_OPENAI_EMBED_MODEL=text-embedding-3-small
 
 # Weather API (OpenWeatherMap)
 WEATHER_API_KEY=your_weather_api_key
 
-# Pinecone Configuration (chỉ cho pinecone version)
+# Pinecone Configuration
 PINECONE_API_KEY=your_pinecone_api_key
-PINECONE_INDEX_NAME=travel-chatbot-index
+PINECONE_INDEX_NAME=travel-agency
 PINECONE_CLOUD=aws
 PINECONE_REGION=us-east-1
+
+# TTS Settings
+HF_TTS_DEFAULT_LANGUAGE=vietnamese
+HF_TTS_AUTO_PLAY=true
+HF_TTS_VOLUME=1.0
 ```
 
-### Lấy API Keys:
+### 🔗 Lấy API Keys:
 - **Azure OpenAI**: [Azure Portal](https://portal.azure.com/)
 - **Weather API**: [OpenWeatherMap](https://openweathermap.org/api)
 - **Pinecone**: [Pinecone Console](https://app.pinecone.io/)
 
 ## 🚀 Chạy ứng dụng
 
-### FAISS Version
 ```bash
-cd faiss
-streamlit run app.py
-```
-
-### Pinecone Version  
-```bash
-cd pinecone
+# Đảm bảo virtual environment đã được kích hoạt
 streamlit run app.py
 ```
 
 Truy cập: `http://localhost:8501`
 
-## 🧪 Chạy Tests
-
-### FAISS Tests
-```bash
-cd faiss
-python test_system.py
-```
-
-### Pinecone Tests
-```bash
-cd pinecone  
-python test_system.py
-```
-
-## 🎮 Demo Scripts
-
-### FAISS Demo
-```bash
-cd faiss
-python demo.py
-```
-
-### Pinecone Demo
-```bash
-cd pinecone
-python demo.py
-```
-
 ## 🔄 RAG Flow
 
 ```mermaid
 graph TD
-    A[User Query] --> B{RAG System}
-    B --> C[Vector Search]
-    C --> D[Retrieve Relevant Documents]
-    D --> E[LLM Processing]
-    E --> F{Function Calling Needed?}
-    F -->|Yes| G[Execute Function]
-    G --> H[Combine Results]
-    F -->|No| I[Generate Response]
-    H --> I
-    I --> J[Return Answer]
+    A[User Query] --> B[Travel Planner Agent]
+    B --> C{Determine Action}
+    C -->|Travel Info| D[RAG Search]
+    C -->|Weather| E[Weather API]
+    C -->|Hotel| F[Hotel Booking API]
+    D --> G[Pinecone Vector Search]
+    G --> H[Retrieve Documents]
+    H --> I[Generate Context]
+    I --> J[Azure OpenAI LLM]
+    E --> J
+    F --> J
+    J --> K[Combined Response]
+    K --> L[Return to User]
 ```
 
 ### Quy trình RAG chi tiết:
 
-1. **Input Processing**: Nhận câu hỏi từ user
-2. **Embedding**: Chuyển câu hỏi thành vector embedding
-3. **Vector Search**: Tìm kiếm documents tương tự trong vector database
-4. **Context Retrieval**: Lấy top-k documents liên quan nhất
-5. **Prompt Construction**: Xây dựng prompt với context và câu hỏi
-6. **LLM Generation**: GPT-4o-mini sinh câu trả lời
-7. **Function Calling** (nếu cần): Gọi APIs bên ngoài
-8. **Response Combination**: Kết hợp RAG + Function results
-9. **Output**: Trả về câu trả lời cuối cùng
-
-### 📊 RAG với Pinecone Flow:
-
-```
-User Query → Embedding Model → Pinecone Vector Search → 
-Retrieve Context → LLM (GPT-4o-mini) → Response
-                ↓
-         Function Calling (Weather/Hotel/Attractions)
-```
-
-## 📊 So sánh FAISS vs Pinecone
-
-| Tiêu chí | FAISS | Pinecone |
-|----------|--------|-----------|
-| **Deployment** | Local | Cloud |
-| **Scalability** | Limited | High |
-| **Setup** | Simple | Requires API key |
-| **Cost** | Free | Paid service |
-| **Performance** | Fast (local) | Network dependent |
-| **Persistence** | File-based | Cloud-native |
+1. **Input Processing**: User nhập câu hỏi về du lịch
+2. **Agent Analysis**: Travel Planner Agent phân tích intent
+3. **Multi-Tool Execution**:
+   - **RAG Search**: Tìm kiếm thông tin trong vector database
+   - **Weather Tool**: Lấy thông tin thời tiết real-time
+   - **Hotel Tool**: Xử lý booking requests
+4. **Vector Search**: Pinecone tìm documents liên quan
+5. **Context Building**: Kết hợp context từ multiple sources
+6. **LLM Generation**: Azure OpenAI GPT-4o-mini sinh response
+7. **Response Delivery**: Trả về kết quả tích hợp + TTS
 
 ## 🎯 Câu hỏi mẫu
 
-1. **Thông tin điểm đến**: "Hà Nội có gì hay ho?"
-2. **Thời tiết**: "Thời tiết Đà Nẵng hôm nay?" 
-3. **Đặt khách sạn**: "Đặt khách sạn Hội An ngày 2024-12-25"
-4. **Điểm tham quan**: "Điểm tham quan nổi tiếng ở Sapa?"
-5. **So sánh**: "So sánh Phú Quốc và Nha Trang"
+### 🔍 RAG-based Queries:
+- "Gợi ý điểm du lịch ở Đà Nẵng"
+- "Món ăn đặc sản ở Huế"
+- "Lịch trình 3 ngày ở Sapa"
+- "Hoạt động vui chơi ở Phú Quốc"
+
+### 🌤️ Weather Queries:
+- "Thời tiết Hà Nội hôm nay như thế nào?"
+- "Kiểm tra thời tiết Đà Lạt"
+
+### 🏨 Hotel Booking:
+- "Đặt khách sạn ở Hội An cho ngày 25/12/2025, 2 đêm"
+- "Book hotel in Ho Chi Minh City for 3 nights"
+
+### 🗺️ Travel Planning:
+- "Lập kế hoạch du lịch Nha Trang 5 ngày"
+- "Tư vấn tour miền Bắc cho gia đình"
+
+## 🚀 Tech Stack
+
+- **Frontend**: Streamlit
+- **Vector Database**: Pinecone Cloud
+- **LLM**: Azure OpenAI GPT-4o-mini
+- **Embeddings**: Azure OpenAI text-embedding-3-small
+- **Agent Framework**: LangChain
+- **APIs**: OpenWeatherMap
+- **TTS**: Google Text-to-Speech (gTTS)
+
+## 🔧 Troubleshooting
+
+### Common Issues:
+
+1. **Pinecone Import Error**:
+   ```bash
+   pip uninstall pinecone-client -y
+   pip install pinecone>=3.0.0
+   ```
+
+2. **LangChain Import Error**:
+   ```bash
+   pip install langchain-community>=0.0.10
+   ```
+
+3. **Dataset Not Found**:
+   - Kiểm tra file `data/destination_knowledge_extended_dataset.json` có tồn tại
+   - Chạy app lần đầu để auto-load data vào Pinecone
+
+4. **Environment Variables**:
+   - Đảm bảo file `.env` ở root directory
+   - Check tất cả API keys đã được set đúng
+
+## 📊 Performance
+
+- **Vector Search**: ~100-200ms (Pinecone cloud latency)
+- **LLM Response**: ~1-3s (Azure OpenAI)
+- **Weather API**: ~200-500ms
+- **Overall Response Time**: 2-5s depending on query complexity
+
+## 🔄 Release History
+
+### v1.0.0 (Latest)
+- ✨ Unified Travel Planner Agent architecture
+- 🔧 Simplified UI với clean chat interface
+- 🚀 Production-ready codebase
+- 📚 Comprehensive documentation
+- 🔍 Pinecone-only vector database implementation
 
 ## 📄 License
 
 MIT License - xem [LICENSE](LICENSE) file.
 
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
 ---
 
-🚀 **Happy Coding!** Được phát triển bởi **Nhóm 7** cho Workshop 4.
+🚀 **Happy Travel Planning!** Được phát triển bởi **Nhóm 7** cho Workshop Final.
+
+✨ *Powered by Pinecone, Azure OpenAI & LangChain*
