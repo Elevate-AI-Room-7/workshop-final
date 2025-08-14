@@ -171,7 +171,7 @@ class PineconeRAGSystem:
             logger.error(f"Error searching: {e}")
             return []
     
-    def query(self, question: str, top_k: int = 3) -> Dict[str, Any]:
+    def query(self, question: str, top_k: int = 5) -> Dict[str, Any]:
         """
         Query the RAG system with a question
         
@@ -186,28 +186,39 @@ class PineconeRAGSystem:
             # Search for relevant documents
             documents = self.search(question, top_k)
             
-            if not documents:
+            # Filter documents by relevance score (minimum threshold)
+            min_score = 0.7  # Adjust this threshold as needed
+            relevant_docs = [doc for doc in documents if doc.get('score', 0) >= min_score]
+            
+            if not relevant_docs:
                 return {
-                    "answer": "Xin lỗi, tôi không tìm thấy thông tin phù hợp với câu hỏi của bạn.",
+                    "answer": None,  # Signal that no relevant info was found
                     "source_documents": [],
-                    "context_used": ""
+                    "context_used": "",
+                    "sources": [],
+                    "no_relevant_info": True,
+                    "query": question
                 }
             
-            # Prepare context from top documents
+            # Prepare context with numbered chunks for tracking
             context_parts = []
-            for doc in documents:
-                context_parts.append(f"- {doc['text']}")
+            chunk_mapping = {}
+            for i, doc in enumerate(relevant_docs):
+                chunk_id = f"CHUNK_{i+1}"
+                context_parts.append(f"[{chunk_id}] {doc['text']}")
+                chunk_mapping[chunk_id] = doc["id"]
             
             context = "\n".join(context_parts)
             
-            # Generate answer using Azure OpenAI
-            answer = self._generate_answer(question, context)
+            # Generate answer with source tracking
+            result = self._generate_answer_with_sources(question, context, chunk_mapping)
             
             return {
-                "answer": answer,
-                "source_documents": documents,
+                "answer": result["answer"],
+                "source_documents": relevant_docs,
                 "context_used": context,
-                "sources": [doc["id"] for doc in documents]  # Add source IDs
+                "sources": result["used_sources"],  # Only sources actually used
+                "all_sources": [doc["id"] for doc in relevant_docs]  # All retrieved sources
             }
             
         except Exception as e:
@@ -216,7 +227,81 @@ class PineconeRAGSystem:
                 "answer": f"Xin lỗi, có lỗi xảy ra khi xử lý câu hỏi: {str(e)}",
                 "source_documents": [],
                 "context_used": "",
+                "sources": [],
                 "error": str(e)
+            }
+    
+    def _generate_answer_with_sources(self, question: str, context: str, chunk_mapping: Dict) -> Dict[str, Any]:
+        """Generate answer and track which chunks were actually used"""
+        try:
+            client = AzureOpenAI(
+                api_key=self.azure_api_key,
+                azure_endpoint=self.azure_endpoint,
+                api_version="2024-07-01-preview"
+            )
+            
+            prompt = f"""
+            Bạn là trợ lý du lịch thông minh chuyên về du lịch Việt Nam.
+            
+            Dựa vào thông tin sau đây để trả lời câu hỏi của khách hàng:
+            
+            THÔNG TIN THAM KHẢO:
+            {context}
+            
+            CÂU HỎI: {question}
+            
+            HƯỚNG DẪN:
+            - Trả lời bằng tiếng Việt
+            - Chỉ sử dụng thông tin từ các chunk được cung cấp
+            - Khi sử dụng thông tin từ chunk nào, hãy ghi rõ [CHUNK_X] trong câu trả lời
+            - Nếu không có thông tin phù hợp, hãy trả lời "NO_RELEVANT_INFO"
+            - Trả lời ngắn gọn, chi tiết và hữu ích
+            - Giữ giọng điệu thân thiện và chuyên nghiệp
+            
+            TRẢ LỜI:
+            """
+            
+            response = client.chat.completions.create(
+                model="GPT-4o-mini",
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=500
+            )
+            
+            answer = response.choices[0].message.content.strip()
+            
+            # Check if no relevant info found
+            if "NO_RELEVANT_INFO" in answer:
+                return {
+                    "answer": None,
+                    "used_sources": []
+                }
+            
+            # Extract which chunks were referenced
+            import re
+            used_chunks = re.findall(r'\[CHUNK_(\d+)\]', answer)
+            used_sources = []
+            
+            for chunk_num in used_chunks:
+                chunk_id = f"CHUNK_{chunk_num}"
+                if chunk_id in chunk_mapping:
+                    used_sources.append(chunk_mapping[chunk_id])
+            
+            # Clean the answer by removing chunk references
+            clean_answer = re.sub(r'\[CHUNK_\d+\]', '', answer).strip()
+            
+            return {
+                "answer": clean_answer,
+                "used_sources": list(set(used_sources))  # Remove duplicates
+            }
+            
+        except Exception as e:
+            logger.error(f"Error generating answer with sources: {e}")
+            return {
+                "answer": f"Xin lỗi, có lỗi xảy ra khi tạo câu trả lời: {str(e)}",
+                "used_sources": []
             }
     
     def _generate_answer(self, question: str, context: str) -> str:

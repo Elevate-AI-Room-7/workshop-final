@@ -209,13 +209,28 @@ if selected_page == "💬 Chat":
                 
                 # Add assistant response
                 if result["success"]:
-                    st.session_state["messages"].append({
-                        "role": "assistant",
-                        "content": result["response"],
-                        "sources": result.get("sources", []),
-                        "rag_used": result.get("rag_used", False),
-                        "mode": result.get("mode", "full")
-                    })
+                    # Check if no relevant info found and offer fallback
+                    if result.get("no_relevant_info") and result.get("response") is None:
+                        query = result.get("query", user_input)
+                        fallback_message = f"Tôi không tìm thấy thông tin về **{query}** trong cơ sở dữ liệu. Bạn có muốn tôi trả lời dựa trên kiến thức chung không?"
+                        
+                        st.session_state["messages"].append({
+                            "role": "assistant",
+                            "content": fallback_message,
+                            "sources": [],
+                            "rag_used": False,
+                            "need_fallback": True,
+                            "fallback_query": query
+                        })
+                    else:
+                        st.session_state["messages"].append({
+                            "role": "assistant",
+                            "content": result["response"],
+                            "sources": result.get("sources", []),
+                            "rag_used": result.get("rag_used", False),
+                            "general_knowledge": result.get("general_knowledge", False),
+                            "mode": result.get("mode", "full")
+                        })
                 else:
                     st.session_state["messages"].append({
                         "role": "assistant",
@@ -305,6 +320,53 @@ if selected_page == "💬 Chat":
                             </small>
                         </div>
                         """, unsafe_allow_html=True)
+                
+                # Show general knowledge indicator
+                if message.get("general_knowledge"):
+                    st.markdown("""
+                    <div style="margin-left: 40px; margin-top: 5px;">
+                        <small style="color: #666; font-size: 12px;">
+                            🧠 <strong>Trả lời dựa trên kiến thức chung</strong>
+                        </small>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Show fallback options if needed
+                if message.get("need_fallback"):
+                    st.markdown("""
+                    <div style="margin-left: 40px; margin-top: 10px;">
+                    """, unsafe_allow_html=True)
+                    
+                    col1, col2 = st.columns([1, 1])
+                    fallback_query = message.get("fallback_query", "")
+                    
+                    with col1:
+                        if st.button("✅ Có, hãy trả lời", key=f"fallback_yes_{i}_{hash(fallback_query)}", use_container_width=True):
+                            # Get general knowledge response
+                            agent = st.session_state["travel_agent"]
+                            result = agent.get_general_knowledge_response(fallback_query)
+                            
+                            if result["success"]:
+                                st.session_state["messages"].append({
+                                    "role": "assistant",
+                                    "content": result["response"],
+                                    "sources": [],
+                                    "rag_used": False,
+                                    "general_knowledge": True
+                                })
+                                st.rerun()
+                    
+                    with col2:
+                        if st.button("❌ Không cần", key=f"fallback_no_{i}_{hash(fallback_query)}", use_container_width=True):
+                            st.session_state["messages"].append({
+                                "role": "assistant",
+                                "content": "Được rồi! Bạn có thể hỏi tôi về chủ đề khác.",
+                                "sources": [],
+                                "rag_used": False
+                            })
+                            st.rerun()
+                    
+                    st.markdown("</div>", unsafe_allow_html=True)
                 
                 # TTS button for the latest message
                 if i == len(st.session_state["messages"]) - 1 and not message.get("error"):

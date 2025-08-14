@@ -28,8 +28,10 @@ class TravelPlannerAgent:
         # Initialize RAG system
         self.rag_system = PineconeRAGSystem()
         
-        # Initialize variables for tracking sources
+        # Initialize variables for tracking sources and fallback
         self.last_rag_sources = []
+        self.no_relevant_info = False
+        self.fallback_query = ""
         
         # Initialize LLM
         self.llm = ChatOpenAI(
@@ -50,11 +52,21 @@ class TravelPlannerAgent:
             """Search travel knowledge base using RAG"""
             try:
                 result = self.rag_system.query(query)
+                
+                # Check if no relevant information was found
+                if result.get('no_relevant_info') or result.get('answer') is None:
+                    # Store that no relevant info was found
+                    self.last_rag_sources = []
+                    self.no_relevant_info = True
+                    self.fallback_query = query
+                    return f"RAG_NO_INFO: {query}"
+                
                 answer = result.get('answer', 'Không tìm thấy thông tin phù hợp.')
                 sources = result.get('sources', [])
                 
                 # Store sources in class variable for access later
                 self.last_rag_sources = sources
+                self.no_relevant_info = False
                 
                 return answer
             except Exception as e:
@@ -223,14 +235,27 @@ class TravelPlannerAgent:
             Trả lời bằng tiếng Việt, thân thiện và chi tiết.
             """
             
-            # Clear previous sources
+            # Clear previous sources and reset flags
             self.last_rag_sources = []
+            self.no_relevant_info = False
+            self.fallback_query = ""
             
             # Run agent
             response = self.agent.run({
                 "input": f"{system_prompt}\n\nYêu cầu của khách hàng: {user_input}",
                 "chat_history": chat_history
             })
+            
+            # Check if RAG found no relevant info and suggest fallback
+            if self.no_relevant_info and "RAG_NO_INFO:" in response:
+                return {
+                    "success": True,
+                    "response": None,  # Signal that fallback is needed
+                    "sources": [],
+                    "rag_used": False,
+                    "no_relevant_info": True,
+                    "query": self.fallback_query
+                }
             
             return {
                 "success": True,
@@ -239,6 +264,41 @@ class TravelPlannerAgent:
                 "rag_used": len(self.last_rag_sources) > 0
             }
             
+        except Exception as e:
+            return {
+                "success": False,
+                "response": f"Xin lỗi, có lỗi xảy ra: {str(e)}",
+                "error": str(e)
+            }
+    
+    def get_general_knowledge_response(self, query: str) -> Dict[str, Any]:
+        """
+        Get response using general LLM knowledge (no RAG)
+        """
+        try:
+            prompt = f"""
+            Bạn là trợ lý du lịch thông minh. Khách hàng hỏi về: "{query}"
+            
+            Tôi không tìm thấy thông tin cụ thể trong cơ sở dữ liệu của mình về câu hỏi này.
+            
+            Hãy trả lời dựa trên kiến thức chung của bạn về du lịch Việt Nam:
+            - Đưa ra thông tin hữu ích và chính xác
+            - Giữ giọng điệu thân thiện và chuyên nghiệp
+            - Trả lời bằng tiếng Việt
+            - Nếu không chắc chắn, hãy khuyên khách tìm hiểu thêm từ nguồn chính thức
+            
+            Trả lời:
+            """
+            
+            response = self.llm.predict(prompt)
+            
+            return {
+                "success": True,
+                "response": response,
+                "sources": [],
+                "rag_used": False,
+                "general_knowledge": True
+            }
         except Exception as e:
             return {
                 "success": False,
