@@ -16,7 +16,7 @@ def create_rag_system() -> Union['PineconeRAGSystem', 'ChromaDBRAGSystem', 'InMe
     Returns:
         RAG system instance (PineconeRAGSystem, ChromaDBRAGSystem, or InMemoryRAGSystem)
     """
-    vector_db_type = os.getenv("VECTOR_DB_TYPE", "chromadb").lower()
+    vector_db_type = os.getenv("VECTOR_DB_TYPE", "inmemory").lower()
     
     logger.info(f"Creating RAG system with vector DB type: {vector_db_type}")
     
@@ -36,21 +36,23 @@ def create_rag_system() -> Union['PineconeRAGSystem', 'ChromaDBRAGSystem', 'InMe
         except ImportError as e:
             logger.error(f"ChromaDB not installed: {e}")
             logger.info("ChromaDB requires additional dependencies. See scripts/install_chromadb.bat")
-            logger.info("Falling back to Pinecone or in-memory system")
+            logger.info("Falling back to in-memory system")
             return _create_fallback_rag_system()
         except Exception as e:
-            logger.error(f"Failed to initialize ChromaDB: {e}")
+            logger.error(f"Failed to initialize ChromaDB (possible segmentation fault): {e}")
+            logger.warning("ChromaDB segfault detected! Run scripts/fix_chromadb_segfault.bat")
             logger.info("Falling back to in-memory RAG system")
             return _create_fallback_rag_system()
     
+    elif vector_db_type == "inmemory":
+        from .in_memory_rag_system import InMemoryRAGSystem
+        return InMemoryRAGSystem()
+    
     else:
-        # Default to ChromaDB if unknown type, with fallback
-        logger.warning(f"Unknown vector DB type: {vector_db_type}, trying ChromaDB first")
-        try:
-            from .chromadb_rag_system import ChromaDBRAGSystem
-            return ChromaDBRAGSystem()
-        except:
-            return _create_fallback_rag_system()
+        # Default to in-memory if unknown type
+        logger.warning(f"Unknown vector DB type: {vector_db_type}, defaulting to in-memory")
+        from .in_memory_rag_system import InMemoryRAGSystem
+        return InMemoryRAGSystem()
 
 def _create_fallback_rag_system():
     """Create fallback RAG system when primary options fail"""
