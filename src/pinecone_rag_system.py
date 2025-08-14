@@ -24,9 +24,6 @@ class PineconeRAGSystem:
         self.azure_endpoint = os.getenv("AZURE_OPENAI_EMBEDDING_ENDPOINT") or os.getenv("AZURE_OPENAI_ENDPOINT")
         self.embed_model = os.getenv("AZURE_OPENAI_EMBED_MODEL", "text-embedding-3-small")
         self.index_name = os.getenv("PINECONE_INDEX_NAME", "travel-agency")
-        # Get absolute path for dataset
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.dataset_path = os.getenv("TRAVEL_DATASET", os.path.join(base_dir, "data", "destination_knowledge_extended_dataset.json"))
         
         # Initialize clients
         self.pc = Pinecone(api_key=self.pinecone_api_key)
@@ -138,15 +135,12 @@ class PineconeRAGSystem:
             total_count = stats.get('total_vector_count', 0)
             
             if total_count == 0:
-                logger.info("Index is empty, loading data...")
-                self.load_data_to_index(self.dataset_path)
+                logger.info("Index is empty. Use Knowledge Base tab to add data.")
             else:
                 logger.info(f"Index has {total_count} vectors")
                 
         except Exception as e:
             logger.error(f"Error checking index stats: {e}")
-            # Try to load data anyway
-            self.load_data_to_index(self.dataset_path)
     
     def search(self, query: str, top_k: int = 5) -> List[Dict]:
         """Search similar documents in the index"""

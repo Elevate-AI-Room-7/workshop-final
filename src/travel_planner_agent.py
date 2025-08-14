@@ -107,6 +107,43 @@ class TravelPlannerAgent:
             except Exception as e:
                 return f"Lỗi đặt khách sạn: {str(e)}"
         
+        def car_booking_tool(input_str: str) -> str:
+            """Book car/transportation (mock function)"""
+            try:
+                # Parse input: "pickup|destination|date|type"
+                parts = input_str.split("|")
+                pickup = parts[0] if len(parts) > 0 else "Unknown"
+                destination = parts[1] if len(parts) > 1 else "Unknown"
+                date = parts[2] if len(parts) > 2 else "2025-12-01"
+                car_type = parts[3] if len(parts) > 3 else "4 chỗ"
+                
+                # Mock booking
+                booking_info = {
+                    "pickup": pickup,
+                    "destination": destination,
+                    "date": date,
+                    "car_type": car_type,
+                    "driver": "Nguyễn Văn An",
+                    "confirmation": f"CAR-{pickup[:2].upper()}{destination[:2].upper()}-{date.replace('-', '')}",
+                    "price": "500,000 VND"
+                }
+                
+                result = (
+                    f"✅ Đặt xe thành công!\n"
+                    f"🚗 Loại xe: {booking_info['car_type']}\n"
+                    f"📍 Điểm đón: {booking_info['pickup']}\n"
+                    f"🎯 Điểm đến: {booking_info['destination']}\n"
+                    f"📅 Ngày: {booking_info['date']}\n"
+                    f"👨‍✈️ Tài xế: {booking_info['driver']}\n"
+                    f"💰 Giá: {booking_info['price']}\n"
+                    f"🔖 Mã xác nhận: {booking_info['confirmation']}"
+                )
+                
+                return result
+                
+            except Exception as e:
+                return f"Lỗi đặt xe: {str(e)}"
+        
         return [
             Tool(
                 name="TravelKnowledgeSearch",
@@ -122,6 +159,11 @@ class TravelPlannerAgent:
                 name="BookHotel",
                 func=hotel_booking_tool,
                 description="Đặt khách sạn. Input format: 'city|date|nights' (ví dụ: 'Hanoi|2025-12-25|2')"
+            ),
+            Tool(
+                name="BookCar",
+                func=car_booking_tool,
+                description="Đặt xe/vận chuyển. Input format: 'pickup|destination|date|type' (ví dụ: 'Hanoi|Halong|2025-12-25|7 chỗ')"
             )
         ]
     
@@ -160,12 +202,14 @@ class TravelPlannerAgent:
             2. Lập kế hoạch chi tiết
             3. Cung cấp thông tin thời tiết khi cần
             4. Hỗ trợ đặt khách sạn
-            5. Đưa ra gợi ý hoạt động phù hợp
+            5. Hỗ trợ đặt xe/vận chuyển
+            6. Đưa ra gợi ý hoạt động phù hợp
             
             Hãy sử dụng các tools có sẵn để:
             - TravelKnowledgeSearch: Tìm thông tin du lịch
             - WeatherInfo: Kiểm tra thời tiết
             - BookHotel: Đặt khách sạn khi khách hàng yêu cầu
+            - BookCar: Đặt xe/vận chuyển khi khách hàng yêu cầu
             
             Trả lời bằng tiếng Việt, thân thiện và chi tiết.
             """

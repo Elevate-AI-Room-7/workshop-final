@@ -42,8 +42,7 @@ Trợ lý du lịch thông minh sử dụng **Retrieval-Augmented Generation (RA
 │   ├── pinecone_rag_system.py       # 🔍 RAG System với Pinecone
 │   └── utils/
 │       └── tts.py                   # 🔊 Text-to-Speech utilities
-├── 📁 data/                         # Dataset
-│   └── destination_knowledge_extended_dataset.json
+├── 📁 data/                         # Data directory (empty - managed via Knowledge Base UI)
 ├── 📁 config/                       # Configuration
 │   └── .env.example                 # Environment variables template
 ├── 📁 scripts/                      # Setup scripts
@@ -234,9 +233,9 @@ graph TD
    pip install langchain-community>=0.0.10
    ```
 
-3. **Dataset Not Found**:
-   - Kiểm tra file `data/destination_knowledge_extended_dataset.json` có tồn tại
-   - Chạy app lần đầu để auto-load data vào Pinecone
+3. **Empty Knowledge Base**:
+   - Sử dụng tab "Knowledge Base" để thêm dữ liệu du lịch
+   - Không cần file dataset - quản lý trực tiếp qua UI
 
 4. **Environment Variables**:
    - Đảm bảo file `.env` ở root directory
