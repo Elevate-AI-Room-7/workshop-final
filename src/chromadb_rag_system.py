@@ -14,7 +14,16 @@ import warnings
 
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config.ssl_config import configure_openai_client, disable_ssl_warnings
+
+# Try to import SSL config, but don't fail if not available
+try:
+    from config.ssl_config import configure_openai_client, disable_ssl_warnings
+except ImportError:
+    logger.warning("SSL config not found, using default configuration")
+    def configure_openai_client(client):
+        return client
+    def disable_ssl_warnings():
+        pass
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
