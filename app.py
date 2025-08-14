@@ -301,25 +301,31 @@ if selected_page == "💬 Chat":
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Show sources if RAG was used
-                if message.get("rag_used") and message.get("sources"):
-                    sources = message["sources"]
-                    if sources:
-                        # Limit to 3 sources and add + if more
-                        display_sources = sources[:3]
-                        has_more = len(sources) > 3
-                        
-                        sources_text = ", ".join([f"`{source}`" for source in display_sources])
-                        if has_more:
-                            sources_text += f" +{len(sources) - 3}"
-                        
-                        st.markdown(f"""
-                        <div style="margin-left: 40px; margin-top: 5px;">
-                            <small style="color: #666; font-size: 12px;">
-                                📚 <strong>Sources:</strong> {sources_text}
-                            </small>
-                        </div>
-                        """, unsafe_allow_html=True)
+                # Show sources if RAG was used (debug info)
+                sources = message.get("sources", [])
+                rag_used = message.get("rag_used", False)
+                
+                # Debug: Always try to show sources if they exist
+                if sources:
+                    st.write(f"Debug: rag_used={rag_used}, sources={sources}")  # Temporary debug
+                    
+                # Simplified condition for now - show sources if they exist
+                if sources and not message.get("error") and not message.get("need_fallback"):
+                    # Limit to 3 sources and add + if more
+                    display_sources = sources[:3]
+                    has_more = len(sources) > 3
+                    
+                    sources_text = ", ".join([f"`{source}`" for source in display_sources])
+                    if has_more:
+                        sources_text += f" +{len(sources) - 3}"
+                    
+                    st.markdown(f"""
+                    <div style="margin-left: 40px; margin-top: 5px;">
+                        <small style="color: #666; font-size: 12px;">
+                            📚 <strong>Sources:</strong> {sources_text}
+                        </small>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
                 # Show general knowledge indicator
                 if message.get("general_knowledge"):

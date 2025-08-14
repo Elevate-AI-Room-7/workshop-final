@@ -187,10 +187,13 @@ class PineconeRAGSystem:
             documents = self.search(question, top_k)
             
             # Filter documents by relevance score (minimum threshold)
-            min_score = 0.7  # Adjust this threshold as needed
+            min_score = 0.5  # Lowered threshold for better coverage
             relevant_docs = [doc for doc in documents if doc.get('score', 0) >= min_score]
             
+            logger.info(f"Found {len(documents)} total docs, {len(relevant_docs)} above threshold {min_score}")
+            
             if not relevant_docs:
+                logger.info("No relevant docs found, returning no_relevant_info")
                 return {
                     "answer": None,  # Signal that no relevant info was found
                     "source_documents": [],
@@ -199,6 +202,8 @@ class PineconeRAGSystem:
                     "no_relevant_info": True,
                     "query": question
                 }
+            
+            logger.info(f"Using {len(relevant_docs)} relevant docs for answer generation")
             
             # Prepare context with numbered chunks for tracking
             context_parts = []
@@ -213,11 +218,19 @@ class PineconeRAGSystem:
             # Generate answer with source tracking
             result = self._generate_answer_with_sources(question, context, chunk_mapping)
             
+            # If no chunks were cited, fall back to showing all sources
+            used_sources = result["used_sources"]
+            if not used_sources and relevant_docs:
+                logger.info("No chunks cited, falling back to all sources")
+                used_sources = [doc["id"] for doc in relevant_docs[:3]]  # Show top 3
+            
+            logger.info(f"Final sources to display: {used_sources}")
+            
             return {
                 "answer": result["answer"],
                 "source_documents": relevant_docs,
                 "context_used": context,
-                "sources": result["used_sources"],  # Only sources actually used
+                "sources": used_sources,  # Sources to display (used or fallback)
                 "all_sources": [doc["id"] for doc in relevant_docs]  # All retrieved sources
             }
             
@@ -250,15 +263,15 @@ class PineconeRAGSystem:
             
             CÂU HỎI: {question}
             
-            HƯỚNG DẪN:
+            HƯỚNG DẪN QUAN TRỌNG:
             - Trả lời bằng tiếng Việt
+            - BẮT BUỘC: Khi sử dụng thông tin từ chunk nào, PHẢI ghi [CHUNK_X] ngay sau thông tin đó
+            - Ví dụ: "Hà Nội có Hồ Hoàn Kiếm [CHUNK_1] và phố cổ với 36 phố phường [CHUNK_2]"
+            - Nếu thông tin không đủ để trả lời, hãy trả lời "NO_RELEVANT_INFO"
             - Chỉ sử dụng thông tin từ các chunk được cung cấp
-            - Khi sử dụng thông tin từ chunk nào, hãy ghi rõ [CHUNK_X] trong câu trả lời
-            - Nếu không có thông tin phù hợp, hãy trả lời "NO_RELEVANT_INFO"
-            - Trả lời ngắn gọn, chi tiết và hữu ích
-            - Giữ giọng điệu thân thiện và chuyên nghiệp
+            - Trả lời chi tiết và hữu ích
             
-            TRẢ LỜI:
+            Hãy trả lời và nhớ ghi rõ [CHUNK_X] cho mỗi thông tin sử dụng:
             """
             
             response = client.chat.completions.create(
@@ -271,9 +284,11 @@ class PineconeRAGSystem:
             )
             
             answer = response.choices[0].message.content.strip()
+            logger.info(f"Raw LLM response: {answer[:200]}...")
             
             # Check if no relevant info found
             if "NO_RELEVANT_INFO" in answer:
+                logger.info("LLM returned NO_RELEVANT_INFO")
                 return {
                     "answer": None,
                     "used_sources": []
@@ -282,12 +297,16 @@ class PineconeRAGSystem:
             # Extract which chunks were referenced
             import re
             used_chunks = re.findall(r'\[CHUNK_(\d+)\]', answer)
-            used_sources = []
+            logger.info(f"Found chunk references: {used_chunks}")
             
+            used_sources = []
             for chunk_num in used_chunks:
                 chunk_id = f"CHUNK_{chunk_num}"
                 if chunk_id in chunk_mapping:
                     used_sources.append(chunk_mapping[chunk_id])
+                    logger.info(f"Mapped {chunk_id} to {chunk_mapping[chunk_id]}")
+            
+            logger.info(f"Used sources: {used_sources}")
             
             # Clean the answer by removing chunk references
             clean_answer = re.sub(r'\[CHUNK_\d+\]', '', answer).strip()
