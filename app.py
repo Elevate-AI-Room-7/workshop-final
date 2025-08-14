@@ -112,16 +112,16 @@ if "travel_agent" not in st.session_state:
             agent = TravelPlannerAgent()
             st.session_state["travel_agent"] = agent
             
-            # Show ChromaDB info
-            st.sidebar.success(f"🔧 Vector Database: ChromaDB")
+            # Show Pinecone info
+            st.sidebar.success(f"🔧 Vector Database: Pinecone")
             
             # Show database info
             try:
                 stats = agent.rag_system.get_index_stats()
                 if stats.get('total_vectors', 0) > 0:
                     st.sidebar.info(f"📚 Records: {stats['total_vectors']}")
-                collection_name = os.getenv("CHROMADB_COLLECTION_NAME", "travel-agency")
-                st.sidebar.info(f"📂 Collection: {collection_name}")
+                index_name = os.getenv("PINECONE_INDEX_NAME", "travel-agency")
+                st.sidebar.info(f"📂 Index: {index_name}")
             except:
                 pass
             

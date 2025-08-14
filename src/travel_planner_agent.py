@@ -11,7 +11,7 @@ import requests
 import json
 import warnings
 import logging
-from .rag_system import create_rag_system
+from .pinecone_rag_system import PineconeRAGSystem
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class TravelPlannerAgent:
     """
     Unified Travel Planner Agent that combines:
-    - ChromaDB RAG system for travel knowledge
+    - Pinecone RAG system for travel knowledge
     - Weather information
     - Hotel booking functionality
     """
@@ -37,14 +37,14 @@ class TravelPlannerAgent:
             import urllib3
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         
-        # Initialize ChromaDB RAG system
+        # Initialize Pinecone RAG system
         try:
-            logger.info("Initializing ChromaDB RAG system...")
-            self.rag_system = create_rag_system()
-            logger.info(f"ChromaDB RAG system initialized successfully")
+            logger.info("Initializing Pinecone RAG system...")
+            self.rag_system = PineconeRAGSystem()
+            logger.info(f"Pinecone RAG system initialized successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize ChromaDB RAG system: {e}")
-            logger.error("Please install ChromaDB: pip install chromadb")
+            logger.error(f"Failed to initialize Pinecone RAG system: {e}")
+            logger.error("Please check your Pinecone API key and configuration")
             raise
         
         # Initialize variables for tracking sources and fallback
