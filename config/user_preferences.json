@@ -1,0 +1,91 @@
+{
+  "user_profile": {
+    "name": "",
+    "age_range": "",
+    "location": "",
+    "preferred_language": "vietnamese"
+  },
+  
+  "travel_preferences": {
+    "travel_style": {
+      "budget": "medium",
+      "pace": "relaxed",
+      "group_size": "couple",
+      "accommodation_type": "hotel"
+    },
+    
+    "interests": {
+      "nature": true,
+      "culture": true,
+      "food": true,
+      "adventure": false,
+      "history": true,
+      "shopping": false,
+      "nightlife": false,
+      "photography": true,
+      "beach": true,
+      "mountains": true,
+      "cities": true
+    },
+    
+    "activity_preferences": {
+      "outdoor": ["hiking", "sightseeing", "beach_activities"],
+      "indoor": ["museums", "cultural_sites", "local_markets"],
+      "food": ["street_food", "local_cuisine", "fine_dining"],
+      "transport": ["walking", "public_transport", "taxi"]
+    },
+    
+    "budget_preferences": {
+      "accommodation": "100-300",
+      "food_per_day": "20-50",
+      "activities": "10-100",
+      "transport": "flexible",
+      "currency": "USD"
+    },
+    
+    "time_preferences": {
+      "preferred_seasons": ["spring", "autumn"],
+      "trip_duration": "3-7_days",
+      "planning_time": "1-2_weeks_advance",
+      "flexible_dates": true
+    }
+  },
+  
+  "dietary_restrictions": {
+    "vegetarian": false,
+    "vegan": false,
+    "halal": false,
+    "allergies": [],
+    "dislikes": [],
+    "favorite_cuisines": ["vietnamese", "asian", "international"]
+  },
+  
+  "accessibility_needs": {
+    "mobility": "none",
+    "visual": "none",
+    "hearing": "none",
+    "other": ""
+  },
+  
+  "communication_preferences": {
+    "notification_timing": "business_hours",
+    "reminder_frequency": "moderate",
+    "detail_level": "balanced",
+    "response_format": "conversational"
+  },
+  
+  "past_travels": {
+    "visited_places": [],
+    "favorite_destinations": [],
+    "bucket_list": [],
+    "avoided_places": []
+  },
+  
+  "personalization_settings": {
+    "remember_preferences": true,
+    "use_travel_history": true,
+    "proactive_suggestions": true,
+    "seasonal_recommendations": true,
+    "budget_tracking": false
+  }
+}

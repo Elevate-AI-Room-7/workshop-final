@@ -20,16 +20,23 @@ class PineconeRAGSystem:
     
     def __init__(self):
         self.pinecone_api_key = os.getenv("PINECONE_API_KEY")
-        self.azure_api_key = os.getenv("AZURE_OPENAI_EMBEDDING_API_KEY") or os.getenv("AZURE_OPENAI_API_KEY")
-        self.azure_endpoint = os.getenv("AZURE_OPENAI_EMBEDDING_ENDPOINT") or os.getenv("AZURE_OPENAI_ENDPOINT")
+        
+        # Embedding configuration (dedicated key)
+        self.azure_embedding_api_key = os.getenv("AZURE_OPENAI_EMBEDDING_API_KEY")
+        self.azure_embedding_endpoint = os.getenv("AZURE_OPENAI_EMBEDDING_ENDPOINT")
         self.embed_model = os.getenv("AZURE_OPENAI_EMBED_MODEL", "text-embedding-3-small")
+        
+        # Chat configuration (different key for GPT models)
+        self.azure_chat_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+        self.azure_chat_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        
         self.index_name = os.getenv("PINECONE_INDEX_NAME", "travel-agency")
         
         # Initialize clients
         self.pc = Pinecone(api_key=self.pinecone_api_key)
         self.embedding_client = AzureOpenAI(
-            api_key=self.azure_api_key,
-            azure_endpoint=self.azure_endpoint,
+            api_key=self.azure_embedding_api_key,
+            azure_endpoint=self.azure_embedding_endpoint,
             api_version="2024-07-01-preview"
         )
         
@@ -248,8 +255,8 @@ class PineconeRAGSystem:
         """Generate answer and track which chunks were actually used"""
         try:
             client = AzureOpenAI(
-                api_key=self.azure_api_key,
-                azure_endpoint=self.azure_endpoint,
+                api_key=self.azure_chat_api_key,
+                azure_endpoint=self.azure_chat_endpoint,
                 api_version="2024-07-01-preview"
             )
             
@@ -327,8 +334,8 @@ class PineconeRAGSystem:
         """Generate answer using context and question"""
         try:
             client = AzureOpenAI(
-                api_key=self.azure_api_key,
-                azure_endpoint=self.azure_endpoint,
+                api_key=self.azure_chat_api_key,
+                azure_endpoint=self.azure_chat_endpoint,
                 api_version="2024-07-01-preview"
             )
             

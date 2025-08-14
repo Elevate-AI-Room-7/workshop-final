@@ -13,9 +13,12 @@ from dotenv import load_dotenv
 
 # Add src to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'components'))
 
 from src.travel_planner_agent import TravelPlannerAgent
 from src.utils.tts import create_audio_button
+from src.config_manager import ConfigManager
+from components.config_sidebar import render_config_sidebar
 
 # Load environment variables
 load_dotenv()
@@ -102,13 +105,27 @@ div[data-testid="stChatMessage"]:has([data-testid="chat-message-assistant"]) > d
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
-if "travel_agent" not in st.session_state:
-    with st.spinner("🔄 Đang khởi tạo AI Travel Assistant..."):
-        st.session_state["travel_agent"] = TravelPlannerAgent()
+# Initialize config manager first
+if "config_manager" not in st.session_state:
+    st.session_state["config_manager"] = ConfigManager()
 
-# Sidebar menu
-st.sidebar.title("🌍 AI Travel Assistant")
+config_manager = st.session_state["config_manager"]
+
+if "travel_agent" not in st.session_state:
+    agent_name = config_manager.get_agent_full_name()
+    with st.spinner(f"🔄 Đang khởi tạo {agent_name}..."):
+        # Enable debug mode if DEBUG_TRAVEL_AGENT env var is set
+        debug_mode = os.getenv("DEBUG_TRAVEL_AGENT", "false").lower() == "true"
+        st.session_state["travel_agent"] = TravelPlannerAgent(debug_mode=debug_mode)
+
+# Sidebar menu with personalized title
+agent_name = config_manager.get_agent_name()
+agent_avatar = config_manager.get_agent_avatar()
+st.sidebar.title(f"{agent_avatar} {agent_name}")
 st.sidebar.markdown("*Trợ lý du lịch thông minh với AI và RAG*")
+
+# Render configuration sidebar
+render_config_sidebar()
 
 # Menu selection
 selected_page = st.sidebar.selectbox(
@@ -127,11 +144,28 @@ if "page_number" not in st.session_state:
 
 # Main content based on selected page
 if selected_page == "💬 Chat":
-    # Show welcome prompts only when no conversation yet
+    # Show personalized welcome message
     if len(st.session_state["messages"]) == 0:
+        greeting = config_manager.get_greeting_message()
+        suggestions = config_manager.get_personalized_suggestions()
+        
+        # Show greeting
+        st.markdown(f"""
+        <div style="margin: 2rem 0; text-align: center; padding: 1.5rem; background-color: #f8f9fa; border-radius: 10px;">
+            <h3 style="color: #333; margin-bottom: 1rem;">{greeting}</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Show personalized suggestions if available
+        if suggestions:
+            st.markdown("### 💡 Gợi ý dành riêng cho bạn:")
+            for suggestion in suggestions:
+                st.markdown(f"- {suggestion}")
+            st.markdown("---")
+        
         st.markdown("""
-        <div style="margin: 2rem 0; text-align: center;">
-            <h4 style="color: #666; margin-bottom: 1.5rem;">✨ Tôi có thể giúp bạn với:</h4>
+        <div style="margin: 1rem 0; text-align: center;">
+            <h4 style="color: #666; margin-bottom: 1.5rem;">✨ Hoặc thử các tính năng này:</h4>
         </div>
         """, unsafe_allow_html=True)
         
@@ -179,19 +213,8 @@ if selected_page == "💬 Chat":
             "content": user_input
         })
         
-        # Detect if query might use RAG
-        rag_keywords = [
-            "gợi ý", "thông tin", "địa điểm", "du lịch", "nhà hàng", "khách sạn", 
-            "hoạt động", "lịch trình", "kế hoạch", "điểm đến", "ăn uống", "tham quan",
-            "hà nội", "hồ chí minh", "đà nẵng", "nha trang", "phú quốc", "sapa", 
-            "hạ long", "huế", "hội an", "đà lạt", "cần thơ", "vịnh", "núi", "biển",
-            "món ăn", "đặc sản", "văn hóa", "lễ hội", "chùa", "đền", "bảo tàng",
-            "resort", "villa", "homestay", "booking", "giá", "tour", "package"
-        ]
-        likely_rag = any(keyword in user_input.lower() for keyword in rag_keywords)
-        
-        # Show appropriate spinner
-        spinner_text = "🔍 Đang tìm kiếm..." if likely_rag else "🤔 Đang suy nghĩ..."
+        # Show dynamic spinner based on smart detection
+        spinner_text = "🧠 Đang phân tích yêu cầu..."
         with st.spinner(spinner_text):
             try:
                 agent = st.session_state["travel_agent"]
@@ -204,10 +227,10 @@ if selected_page == "💬 Chat":
                     elif msg["role"] == "assistant":
                         chat_history.append(("assistant", msg["content"]))
                 
-                # Always use full features mode
+                # Execute with new smart flow
                 result = agent.plan_travel(user_input, chat_history)
                 
-                # Add assistant response
+                # Add assistant response with enhanced metadata
                 if result["success"]:
                     # Check if no relevant info found and offer fallback
                     if result.get("no_relevant_info") and result.get("response") is None:
@@ -220,7 +243,9 @@ if selected_page == "💬 Chat":
                             "sources": [],
                             "rag_used": False,
                             "need_fallback": True,
-                            "fallback_query": query
+                            "fallback_query": query,
+                            "tool_used": result.get("tool_used", "RAG"),
+                            "context": result.get("context", "")
                         })
                     else:
                         st.session_state["messages"].append({
@@ -229,13 +254,18 @@ if selected_page == "💬 Chat":
                             "sources": result.get("sources", []),
                             "rag_used": result.get("rag_used", False),
                             "general_knowledge": result.get("general_knowledge", False),
-                            "mode": result.get("mode", "full")
+                            "tool_used": result.get("tool_used", "GENERAL"),
+                            "context": result.get("context", ""),
+                            "weather_type": result.get("weather_type", ""),
+                            "city": result.get("city", ""),
+                            "booking_details": result.get("booking_details", {})
                         })
                 else:
                     st.session_state["messages"].append({
                         "role": "assistant",
                         "content": result["response"],
-                        "error": True
+                        "error": True,
+                        "tool_used": result.get("tool_used", "ERROR")
                     })
                     
             except Exception as e:
@@ -301,11 +331,30 @@ if selected_page == "💬 Chat":
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Show sources if RAG was used (debug info)
+                # Show tool used and sources
+                tool_used = message.get("tool_used", "")
                 sources = message.get("sources", [])
-                rag_used = message.get("rag_used", False)
+                
+                # Show tool indicator (if enabled in config)
+                if tool_used and not message.get("error") and not message.get("need_fallback") and config_manager.should_show_tool_indicators():
+                    tool_icons = {
+                        "RAG": "🔍",
+                        "WEATHER": "🌤️", 
+                        "HOTEL": "🏨",
+                        "CAR": "🚗",
+                        "GENERAL": "💬"
+                    }
+                    tool_icon = tool_icons.get(tool_used, "🔧")
                     
-                # Simplified condition for now - show sources if they exist
+                    st.markdown(f"""
+                    <div style="margin-left: 40px; margin-top: 5px;">
+                        <small style="color: #666; font-size: 12px;">
+                            {tool_icon} <strong>Tool:</strong> {tool_used}
+                        </small>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Show sources if they exist
                 if sources and not message.get("error") and not message.get("need_fallback"):
                     # Limit to 3 sources and add + if more
                     display_sources = sources[:3]
@@ -316,9 +365,20 @@ if selected_page == "💬 Chat":
                         sources_text += f" +{len(sources) - 3}"
                     
                     st.markdown(f"""
-                    <div style="margin-left: 40px; margin-top: 5px;">
+                    <div style="margin-left: 40px; margin-top: 2px;">
                         <small style="color: #666; font-size: 12px;">
                             📚 <strong>Sources:</strong> {sources_text}
+                        </small>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Show context if available and enabled in config
+                context = message.get("context", "")
+                if context and len(context) > 10 and not message.get("error") and config_manager.should_show_context_preview():
+                    st.markdown(f"""
+                    <div style="margin-left: 40px; margin-top: 2px;">
+                        <small style="color: #888; font-size: 10px;">
+                            📝 <strong>Context:</strong> {context[:100]}{'...' if len(context) > 100 else ''}
                         </small>
                     </div>
                     """, unsafe_allow_html=True)
@@ -370,8 +430,8 @@ if selected_page == "💬 Chat":
                     
                     st.markdown("</div>", unsafe_allow_html=True)
                 
-                # TTS button for the latest message
-                if i == len(st.session_state["messages"]) - 1 and not message.get("error"):
+                # TTS button for the latest message (if enabled in config)
+                if i == len(st.session_state["messages"]) - 1 and not message.get("error") and config_manager.is_tts_enabled():
                     st.markdown("""
                     <div style="display: flex; justify-content: flex-start; margin-left: 40px;">
                     """, unsafe_allow_html=True)

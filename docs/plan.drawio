@@ -1,0 +1,127 @@
+<mxfile host="65bd71144e">
+    <diagram id="8wf-GHOxeMKhKARkR3h8" name="Page-1">
+        <mxGraphModel dx="761" dy="496" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="card1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#dee2e6;strokeWidth=2;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="40" width="300" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="header1" value="🌴 CHUYẾN DU LỊCH ĐÀ NẴNG" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;fontColor=white;fontSize=14;fontStyle=1;arcSize=50;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="50" width="280" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="date1" value="📅 15-20 Tháng 9, 2025&#xa;⏰ 6 ngày 5 đêm" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="100" width="260" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="people1" value="👥 4 người (Gia đình)" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="130" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="budget1" value="💰 Ngân sách: 15,000,000 VNĐ" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="155" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="activities1" value="🎯 HOẠT ĐỘNG CHÍNH:" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#343a40;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="185" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="activity_list1" value="• Tham quan Hội An&#xa;• Leo núi Bà Nà&#xa;• Tắm biển Mỹ Khê&#xa;• Thử món ăn địa phương" style="text;html=1;align=left;verticalAlign=top;fontSize=10;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="70" y="205" width="250" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="hotel1" value="🏨 Lưu trú: Khách sạn 4⭐" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="275" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="transport1" value="✈️ Di chuyển: Máy bay + Taxi" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="300" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="status1" value="Đang lên kế hoạch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffc107;fontColor=white;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="335" width="100" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_bg1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e9ecef;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="375" width="260" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_fill1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="375" width="78" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_text1" value="30% hoàn thành" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontColor=#6c757d;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="390" width="260" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="card2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#dee2e6;strokeWidth=2;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="40" width="300" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="header2" value="🗾 CHUYẾN DU LỊCH TOKYO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#007bff;fontColor=white;fontSize=14;fontStyle=1;arcSize=50;" parent="1" vertex="1">
+                    <mxGeometry x="390" y="50" width="280" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="date2" value="📅 10-17 Tháng 12, 2025&#xa;⏰ 8 ngày 7 đêm" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="100" width="260" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="people2" value="👥 2 người (Cặp đôi)" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="130" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="budget2" value="💰 Ngân sách: 45,000,000 VNĐ" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="155" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="activities2" value="🎯 HOẠT ĐỘNG CHÍNH:" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#343a40;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="185" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="activity_list2" value="• Tham quan Tokyo Skytree&#xa;• Khám phá Shibuya&#xa;• Trải nghiệm Onsen&#xa;• Mua sắm ở Harajuku" style="text;html=1;align=left;verticalAlign=top;fontSize=10;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="410" y="205" width="250" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="hotel2" value="🏨 Lưu trú: Ryokan truyền thống" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="275" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="transport2" value="✈️ Di chuyển: Máy bay + JR Pass" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="300" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="status2" value="Đã book vé" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#17a2b8;fontColor=white;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="335" width="80" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_bg2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e9ecef;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="375" width="260" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_fill2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#17a2b8;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="375" width="156" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_text2" value="60% hoàn thành" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontColor=#6c757d;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="390" width="260" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="card3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#dee2e6;strokeWidth=2;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="480" width="300" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="header3" value="🏔️ CHUYẾN DU LỊCH SA PA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dc3545;fontColor=white;fontSize=14;fontStyle=1;arcSize=50;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="490" width="280" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="date3" value="📅 5-8 Tháng 11, 2025&#xa;⏰ 4 ngày 3 đêm" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="540" width="260" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="people3" value="👥 8 người (Nhóm bạn)" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="570" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="budget3" value="💰 Ngân sách: 8,000,000 VNĐ" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="595" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="activities3" value="🎯 HOẠT ĐỘNG CHÍNH:" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#343a40;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="625" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="activity_list3" value="• Trekking ruộng bậc thang&#xa;• Thăm bản làng H&#39;Mong&#xa;• Ngắm hoàng hôn Fansipan&#xa;• Thử món ăn núi rừng" style="text;html=1;align=left;verticalAlign=top;fontSize=10;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="70" y="645" width="250" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="hotel3" value="🏨 Lưu trú: Homestay địa phương" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="715" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="transport3" value="🚌 Di chuyển: Xe khách + Trekking" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#495057;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="740" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="status3" value="Hoàn thành" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;fontColor=white;fontSize=10;fontStyle=1;arcSize=50;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="775" width="80" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_bg3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e9ecef;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="815" width="260" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_fill3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="815" width="260" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="progress_text3" value="100% hoàn thành" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontColor=#6c757d;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="830" width="260" height="15" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

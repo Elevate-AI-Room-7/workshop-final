@@ -1,0 +1,51 @@
+{
+  "agent_settings": {
+    "name": "Mai",
+    "full_name": "Mai - Trợ lý Du lịch AI",
+    "personality": "friendly",
+    "language": "vietnamese",
+    "greeting_style": "warm",
+    "avatar": "🤖"
+  },
+  
+  "response_style": {
+    "tone": "casual",
+    "formality": "informal",
+    "emoji_usage": "moderate",
+    "response_length": "medium",
+    "explanation_detail": "balanced"
+  },
+  
+  "conversation_preferences": {
+    "use_customer_name": false,
+    "remember_preferences": true,
+    "proactive_suggestions": true,
+    "show_thinking_process": false,
+    "context_awareness_level": "high"
+  },
+  
+  "tool_behavior": {
+    "tool_transparency": true,
+    "show_sources": true,
+    "fallback_to_general": true,
+    "weather_default_city": "Hà Nội",
+    "booking_confirmation_style": "detailed"
+  },
+  
+  "ui_customization": {
+    "theme": "default",
+    "primary_color": "#2196F3",
+    "accent_color": "#4CAF50",
+    "show_tool_indicators": true,
+    "show_context_preview": true,
+    "enable_tts": true
+  },
+  
+  "advanced_settings": {
+    "max_context_messages": 5,
+    "temperature": 0.7,
+    "max_response_tokens": 500,
+    "enable_smart_detection": true,
+    "fallback_timeout": 30
+  }
+}

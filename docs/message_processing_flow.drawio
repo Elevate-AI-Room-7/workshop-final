@@ -1,0 +1,338 @@
+<mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- User Input Layer -->
+    <mxCell id="user-input" value="👤 User Input&#xa;st.chat_input()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#01579B;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="50" y="50" width="150" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Session State -->
+    <mxCell id="session-state" value="📝 Add to Session State&#xa;messages.append()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="250" y="50" width="150" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- RAG Detection -->
+    <mxCell id="rag-detection" value="🔍 RAG Keywords Detection&#xa;18+ travel keywords" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="450" y="50" width="150" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Chat History -->
+    <mxCell id="chat-history" value="📊 Prepare Chat History&#xa;Format for LangChain" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#2E7D32;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="650" y="50" width="150" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Agent Processing -->
+    <mxCell id="agent-call" value="🤖 TravelPlannerAgent&#xa;plan_travel()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="350" y="180" width="150" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- System Prompt -->
+    <mxCell id="system-prompt" value="📋 System Prompt Creation&#xa;AI Travel Planner prompt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1F8E9;strokeColor=#33691E;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="50" y="300" width="150" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Tools Initialize -->
+    <mxCell id="tools-init" value="🛠️ Initialize Tools&#xa;4 main tools" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F57F17;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="250" y="300" width="150" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Agent Run -->
+    <mxCell id="agent-run" value="🏃‍♂️ Agent.run()&#xa;LangChain execution" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#AD1457;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="450" y="300" width="150" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Tool Selection Decision -->
+    <mxCell id="tool-selection" value="🔧 Tool Selection&#xa;Agent decides" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="375" y="420" width="100" height="100" as="geometry" />
+    </mxCell>
+    
+    <!-- RAG Search Tool -->
+    <mxCell id="rag-tool" value="🔍 RAG Search Tool&#xa;rag_search_tool()&#xa;Query vector DB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#2E7D32;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="50" y="580" width="120" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Weather Tool -->
+    <mxCell id="weather-tool" value="🌤️ Weather Tool&#xa;weather_tool()&#xa;OpenWeatherMap API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0277BD;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="200" y="580" width="120" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Hotel Booking Tool -->
+    <mxCell id="hotel-tool" value="🏨 Hotel Booking&#xa;hotel_booking_tool()&#xa;Mock booking system" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="350" y="580" width="120" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Car Booking Tool -->
+    <mxCell id="car-tool" value="🚗 Car Booking&#xa;car_booking_tool()&#xa;Mock booking system" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="500" y="580" width="120" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- RAG Results Decision -->
+    <mxCell id="rag-results" value="📚 RAG Results&#xa;Found info?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="60" y="720" width="100" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Extract Sources -->
+    <mxCell id="extract-sources" value="✅ Extract Sources&#xa;&amp; Answer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="50" y="860" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Set Fallback -->
+    <mxCell id="set-fallback" value="❌ Set Fallback Flag&#xa;no_relevant_info = True" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#D32F2F;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="200" y="860" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- API Calls -->
+    <mxCell id="weather-api" value="🌐 OpenWeather&#xa;API Call" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0277BD;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="200" y="720" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="mock-hotel" value="📋 Mock Hotel&#xa;Booking Response" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="350" y="720" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="mock-car" value="📋 Mock Car&#xa;Booking Response" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="500" y="720" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Response Processing -->
+    <mxCell id="response-processing" value="🔄 Response Processing&#xa;Check result type" style="rhombus;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="375" y="980" width="100" height="100" as="geometry" />
+    </mxCell>
+    
+    <!-- Success Response -->
+    <mxCell id="success-response" value="💬 Add Assistant Message&#xa;content + sources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="50" y="1150" width="140" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Fallback Options -->
+    <mxCell id="fallback-options" value="❓ Add Fallback Options&#xa;General knowledge choice" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="250" y="1150" width="140" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Error Message -->
+    <mxCell id="error-message" value="❌ Add Error Message&#xa;Show error details" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#D32F2F;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="450" y="1150" width="140" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- UI Display -->
+    <mxCell id="ui-display" value="🎨 Display in Chat UI&#xa;Render messages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#2E7D32;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="650" y="1150" width="150" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Fallback Buttons -->
+    <mxCell id="fallback-buttons" value="🔘 Show Fallback Buttons&#xa;Yes/No options" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="250" y="1280" width="140" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- User Choice -->
+    <mxCell id="user-choice" value="👆 User Choice&#xa;Yes or No?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="270" y="1380" width="100" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- General Knowledge -->
+    <mxCell id="general-knowledge" value="🧠 Get General&#xa;LLM Response" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#01579B;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="150" y="1520" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Skip Response -->
+    <mxCell id="skip-response" value="✋ Skip to Next&#xa;Question" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#616161;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="350" y="1520" width="120" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Final Update -->
+    <mxCell id="final-update" value="🔄 st.rerun()&#xa;UI Update Complete" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#2E7D32;fontStyle=1;fontSize=12;fontColor=#FFFFFF;" vertex="1" parent="1">
+      <mxGeometry x="650" y="1380" width="150" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrows and Connections -->
+    <!-- Main flow arrows -->
+    <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-input" target="session-state">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="session-state" target="rag-detection">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rag-detection" target="chat-history">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="chat-history" target="agent-call">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="agent-call" target="system-prompt">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="system-prompt" target="tools-init">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="tools-init" target="agent-run">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="agent-run" target="tool-selection">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Tool selection arrows -->
+    <mxCell id="arrow9" value="Travel Query" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="tool-selection" target="rag-tool">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow10" value="Weather" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="tool-selection" target="weather-tool">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow11" value="Hotel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="tool-selection" target="hotel-tool">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow12" value="Car" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="tool-selection" target="car-tool">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- RAG processing -->
+    <mxCell id="arrow13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rag-tool" target="rag-results">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow14" value="Found Info" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rag-results" target="extract-sources">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow15" value="No Info" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rag-results" target="set-fallback">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- API calls -->
+    <mxCell id="arrow16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weather-tool" target="weather-api">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="hotel-tool" target="mock-hotel">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="car-tool" target="mock-car">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Response processing -->
+    <mxCell id="arrow19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="extract-sources" target="response-processing">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="set-fallback" target="response-processing">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weather-api" target="response-processing">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="mock-hotel" target="response-processing">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="mock-car" target="response-processing">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Response type arrows -->
+    <mxCell id="arrow24" value="Success + Info" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="response-processing" target="success-response">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow25" value="Success + No Info" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="response-processing" target="fallback-options">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow26" value="Error" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="response-processing" target="error-message">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- UI Display arrows -->
+    <mxCell id="arrow27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="success-response" target="ui-display">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="error-message" target="ui-display">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Fallback processing -->
+    <mxCell id="arrow29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fallback-options" target="fallback-buttons">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="fallback-buttons" target="user-choice">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow31" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-choice" target="general-knowledge">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow32" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-choice" target="skip-response">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Final arrows -->
+    <mxCell id="arrow33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="general-knowledge" target="final-update">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="skip-response" target="final-update">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="arrow35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ui-display" target="final-update">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Legend -->
+    <mxCell id="legend-title" value="🔤 Legend" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="900" y="50" width="100" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="legend1" value="📝 Input/Session" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#01579B;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="900" y="90" width="100" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="legend2" value="🤖 Agent Processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="900" y="130" width="100" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="legend3" value="🛠️ Tools" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F57F17;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="900" y="170" width="100" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="legend4" value="✅ Success" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="900" y="210" width="100" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="legend5" value="❌ Error/Fallback" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#D32F2F;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="900" y="250" width="100" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="legend6" value="🎨 UI Display" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#2E7D32;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="900" y="290" width="100" height="30" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="legend7" value="💎 Decision Points" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="900" y="330" width="100" height="60" as="geometry" />
+    </mxCell>
+    
+    <!-- Title -->
+    <mxCell id="title" value="AI Travel Assistant - Message Processing Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=16;fontColor=#1565C0;" vertex="1" parent="1">
+      <mxGeometry x="300" y="10" width="400" height="30" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel>
