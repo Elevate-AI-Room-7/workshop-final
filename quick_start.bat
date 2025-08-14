@@ -14,25 +14,28 @@ if not exist ".env" (
     echo ⚠️  IMPORTANT: Please edit .env file with your API keys!
     echo   - AZURE_OPENAI_API_KEY
     echo   - AZURE_OPENAI_ENDPOINT
-    echo   - PINECONE_API_KEY (optional)
+    echo   - WEATHER_API_KEY (optional)
     echo.
 )
 
-REM Install basic dependencies
-echo Installing basic dependencies...
-pip install -r requirements.txt --quiet
+REM Install dependencies
+echo Installing dependencies...
+pip install -r requirements.txt
 
-REM Check for ChromaDB segfault
 echo.
-echo Testing ChromaDB (this might cause segfault)...
-python -c "import chromadb; print('ChromaDB OK')" 2>nul
+echo Testing ChromaDB installation...
+python -c "import chromadb; print('✅ ChromaDB installed successfully')" 2>nul
 if %errorlevel% neq 0 (
-    echo ⚠️  ChromaDB has issues. Setting to use In-Memory RAG...
+    echo ❌ ChromaDB installation failed. Installing...
+    pip install chromadb --upgrade
     
-    REM Update .env to use inmemory
-    powershell -Command "(Get-Content .env) -replace 'VECTOR_DB_TYPE=chromadb', 'VECTOR_DB_TYPE=inmemory' | Set-Content .env" 2>nul
-    if not exist ".env" (
-        echo VECTOR_DB_TYPE=inmemory >> .env
+    python -c "import chromadb; print('✅ ChromaDB installed successfully')" 2>nul
+    if %errorlevel% neq 0 (
+        echo ❌ ChromaDB still not working. Please install manually:
+        echo pip install chromadb
+        echo.
+        pause
+        exit /b 1
     )
 )
 
@@ -41,10 +44,11 @@ echo ========================================
 echo Starting AI Travel Assistant...
 echo ========================================
 echo.
+echo 🔧 Vector Database: ChromaDB
+echo 📂 Data Directory: ./chromadb_data
+echo.
 echo The app will open in your browser.
-echo If you see errors, check:
-echo   1. .env file has correct API keys
-echo   2. Run scripts\fix_chromadb_segfault.bat if needed
+echo If you see errors, check your .env file for correct API keys.
 echo.
 
 streamlit run app.py

@@ -108,17 +108,16 @@ if "travel_agent" not in st.session_state:
             agent = TravelPlannerAgent()
             st.session_state["travel_agent"] = agent
             
-            # Debug info - show RAG system type
-            rag_type = type(agent.rag_system).__name__.replace('RAGSystem', '')
-            st.sidebar.success(f"🔧 RAG System: {rag_type}")
+            # Show ChromaDB info
+            st.sidebar.success(f"🔧 Vector Database: ChromaDB")
             
-            # Show additional info if available
+            # Show database info
             try:
                 stats = agent.rag_system.get_index_stats()
-                if stats.get('database'):
-                    st.sidebar.info(f"📊 Database: {stats['database']}")
                 if stats.get('total_vectors', 0) > 0:
                     st.sidebar.info(f"📚 Records: {stats['total_vectors']}")
+                collection_name = os.getenv("CHROMADB_COLLECTION_NAME", "travel-agency")
+                st.sidebar.info(f"📂 Collection: {collection_name}")
             except:
                 pass
             
@@ -569,7 +568,7 @@ elif selected_page == "📚 Knowledge Base":
                 if new_id and new_text:
                     try:
                         # Debug info
-                        st.write(f"🔧 Debug: RAG System type: {type(rag_system).__name__}")
+                        st.write(f"🔧 Debug: ChromaDB RAG System")
                         st.write(f"🔧 Debug: Has upsert method: {hasattr(rag_system, 'upsert')}")
                         
                         metadata = {
