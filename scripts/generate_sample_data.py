@@ -11,9 +11,20 @@ from datetime import datetime
 from typing import List, Dict, Any
 
 # Add src to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(script_dir)
+src_path = os.path.join(project_root, 'src')
+sys.path.insert(0, src_path)
 
-from rag_system import create_rag_system
+try:
+    from rag_system import create_rag_system
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    print(f"🔧 Script directory: {script_dir}")
+    print(f"🔧 Project root: {project_root}")
+    print(f"🔧 Src path: {src_path}")
+    print(f"🔧 Python path: {sys.path[:3]}")
+    raise
 
 # Sample data cho 10 tỉnh thành
 PROVINCES_DATA = {
