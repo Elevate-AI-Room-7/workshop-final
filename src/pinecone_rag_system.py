@@ -7,6 +7,9 @@ import json
 import sys
 from typing import Dict, Any, List, Optional
 from pinecone import Pinecone, ServerlessSpec
+import time
+from urllib3.util.retry import Retry
+from urllib3 import PoolManager
 from openai import AzureOpenAI
 import logging
 import warnings
@@ -37,8 +40,17 @@ class PineconeRAGSystem:
         # Disable SSL warnings if needed
         disable_ssl_warnings()
         
-        # Initialize clients
-        self.pc = Pinecone(api_key=self.pinecone_api_key)
+        # Initialize Pinecone with retry configuration
+        try:
+            self.pc = Pinecone(
+                api_key=self.pinecone_api_key,
+                pool_threads=1,  # Reduce threads to avoid connection issues
+                timeout=30  # Increase timeout
+            )
+        except Exception as e:
+            logger.error(f"Failed to initialize Pinecone client: {e}")
+            # Create a mock Pinecone client for offline mode
+            self.pc = None
         self.embedding_client = configure_openai_client(
             AzureOpenAI,
             api_key=self.azure_api_key,
@@ -53,10 +65,19 @@ class PineconeRAGSystem:
         self._ensure_data_loaded()
     
     def _setup_index(self):
-        """Setup or create Pinecone index"""
-        try:
-            # Check if index exists
-            if self.index_name not in self.pc.list_indexes().names():
+        """Setup or create Pinecone index with retry logic"""
+        if self.pc is None:
+            logger.warning("Pinecone client not initialized - running in offline mode")
+            return None
+            
+        max_retries = 3
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                # Check if index exists with timeout
+                indexes = self.pc.list_indexes()
+                if self.index_name not in indexes.names():
                 logger.info(f"Creating Pinecone index: {self.index_name}")
                 self.pc.create_index(
                     name=self.index_name,
@@ -68,11 +89,17 @@ class PineconeRAGSystem:
                     )
                 )
             
-            return self.pc.Index(self.index_name)
-            
-        except Exception as e:
-            logger.error(f"Error setting up index: {e}")
-            raise
+                return self.pc.Index(self.index_name)
+                
+            except Exception as e:
+                logger.error(f"Error setting up index (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                else:
+                    logger.error("Max retries exceeded. Running in offline mode.")
+                    return None
     
     def get_embedding(self, text: str) -> List[float]:
         """Get embedding for text using Azure OpenAI"""
@@ -143,6 +170,10 @@ class PineconeRAGSystem:
     
     def _ensure_data_loaded(self):
         """Ensure data is loaded in the index"""
+        if self.index is None:
+            logger.warning("Index not available - skipping data check")
+            return
+            
         try:
             stats = self.index.describe_index_stats()
             total_count = stats.get('total_vector_count', 0)
@@ -157,6 +188,10 @@ class PineconeRAGSystem:
     
     def search(self, query: str, top_k: int = 5) -> List[Dict]:
         """Search similar documents in the index"""
+        if self.index is None:
+            logger.warning("Index not available - returning empty results")
+            return []
+            
         try:
             # Get query embedding
             query_embedding = self.get_embedding(query)
@@ -384,6 +419,14 @@ class PineconeRAGSystem:
     
     def get_index_stats(self) -> Dict:
         """Get index statistics"""
+        if self.index is None:
+            return {
+                "total_vectors": 0,
+                "dimension": 1536,
+                "index_fullness": 0,
+                "status": "offline"
+            }
+            
         try:
             stats = self.index.describe_index_stats()
             return {
