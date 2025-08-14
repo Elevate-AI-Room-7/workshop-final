@@ -51,7 +51,7 @@ if ($gitHttpProxy -or $gitHttpsProxy) {
 $npmProxy = npm config get proxy 2>$null
 $npmHttpsProxy = npm config get https-proxy 2>$null
 
-if ($npmProxy -ne "null" -or $npmHttpsProxy -ne "null") {
+if (($npmProxy -ne "null") -or ($npmHttpsProxy -ne "null")) {
     Write-Host "`nFound npm proxy settings. Removing..." -ForegroundColor Yellow
     npm config delete proxy
     npm config delete https-proxy
