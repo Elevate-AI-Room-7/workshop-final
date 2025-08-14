@@ -304,10 +304,6 @@ if selected_page == "💬 Chat":
                 # Show sources if RAG was used (debug info)
                 sources = message.get("sources", [])
                 rag_used = message.get("rag_used", False)
-                
-                # Debug: Always try to show sources if they exist
-                if sources:
-                    st.write(f"Debug: rag_used={rag_used}, sources={sources}")  # Temporary debug
                     
                 # Simplified condition for now - show sources if they exist
                 if sources and not message.get("error") and not message.get("need_fallback"):
