@@ -498,23 +498,41 @@ class TravelPlannerAgent:
     
     def _execute_hotel_booking(self, user_input: str, context: str) -> Dict[str, Any]:
         """
-        Execute hotel booking
+        Execute hotel booking with validation and confirmation
         """
         try:
             # Extract booking details
             booking_details = self._extract_hotel_booking_details(user_input, context)
             
-            # Execute mock booking
-            booking_result = self._mock_hotel_booking(booking_details)
+            # Check if required information is complete
+            required_fields = ['customer_name', 'customer_phone', 'hotel_name', 'location', 'check_in_date', 'nights']
+            missing_fields = [field for field in required_fields if not booking_details.get(field)]
+            
+            if missing_fields:
+                # Request missing information
+                missing_info = self._request_missing_hotel_info(missing_fields, booking_details)
+                return {
+                    "success": False,
+                    "response": missing_info,
+                    "sources": ["AI Hotel Booking System"],
+                    "rag_used": False,
+                    "tool_used": "HOTEL_VALIDATION",
+                    "booking_details": booking_details,
+                    "missing_fields": missing_fields
+                }
+            
+            # All information complete - show confirmation
+            confirmation_message = self._generate_hotel_booking_confirmation(booking_details)
             
             return {
                 "success": True,
-                "response": booking_result,
+                "response": confirmation_message,
                 "sources": ["AI Hotel Booking System"],
                 "rag_used": False,
-                "tool_used": "HOTEL",
+                "tool_used": "HOTEL_CONFIRMATION",
                 "context": context,
-                "booking_details": booking_details
+                "booking_details": booking_details,
+                "awaiting_confirmation": True
             }
             
         except Exception as e:
@@ -527,23 +545,41 @@ class TravelPlannerAgent:
     
     def _execute_car_booking(self, user_input: str, context: str) -> Dict[str, Any]:
         """
-        Execute car booking
+        Execute car booking with validation and confirmation
         """
         try:
             # Extract booking details
             booking_details = self._extract_car_booking_details(user_input, context)
             
-            # Execute mock booking
-            booking_result = self._mock_car_booking(booking_details)
+            # Check if required information is complete
+            required_fields = ['customer_name', 'customer_phone', 'pickup_location', 'destination', 'pickup_time', 'car_type']
+            missing_fields = [field for field in required_fields if not booking_details.get(field)]
+            
+            if missing_fields:
+                # Request missing information
+                missing_info = self._request_missing_car_info(missing_fields, booking_details)
+                return {
+                    "success": False,
+                    "response": missing_info,
+                    "sources": ["AI Car Booking System"],
+                    "rag_used": False,
+                    "tool_used": "CAR_VALIDATION",
+                    "booking_details": booking_details,
+                    "missing_fields": missing_fields
+                }
+            
+            # All information complete - show confirmation
+            confirmation_message = self._generate_car_booking_confirmation(booking_details)
             
             return {
                 "success": True,
-                "response": booking_result,
+                "response": confirmation_message,
                 "sources": ["AI Car Booking System"],
                 "rag_used": False,
-                "tool_used": "CAR",
+                "tool_used": "CAR_CONFIRMATION",
                 "context": context,
-                "booking_details": booking_details
+                "booking_details": booking_details,
+                "awaiting_confirmation": True
             }
             
         except Exception as e:
@@ -764,23 +800,46 @@ class TravelPlannerAgent:
             return f"Lỗi lấy dự báo thời tiết: {str(e)}"
     
     def _extract_hotel_booking_details(self, query: str, context: str) -> Dict:
-        """Extract hotel booking details from query"""
-        # Simple extraction - can be enhanced with NLP
-        return {
-            "city": self._extract_city_from_query(query),
-            "date": "2025-12-25",  # Default date
-            "nights": 1,
-            "guests": 2,
+        """Extract hotel booking details from query with enhanced extraction"""
+        details = {
+            "customer_name": self._extract_customer_name(query, context),
+            "customer_phone": self._extract_phone_number(query, context),
+            "customer_email": self._extract_email(query, context),
+            "hotel_name": self._extract_hotel_name(query, context),
+            "location": self._extract_city_from_query(query),
+            "check_in_date": self._extract_date(query, context),
+            "check_out_date": None,  # Will be calculated from nights
+            "nights": self._extract_nights(query, context),
+            "guests": self._extract_guest_count(query, context),
+            "rooms": self._extract_room_count(query, context),
+            "room_type": self._extract_room_type(query, context),
+            "special_requests": self._extract_special_requests(query, context),
             "query": query
         }
+        
+        # Calculate check-out date if check-in and nights are available
+        if details["check_in_date"] and details["nights"]:
+            try:
+                from datetime import datetime, timedelta
+                check_in = datetime.strptime(details["check_in_date"], "%Y-%m-%d")
+                check_out = check_in + timedelta(days=int(details["nights"]))
+                details["check_out_date"] = check_out.strftime("%Y-%m-%d")
+            except:
+                pass
+        
+        return details
     
     def _extract_car_booking_details(self, query: str, context: str) -> Dict:
-        """Extract car booking details from query"""
+        """Extract car booking details from query with enhanced extraction"""
         return {
-            "pickup_city": self._extract_city_from_query(query),
-            "destination": "Sân bay",  # Default destination
-            "date": "2025-12-25",
-            "time": "08:00",
+            "customer_name": self._extract_customer_name(query, context),
+            "customer_phone": self._extract_phone_number(query, context),
+            "pickup_location": self._extract_pickup_location(query, context),
+            "destination": self._extract_destination(query, context),
+            "pickup_time": self._extract_pickup_time(query, context),
+            "car_type": self._extract_car_type(query, context),
+            "seats": self._extract_seat_count(query, context),
+            "notes": self._extract_special_requests(query, context),
             "query": query
         }
     
@@ -871,3 +930,458 @@ class TravelPlannerAgent:
                 "response": f"Lỗi RAG: {str(e)}",
                 "error": str(e)
             }
+    
+    # Enhanced extraction helper functions
+    def _extract_customer_name(self, query: str, context: str) -> str:
+        """Extract customer name from query or context"""
+        import re
+        
+        # Look for name patterns like "Tên tôi là X", "Tôi tên X", "Tôi là X"
+        patterns = [
+            r'(?:tên tôi là|tôi tên|tôi là|my name is)\s+([A-Za-zÀ-ỹ\s]+)',
+            r'tên:\s*([A-Za-zÀ-ỹ\s]+)',
+            r'họ tên:\s*([A-Za-zÀ-ỹ\s]+)'
+        ]
+        
+        text = (query + " " + context).lower()
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                name = match.group(1).strip().title()
+                if len(name) > 1:
+                    return name
+        
+        return ""  # Return empty if not found
+    
+    def _extract_phone_number(self, query: str, context: str) -> str:
+        """Extract phone number from query or context"""
+        import re
+        
+        text = query + " " + context
+        
+        # Vietnamese phone number patterns
+        patterns = [
+            r'(?:sđt|số điện thoại|phone|điện thoại)[:=\s]*([+84|84|0]?[3-9]\d{8,9})',
+            r'([+84|84|0]?[3-9]\d{8,9})',
+        ]
+        
+        for pattern in patterns:
+            matches = re.findall(pattern, text)
+            for match in matches:
+                # Clean up the phone number
+                phone = re.sub(r'[^\d+]', '', match)
+                if len(phone) >= 9:
+                    return phone
+        
+        return ""
+    
+    def _extract_email(self, query: str, context: str) -> str:
+        """Extract email from query or context"""
+        import re
+        
+        text = query + " " + context
+        pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        
+        match = re.search(pattern, text)
+        return match.group() if match else ""
+    
+    def _extract_hotel_name(self, query: str, context: str) -> str:
+        """Extract hotel name from query or context"""
+        import re
+        
+        text = (query + " " + context).lower()
+        
+        # Look for hotel name patterns
+        patterns = [
+            r'khách sạn\s+([A-Za-zÀ-ỹ\s]+)',
+            r'hotel\s+([A-Za-z\s]+)',
+            r'(?:tại|ở)\s+([A-Za-zÀ-ỹ\s]*(?:hotel|resort|inn)[A-Za-zÀ-ỹ\s]*)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                hotel = match.group(1).strip().title()
+                if len(hotel) > 2:
+                    return hotel
+        
+        return ""  # Will be requested later
+    
+    def _extract_date(self, query: str, context: str) -> str:
+        """Extract check-in date from query"""
+        import re
+        from datetime import datetime, timedelta
+        
+        text = query + " " + context
+        
+        # Look for date patterns
+        patterns = [
+            r'ngày\s+(\d{1,2})/(\d{1,2})/(\d{4})',
+            r'(\d{1,2})/(\d{1,2})/(\d{4})',
+            r'ngày\s+(\d{1,2})\s+tháng\s+(\d{1,2})',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text)
+            if match:
+                try:
+                    if len(match.groups()) == 3:
+                        day, month, year = match.groups()
+                        date_obj = datetime(int(year), int(month), int(day))
+                        return date_obj.strftime("%Y-%m-%d")
+                    elif len(match.groups()) == 2:
+                        day, month = match.groups()
+                        year = datetime.now().year
+                        date_obj = datetime(year, int(month), int(day))
+                        return date_obj.strftime("%Y-%m-%d")
+                except:
+                    continue
+        
+        # Look for relative dates
+        if any(word in text.lower() for word in ["hôm nay", "today"]):
+            return datetime.now().strftime("%Y-%m-%d")
+        elif any(word in text.lower() for word in ["ngày mai", "tomorrow"]):
+            return (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        return ""
+    
+    def _extract_nights(self, query: str, context: str) -> int:
+        """Extract number of nights from query"""
+        import re
+        
+        text = query + " " + context
+        
+        patterns = [
+            r'(\d+)\s*đêm',
+            r'(\d+)\s*nights?',
+            r'(\d+)\s*ngày.*?(\d+)\s*đêm',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                try:
+                    return int(match.group(1))
+                except:
+                    continue
+        
+        return 1  # Default to 1 night
+    
+    def _extract_guest_count(self, query: str, context: str) -> int:
+        """Extract number of guests from query"""
+        import re
+        
+        text = query + " " + context
+        
+        patterns = [
+            r'(\d+)\s*(?:người|khách|guests?)',
+            r'(?:cho|for)\s*(\d+)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                try:
+                    return int(match.group(1))
+                except:
+                    continue
+        
+        return 2  # Default to 2 guests
+    
+    def _extract_room_count(self, query: str, context: str) -> int:
+        """Extract number of rooms from query"""
+        import re
+        
+        text = query + " " + context
+        
+        patterns = [
+            r'(\d+)\s*phòng',
+            r'(\d+)\s*rooms?',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                try:
+                    return int(match.group(1))
+                except:
+                    continue
+        
+        return 1  # Default to 1 room
+    
+    def _extract_room_type(self, query: str, context: str) -> str:
+        """Extract room type from query"""
+        text = (query + " " + context).lower()
+        
+        room_types = {
+            "standard": ["standard", "tiêu chuẩn"],
+            "deluxe": ["deluxe", "cao cấp"],
+            "suite": ["suite", "hạng sang"],
+            "family": ["family", "gia đình"],
+            "single": ["single", "đơn"],
+            "double": ["double", "đôi"],
+            "twin": ["twin", "sinh đôi"]
+        }
+        
+        for room_type, keywords in room_types.items():
+            if any(keyword in text for keyword in keywords):
+                return room_type
+        
+        return "standard"
+    
+    def _extract_pickup_location(self, query: str, context: str) -> str:
+        """Extract pickup location from query"""
+        import re
+        
+        text = query + " " + context
+        
+        patterns = [
+            r'(?:đón tại|pickup at|from)\s+([A-Za-zÀ-ỹ\s,]+)',
+            r'từ\s+([A-Za-zÀ-ỹ\s,]+)\s+(?:đến|to)',
+            r'điểm đón:\s*([A-Za-zÀ-ỹ\s,]+)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                location = match.group(1).strip()
+                if len(location) > 2:
+                    return location
+        
+        # Try to extract from context if available
+        city = self._extract_city_from_query(query)
+        if city:
+            return f"Sân bay {city}"  # Default to airport
+        
+        return ""
+    
+    def _extract_destination(self, query: str, context: str) -> str:
+        """Extract destination from query"""
+        import re
+        
+        text = query + " " + context
+        
+        patterns = [
+            r'(?:đến|to|tới)\s+([A-Za-zÀ-ỹ\s,]+)',
+            r'điểm đến:\s*([A-Za-zÀ-ỹ\s,]+)',
+            r'(?:về|return to)\s+([A-Za-zÀ-ỹ\s,]+)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                destination = match.group(1).strip()
+                if len(destination) > 2:
+                    return destination
+        
+        return ""
+    
+    def _extract_pickup_time(self, query: str, context: str) -> str:
+        """Extract pickup time from query"""
+        import re
+        
+        text = query + " " + context
+        
+        patterns = [
+            r'lúc\s+(\d{1,2}):(\d{2})',
+            r'(\d{1,2}):(\d{2})',
+            r'(\d{1,2})\s*giờ\s*(\d{2})?',
+            r'(\d{1,2})h(\d{2})?',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text)
+            if match:
+                try:
+                    hour = int(match.group(1))
+                    minute = int(match.group(2)) if match.group(2) else 0
+                    if 0 <= hour <= 23 and 0 <= minute <= 59:
+                        return f"{hour:02d}:{minute:02d}"
+                except:
+                    continue
+        
+        return ""
+    
+    def _extract_car_type(self, query: str, context: str) -> str:
+        """Extract car type from query"""
+        text = (query + " " + context).lower()
+        
+        car_types = {
+            "4 chỗ": ["4 chỗ", "sedan", "4 seats"],
+            "7 chỗ": ["7 chỗ", "suv", "7 seats"],
+            "16 chỗ": ["16 chỗ", "minibus", "16 seats"],
+            "taxi": ["taxi"],
+            "grab": ["grab"],
+            "luxury": ["luxury", "sang trọng"],
+        }
+        
+        for car_type, keywords in car_types.items():
+            if any(keyword in text for keyword in keywords):
+                return car_type
+        
+        return "4 chỗ"  # Default
+    
+    def _extract_seat_count(self, query: str, context: str) -> int:
+        """Extract seat count from query"""
+        import re
+        
+        text = query + " " + context
+        
+        patterns = [
+            r'(\d+)\s*chỗ',
+            r'(\d+)\s*seats?',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                try:
+                    return int(match.group(1))
+                except:
+                    continue
+        
+        return 4  # Default to 4 seats
+    
+    def _extract_special_requests(self, query: str, context: str) -> str:
+        """Extract special requests from query"""
+        import re
+        
+        text = query + " " + context
+        
+        patterns = [
+            r'(?:yêu cầu|requests?|notes?|ghi chú)[:=\s]*(.+)',
+            r'(?:đặc biệt|special)[:=\s]*(.+)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                request = match.group(1).strip()
+                if len(request) > 5:
+                    return request
+        
+        return ""
+    
+    # Validation helper functions
+    def _request_missing_hotel_info(self, missing_fields: list, current_details: dict) -> str:
+        """Generate message requesting missing hotel booking information"""
+        
+        field_prompts = {
+            'customer_name': "👤 Tên khách hàng",
+            'customer_phone': "📞 Số điện thoại liên hệ",
+            'hotel_name': "🏨 Tên khách sạn mong muốn",
+            'location': "📍 Địa điểm (thành phố)",
+            'check_in_date': "📅 Ngày nhận phòng (dd/mm/yyyy)",
+            'nights': "🌙 Số đêm lưu trú"
+        }
+        
+        current_info = []
+        for key, value in current_details.items():
+            if value and key in field_prompts:
+                current_info.append(f"✅ {field_prompts[key]}: {value}")
+        
+        missing_info = []
+        for field in missing_fields:
+            if field in field_prompts:
+                missing_info.append(f"❓ {field_prompts[field]}")
+        
+        message = "🏨 **Thông tin đặt phòng chưa đủ**\n\n"
+        
+        if current_info:
+            message += "**Thông tin đã có:**\n" + "\n".join(current_info) + "\n\n"
+        
+        message += "**Cần bổ sung:**\n" + "\n".join(missing_info) + "\n\n"
+        message += "💡 Vui lòng cung cấp thông tin còn thiếu để tôi có thể đặt phòng cho bạn."
+        
+        return message
+    
+    def _request_missing_car_info(self, missing_fields: list, current_details: dict) -> str:
+        """Generate message requesting missing car booking information"""
+        
+        field_prompts = {
+            'customer_name': "👤 Tên khách hàng",
+            'customer_phone': "📞 Số điện thoại liên hệ",
+            'pickup_location': "📍 Điểm đón",
+            'destination': "🎯 Điểm đến",
+            'pickup_time': "🕐 Thời gian đón (hh:mm)",
+            'car_type': "🚗 Loại xe (4 chỗ, 7 chỗ, 16 chỗ)"
+        }
+        
+        current_info = []
+        for key, value in current_details.items():
+            if value and key in field_prompts:
+                current_info.append(f"✅ {field_prompts[key]}: {value}")
+        
+        missing_info = []
+        for field in missing_fields:
+            if field in field_prompts:
+                missing_info.append(f"❓ {field_prompts[field]}")
+        
+        message = "🚗 **Thông tin đặt xe chưa đủ**\n\n"
+        
+        if current_info:
+            message += "**Thông tin đã có:**\n" + "\n".join(current_info) + "\n\n"
+        
+        message += "**Cần bổ sung:**\n" + "\n".join(missing_info) + "\n\n"
+        message += "💡 Vui lòng cung cấp thông tin còn thiếu để tôi có thể đặt xe cho bạn."
+        
+        return message
+    
+    # Confirmation helper functions
+    def _generate_hotel_booking_confirmation(self, details: dict) -> str:
+        """Generate hotel booking confirmation message"""
+        
+        message = f"""🏨 **XÁC NHẬN THÔNG TIN ĐẶT PHÒNG**
+
+👤 **Khách hàng:** {details.get('customer_name', 'N/A')}
+📞 **Điện thoại:** {details.get('customer_phone', 'N/A')}
+📧 **Email:** {details.get('customer_email', 'Không có')}
+
+🏨 **Khách sạn:** {details.get('hotel_name', 'N/A')}
+📍 **Địa điểm:** {details.get('location', 'N/A')}
+🛏️ **Loại phòng:** {details.get('room_type', 'Standard')}
+🚪 **Số phòng:** {details.get('rooms', 1)}
+
+📅 **Nhận phòng:** {details.get('check_in_date', 'N/A')}
+📅 **Trả phòng:** {details.get('check_out_date', 'N/A')}
+🌙 **Số đêm:** {details.get('nights', 'N/A')}
+👥 **Số khách:** {details.get('guests', 'N/A')}
+
+"""
+        
+        if details.get('special_requests'):
+            message += f"📝 **Yêu cầu đặc biệt:** {details['special_requests']}\n\n"
+        
+        message += """❓ **Thông tin trên có chính xác không?**
+
+Trả lời "**Có**" hoặc "**Xác nhận**" để tiến hành đặt phòng.
+Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin."""
+        
+        return message
+    
+    def _generate_car_booking_confirmation(self, details: dict) -> str:
+        """Generate car booking confirmation message"""
+        
+        message = f"""🚗 **XÁC NHẬN THÔNG TIN ĐẶT XE**
+
+👤 **Khách hàng:** {details.get('customer_name', 'N/A')}
+📞 **Điện thoại:** {details.get('customer_phone', 'N/A')}
+
+📍 **Điểm đón:** {details.get('pickup_location', 'N/A')}
+🎯 **Điểm đến:** {details.get('destination', 'N/A')}
+🕐 **Thời gian đón:** {details.get('pickup_time', 'N/A')}
+
+🚗 **Loại xe:** {details.get('car_type', 'N/A')}
+💺 **Số ghế:** {details.get('seats', 'N/A')}
+
+"""
+        
+        if details.get('notes'):
+            message += f"📝 **Ghi chú:** {details['notes']}\n\n"
+        
+        message += """❓ **Thông tin trên có chính xác không?**
+
+Trả lời "**Có**" hoặc "**Xác nhận**" để tiến hành đặt xe.
+Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin."""
+        
+        return message

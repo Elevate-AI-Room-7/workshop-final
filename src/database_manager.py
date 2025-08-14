@@ -653,6 +653,166 @@ class DatabaseManager:
         
         print("✅ Default personality templates initialized in database")
 
+    def get_all_car_bookings(self) -> List[Dict[str, Any]]:
+        """Get all car booking records"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT * FROM book_car 
+                    ORDER BY created_at DESC
+                """)
+                rows = cursor.fetchall()
+                
+                # Convert to list of dictionaries
+                columns = [description[0] for description in cursor.description]
+                bookings = []
+                for row in rows:
+                    booking = dict(zip(columns, row))
+                    bookings.append(booking)
+                
+                return bookings
+        except Exception as e:
+            print(f"Error getting car bookings: {e}")
+            return []
+    
+    def get_all_hotel_bookings(self) -> List[Dict[str, Any]]:
+        """Get all hotel booking records"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT * FROM book_hotel 
+                    ORDER BY created_at DESC
+                """)
+                rows = cursor.fetchall()
+                
+                # Convert to list of dictionaries
+                columns = [description[0] for description in cursor.description]
+                bookings = []
+                for row in rows:
+                    booking = dict(zip(columns, row))
+                    bookings.append(booking)
+                
+                return bookings
+        except Exception as e:
+            print(f"Error getting hotel bookings: {e}")
+            return []
+    
+    def update_car_booking_status(self, booking_id: str, status: str) -> bool:
+        """Update car booking status"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    UPDATE book_car 
+                    SET status = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?
+                """, (status, booking_id))
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error updating car booking status: {e}")
+            return False
+    
+    def update_hotel_booking_status(self, booking_id: str, status: str) -> bool:
+        """Update hotel booking status"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    UPDATE book_hotel 
+                    SET status = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?
+                """, (status, booking_id))
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error updating hotel booking status: {e}")
+            return False
+    
+    def delete_car_booking(self, booking_id: str) -> bool:
+        """Delete a car booking"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM book_car WHERE id = ?", (booking_id,))
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error deleting car booking: {e}")
+            return False
+    
+    def delete_hotel_booking(self, booking_id: str) -> bool:
+        """Delete a hotel booking"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM book_hotel WHERE id = ?", (booking_id,))
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error deleting hotel booking: {e}")
+            return False
+
+    # Enhanced booking save functions with field mapping
+    def save_car_booking_enhanced(self, booking_details: Dict[str, Any]) -> bool:
+        """Save car booking with enhanced field mapping"""
+        try:
+            # Map fields from booking details to database schema
+            mapped_booking = {
+                'pickup_location': booking_details.get('pickup_location', ''),
+                'dropoff_location': booking_details.get('destination', ''),
+                'pickup_date': booking_details.get('pickup_time', '').split(' ')[0] if booking_details.get('pickup_time') else '',
+                'pickup_time': booking_details.get('pickup_time', ''),
+                'return_date': None,  # Not used in current flow
+                'return_time': None,  # Not used in current flow
+                'car_type': booking_details.get('car_type', ''),
+                'driver_needed': True,  # Assume driver is always needed
+                'passengers': booking_details.get('seats', 4),
+                'special_requirements': booking_details.get('notes', ''),
+                'estimated_cost': None,  # To be calculated by system
+                'booking_status': booking_details.get('status', 'confirmed'),
+                'booking_reference': booking_details.get('id', '')
+            }
+            
+            # Save using existing method
+            booking_id = self.save_car_booking(mapped_booking, 'default')
+            return booking_id > 0
+            
+        except Exception as e:
+            print(f"Error saving enhanced car booking: {e}")
+            return False
+    
+    def save_hotel_booking_enhanced(self, booking_details: Dict[str, Any]) -> bool:
+        """Save hotel booking with enhanced field mapping"""
+        try:
+            # Map fields from booking details to database schema
+            mapped_booking = {
+                'hotel_name': booking_details.get('hotel_name', ''),
+                'location': booking_details.get('location', ''),
+                'checkin_date': booking_details.get('check_in_date', ''),
+                'checkout_date': booking_details.get('check_out_date', ''),
+                'adults': booking_details.get('guests', 2),
+                'children': 0,
+                'room_type': booking_details.get('room_type', 'standard'),
+                'room_count': booking_details.get('rooms', 1),
+                'budget_range': 'mid-range',  # Default
+                'amenities': '',  # Empty for now
+                'special_requests': booking_details.get('special_requests', ''),
+                'estimated_cost': None,  # To be calculated by system
+                'booking_status': booking_details.get('status', 'confirmed'),
+                'booking_reference': booking_details.get('id', '')
+            }
+            
+            # Save using existing method
+            booking_id = self.save_hotel_booking(mapped_booking, 'default')
+            return booking_id > 0
+            
+        except Exception as e:
+            print(f"Error saving enhanced hotel booking: {e}")
+            return False
+
 
 # Example usage
 if __name__ == "__main__":

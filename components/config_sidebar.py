@@ -64,7 +64,7 @@ def render_config_sidebar():
             key="response_tone"
         )
         
-        current_emoji = config_manager.agent_config.get('response_style', {}).get('emoji_usage', 'moderate')
+        current_emoji = config_manager.agent_config.get('emoji_usage', 'moderate')
         emoji_options = ["minimal", "moderate", "high"]
         emoji_labels = {"minimal": "Ít", "moderate": "Vừa phải", "high": "Nhiều"}
         new_emoji = st.selectbox(
@@ -119,22 +119,21 @@ def render_config_sidebar():
         
         # Save button
         if st.button("💾 Lưu cài đặt Agent", use_container_width=True):
-            # Update agent config
+            # Update agent config (flat structure based on database schema)
             new_config = config_manager.agent_config.copy()
-            new_config['agent_settings']['name'] = new_name
-            new_config['agent_settings']['personality'] = new_personality
-            new_config['agent_settings']['avatar'] = new_avatar
-            new_config['agent_settings']['full_name'] = f"{new_name} - Trợ lý Du lịch AI"
+            new_config['agent_name'] = new_name
+            new_config['personality'] = new_personality
+            new_config['avatar'] = new_avatar
             
-            new_config['response_style']['tone'] = new_tone
-            new_config['response_style']['emoji_usage'] = new_emoji
+            new_config['tone'] = new_tone
+            new_config['emoji_usage'] = new_emoji
             
-            new_config['advanced_settings']['temperature'] = new_temp
-            new_config['advanced_settings']['max_context_messages'] = int(new_context)
+            new_config['creativity'] = new_temp
+            new_config['context_messages'] = int(new_context)
             
-            new_config['ui_customization']['show_tool_indicators'] = show_tools
-            new_config['ui_customization']['show_context_preview'] = show_context
-            new_config['ui_customization']['enable_tts'] = enable_tts
+            new_config['show_tool_info'] = show_tools
+            new_config['show_context_preview'] = show_context
+            new_config['enable_tts'] = enable_tts
             
             if config_manager.save_config('agent', new_config):
                 st.success("✅ Đã lưu cài đặt!")

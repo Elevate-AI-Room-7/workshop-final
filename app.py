@@ -29,9 +29,103 @@ from components.conversation_history_page import (
     render_conversation_history_page,
     update_conversation_title_if_needed
 )
+from components.car_booking_page import render_car_booking_page
+from components.hotel_booking_page import render_hotel_booking_page
 
 # Load environment variables
 load_dotenv()
+
+# Helper function for booking confirmation
+def save_booking_to_database(config_manager, booking_type: str, booking_details: dict):
+    """Save confirmed booking to database"""
+    try:
+        import uuid
+        from datetime import datetime
+        
+        # Generate booking ID
+        booking_id = str(uuid.uuid4())
+        
+        # Add metadata
+        booking_details.update({
+            "id": booking_id,
+            "status": "confirmed",
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
+        })
+        
+        if booking_type == "hotel":
+            # Save hotel booking
+            success = config_manager.db_manager.save_hotel_booking_enhanced(booking_details)
+            if success:
+                return {
+                    "success": True,
+                    "response": f"""✅ **Đặt phòng thành công!**
+
+🏨 **Thông tin đặt phòng:**
+- **Mã đặt phòng:** {booking_id[:8]}...
+- **Khách sạn:** {booking_details.get('hotel_name', 'N/A')}
+- **Khách hàng:** {booking_details.get('customer_name', 'N/A')}  
+- **Địa điểm:** {booking_details.get('location', 'N/A')}
+- **Nhận phòng:** {booking_details.get('check_in_date', 'N/A')}
+- **Số đêm:** {booking_details.get('nights', 'N/A')}
+
+📞 **Liên hệ:** Chúng tôi sẽ gọi điện xác nhận trong 30 phút.
+📧 **Email:** Thông tin chi tiết đã được gửi qua email.
+
+💡 Bạn có thể xem lịch sử đặt phòng tại **🏨 Quản lý đặt phòng**.""",
+                    "sources": ["Booking System"],
+                    "rag_used": False,
+                    "tool_used": "HOTEL_SAVED",
+                    "booking_id": booking_id
+                }
+            else:
+                return {
+                    "success": False,
+                    "response": "❌ Có lỗi xảy ra khi lưu thông tin đặt phòng. Vui lòng thử lại.",
+                    "sources": [],
+                    "tool_used": "HOTEL_ERROR"
+                }
+        
+        elif booking_type == "car":
+            # Save car booking  
+            success = config_manager.db_manager.save_car_booking_enhanced(booking_details)
+            if success:
+                return {
+                    "success": True,
+                    "response": f"""✅ **Đặt xe thành công!**
+
+🚗 **Thông tin đặt xe:**
+- **Mã đặt xe:** {booking_id[:8]}...
+- **Khách hàng:** {booking_details.get('customer_name', 'N/A')}
+- **Loại xe:** {booking_details.get('car_type', 'N/A')}
+- **Điểm đón:** {booking_details.get('pickup_location', 'N/A')}
+- **Điểm đến:** {booking_details.get('destination', 'N/A')}
+- **Thời gian:** {booking_details.get('pickup_time', 'N/A')}
+
+📞 **Liên hệ:** Tài xế sẽ gọi điện 15 phút trước giờ đón.
+🚗 **Xe:** Thông tin xe và tài xế sẽ được gửi qua SMS.
+
+💡 Bạn có thể xem lịch sử đặt xe tại **🚗 Quản lý đặt xe**.""",
+                    "sources": ["Booking System"],
+                    "rag_used": False,
+                    "tool_used": "CAR_SAVED",
+                    "booking_id": booking_id
+                }
+            else:
+                return {
+                    "success": False,
+                    "response": "❌ Có lỗi xảy ra khi lưu thông tin đặt xe. Vui lòng thử lại.",
+                    "sources": [],
+                    "tool_used": "CAR_ERROR"
+                }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "response": f"❌ Lỗi hệ thống: {str(e)}",
+            "sources": [],
+            "tool_used": "BOOKING_ERROR"
+        }
 
 # Page configuration
 st.set_page_config(
@@ -154,8 +248,8 @@ if "selected_page" not in st.session_state:
 # Menu selection
 selected_page = st.sidebar.selectbox(
     "Chọn chức năng:",
-    ["💬 Chat", "📜 Lịch sử hội thoại", "📚 Knowledge Base"],
-    index=["💬 Chat", "📜 Lịch sử hội thoại", "📚 Knowledge Base"].index(st.session_state.selected_page),
+    ["💬 Chat", "📜 Lịch sử hội thoại", "🚗 Quản lý đặt xe", "🏨 Quản lý đặt phòng", "📚 Knowledge Base"],
+    index=["💬 Chat", "📜 Lịch sử hội thoại", "🚗 Quản lý đặt xe", "🏨 Quản lý đặt phòng", "📚 Knowledge Base"].index(st.session_state.selected_page),
     key="page_selectbox"
 )
 
@@ -268,8 +362,44 @@ if selected_page == "💬 Chat":
                         elif msg["role"] == "assistant":
                             chat_history.append(("assistant", msg["content"]))
                 
-                # Execute with new smart flow
-                result = agent.plan_travel(user_input, chat_history)
+                # Check if this is a booking confirmation response
+                is_booking_confirmation = False
+                pending_booking = None
+                booking_type = None
+                
+                # Check if the last assistant message is awaiting confirmation
+                if len(st.session_state["messages"]) >= 2:
+                    last_msg = st.session_state["messages"][-2]  # -1 is current user message, -2 is last assistant
+                    if last_msg.get("awaiting_confirmation") and last_msg.get("pending_booking"):
+                        pending_booking = last_msg["pending_booking"]
+                        tool_used = last_msg.get("tool_used", "")
+                        
+                        if tool_used in ["HOTEL_CONFIRMATION", "CAR_CONFIRMATION"]:
+                            booking_type = "hotel" if "HOTEL" in tool_used else "car"
+                            
+                            # Check for confirmation keywords
+                            confirmation_words = ["có", "xác nhận", "đồng ý", "ok", "yes", "correct", "chính xác"]
+                            rejection_words = ["không", "sai", "sửa", "no", "wrong", "incorrect", "thay đổi"]
+                            
+                            user_lower = user_input.lower().strip()
+                            
+                            if any(word in user_lower for word in confirmation_words):
+                                is_booking_confirmation = True
+                                # Save booking to database
+                                result = save_booking_to_database(config_manager, booking_type, pending_booking)
+                            elif any(word in user_lower for word in rejection_words):
+                                result = {
+                                    "success": True,
+                                    "response": "Được rồi! Vui lòng cho tôi biết thông tin nào cần điều chỉnh, hoặc bạn có thể bắt đầu đặt lại.",
+                                    "sources": [],
+                                    "rag_used": False,
+                                    "tool_used": "BOOKING_EDIT"
+                                }
+                                is_booking_confirmation = True
+                
+                # Execute with new smart flow (only if not handling booking confirmation)
+                if not is_booking_confirmation:
+                    result = agent.plan_travel(user_input, chat_history)
                 
                 # Add assistant response with enhanced metadata
                 if result["success"]:
@@ -295,7 +425,7 @@ if selected_page == "💬 Chat":
                             "need_fallback": True
                         })
                     else:
-                        st.session_state["messages"].append({
+                        response_msg = {
                             "role": "assistant",
                             "content": result["response"],
                             "sources": result.get("sources", []),
@@ -306,7 +436,14 @@ if selected_page == "💬 Chat":
                             "weather_type": result.get("weather_type", ""),
                             "city": result.get("city", ""),
                             "booking_details": result.get("booking_details", {})
-                        })
+                        }
+                        
+                        # Handle booking confirmation flow
+                        if result.get("awaiting_confirmation"):
+                            response_msg["awaiting_confirmation"] = True
+                            response_msg["pending_booking"] = result.get("booking_details", {})
+                        
+                        st.session_state["messages"].append(response_msg)
                         
                         # Save assistant message to database
                         save_assistant_message(config_manager, result["response"], {
@@ -520,6 +657,14 @@ if selected_page == "💬 Chat":
 elif selected_page == "📜 Lịch sử hội thoại":
     # Render conversation history page
     render_conversation_history_page(config_manager)
+
+elif selected_page == "🚗 Quản lý đặt xe":
+    # Render car booking management page
+    render_car_booking_page(config_manager)
+
+elif selected_page == "🏨 Quản lý đặt phòng":
+    # Render hotel booking management page
+    render_hotel_booking_page(config_manager)
 
 elif selected_page == "📚 Knowledge Base":
     # Get RAG system from agent
