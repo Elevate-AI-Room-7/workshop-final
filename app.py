@@ -6,7 +6,6 @@ Combines RAG-only and Full-featured modes with Knowledge Base management
 import streamlit as st
 import sys
 import os
-import pandas as pd
 import json
 from datetime import datetime
 from dotenv import load_dotenv
