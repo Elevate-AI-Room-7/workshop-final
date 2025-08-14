@@ -1,79 +1,95 @@
 """
 Configuration Manager for AI Travel Assistant
 Handles agent personalization, user preferences, and system settings
+Now using SQLite database instead of JSON files
 """
 
-import json
 import os
 from typing import Dict, Any, List
 from datetime import datetime
 import streamlit as st
+from .database_manager import DatabaseManager
 
 class ConfigManager:
-    """Manages all configuration settings for the travel assistant"""
+    """Manages all configuration settings for the travel assistant using SQLite database"""
     
-    def __init__(self):
-        self.config_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config')
-        self.agent_config_path = os.path.join(self.config_dir, 'agent_config.json')
-        self.personality_templates_path = os.path.join(self.config_dir, 'personality_templates.json')
-        self.user_preferences_path = os.path.join(self.config_dir, 'user_preferences.json')
+    def __init__(self, db_path: str = None):
+        # Initialize database manager
+        if db_path is None:
+            db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'travel_assistant.db')
         
-        # Load configurations
-        self.agent_config = self._load_config(self.agent_config_path)
-        self.personality_templates = self._load_config(self.personality_templates_path)
-        self.user_preferences = self._load_config(self.user_preferences_path)
+        self.db_manager = DatabaseManager(db_path)
+        
+        # Initialize default data if needed
+        self.db_manager.initialize_default_data()
+        
+        # Load current configurations (cached for performance)
+        self._agent_config = None
+        self._personality_templates = None
+        self._user_preferences = None
     
-    def _load_config(self, file_path: str) -> Dict[str, Any]:
-        """Load configuration from JSON file"""
-        try:
-            if os.path.exists(file_path):
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            else:
-                return {}
-        except Exception as e:
-            st.error(f"Error loading config from {file_path}: {str(e)}")
-            return {}
+    @property
+    def agent_config(self) -> Dict[str, Any]:
+        """Get agent configuration (cached)"""
+        if self._agent_config is None:
+            self._agent_config = self.db_manager.get_agent_config()
+        return self._agent_config
+    
+    @property  
+    def personality_templates(self) -> Dict[str, Any]:
+        """Get personality templates (cached)"""
+        if self._personality_templates is None:
+            self._personality_templates = self.db_manager.get_personality_templates()
+        return self._personality_templates
+    
+    @property
+    def user_preferences(self) -> Dict[str, Any]:
+        """Get user preferences (cached)"""
+        if self._user_preferences is None:
+            self._user_preferences = self.db_manager.get_user_preferences()
+        return self._user_preferences
+    
+    def refresh_cache(self):
+        """Refresh cached configurations"""
+        self._agent_config = None
+        self._personality_templates = None
+        self._user_preferences = None
     
     def save_config(self, config_type: str, config_data: Dict[str, Any]) -> bool:
-        """Save configuration to file"""
+        """Save configuration to database"""
         try:
             if config_type == 'agent':
-                file_path = self.agent_config_path
-                self.agent_config = config_data
+                success = self.db_manager.save_agent_config(config_data)
+                if success:
+                    self._agent_config = None  # Clear cache
+                return success
             elif config_type == 'user':
-                file_path = self.user_preferences_path
-                self.user_preferences = config_data
+                success = self.db_manager.save_user_preferences(config_data)
+                if success:
+                    self._user_preferences = None  # Clear cache
+                return success
             else:
                 return False
-            
-            # Ensure directory exists
-            os.makedirs(self.config_dir, exist_ok=True)
-            
-            with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(config_data, f, indent=2, ensure_ascii=False)
-            
-            return True
         except Exception as e:
             st.error(f"Error saving config: {str(e)}")
             return False
     
     def get_agent_name(self) -> str:
         """Get agent display name"""
-        return self.agent_config.get('agent_settings', {}).get('name', 'AI Assistant')
+        return self.agent_config.get('agent_name', 'AI Assistant')
     
     def get_agent_full_name(self) -> str:
         """Get agent full name"""
         name = self.get_agent_name()
-        return self.agent_config.get('agent_settings', {}).get('full_name', f'{name} - Trợ lý Du lịch AI')
+        return f'{name} - Trợ lý Du lịch AI'
     
     def get_agent_avatar(self) -> str:
         """Get agent avatar emoji"""
-        return self.agent_config.get('agent_settings', {}).get('avatar', '🤖')
+        return self.agent_config.get('avatar', '🤖')
     
     def get_personality(self) -> str:
         """Get agent personality type"""
-        return self.agent_config.get('agent_settings', {}).get('personality', 'friendly')
+        return self.agent_config.get('personality', 'friendly')
     
     def get_greeting_message(self) -> str:
         """Get random greeting message based on personality"""
@@ -115,7 +131,7 @@ class ConfigManager:
     
     def should_use_emoji(self) -> bool:
         """Check if should use emoji based on settings"""
-        emoji_usage = self.agent_config.get('response_style', {}).get('emoji_usage', 'moderate')
+        emoji_usage = self.agent_config.get('emoji_usage', 'moderate')
         
         if emoji_usage == 'minimal':
             return False
@@ -128,72 +144,82 @@ class ConfigManager:
     
     def get_preferred_emojis(self) -> List[str]:
         """Get list of preferred emojis"""
-        emoji_usage = self.agent_config.get('response_style', {}).get('emoji_usage', 'moderate')
+        emoji_usage = self.agent_config.get('emoji_usage', 'moderate')
         return self.personality_templates.get('emoji_styles', {}).get(emoji_usage, {}).get('preferred_emojis', ['😊', '✅'])
     
     def get_response_tone(self) -> str:
         """Get response tone (casual/formal)"""
-        return self.agent_config.get('response_style', {}).get('tone', 'casual')
+        return self.agent_config.get('tone', 'casual')
     
     def get_max_context_messages(self) -> int:
         """Get maximum context messages for rewriting"""
-        return self.agent_config.get('advanced_settings', {}).get('max_context_messages', 5)
+        return self.agent_config.get('context_messages', 5)
     
     def get_temperature(self) -> float:
         """Get LLM temperature setting"""
-        return self.agent_config.get('advanced_settings', {}).get('temperature', 0.7)
+        return self.agent_config.get('creativity', 0.7)
     
     def should_show_tool_indicators(self) -> bool:
         """Check if should show tool indicators"""
-        return self.agent_config.get('ui_customization', {}).get('show_tool_indicators', True)
+        return self.agent_config.get('show_tool_info', True)
     
     def should_show_context_preview(self) -> bool:
         """Check if should show context preview"""
-        return self.agent_config.get('ui_customization', {}).get('show_context_preview', True)
+        return self.agent_config.get('show_context_preview', True)
     
     def is_tts_enabled(self) -> bool:
         """Check if TTS is enabled"""
-        return self.agent_config.get('ui_customization', {}).get('enable_tts', True)
+        return self.agent_config.get('enable_tts', False)
     
     def get_primary_color(self) -> str:
         """Get primary theme color"""
-        return self.agent_config.get('ui_customization', {}).get('primary_color', '#2196F3')
+        return '#2196F3'  # Default color
     
     def get_accent_color(self) -> str:
         """Get accent theme color"""
-        return self.agent_config.get('ui_customization', {}).get('accent_color', '#4CAF50')
+        return '#4CAF50'  # Default color
     
     def get_user_travel_style(self) -> str:
         """Get user's preferred travel style"""
-        return self.user_preferences.get('travel_preferences', {}).get('travel_style', {}).get('budget', 'medium')
+        return self.user_preferences.get('budget_preference', 'medium')
     
     def get_user_interests(self) -> Dict[str, bool]:
         """Get user's travel interests"""
-        return self.user_preferences.get('travel_preferences', {}).get('interests', {})
+        interests_list = self.user_preferences.get('travel_interests', [])
+        # Convert list to dict format for backward compatibility
+        interests_dict = {}
+        for interest in interests_list:
+            interests_dict[interest] = True
+        return interests_dict
     
     def get_user_budget_range(self, category: str) -> str:
         """Get user's budget preference for category"""
-        return self.user_preferences.get('travel_preferences', {}).get('budget_preferences', {}).get(category, 'flexible')
+        return self.user_preferences.get('budget_preference', 'flexible')
     
     def get_user_dietary_restrictions(self) -> Dict[str, Any]:
         """Get user's dietary restrictions"""
-        return self.user_preferences.get('dietary_restrictions', {})
+        restrictions_list = self.user_preferences.get('dietary_restrictions', [])
+        # Convert to dict format
+        restrictions_dict = {}
+        for restriction in restrictions_list:
+            restrictions_dict[restriction] = True
+        return restrictions_dict
     
     def get_user_visited_places(self) -> List[str]:
         """Get list of places user has visited"""
-        return self.user_preferences.get('past_travels', {}).get('visited_places', [])
+        return self.user_preferences.get('visited_places', [])
     
     def get_user_bucket_list(self) -> List[str]:
         """Get user's travel bucket list"""
-        return self.user_preferences.get('past_travels', {}).get('bucket_list', [])
+        return self.user_preferences.get('bucket_list', [])
     
     def should_remember_preferences(self) -> bool:
         """Check if should remember user preferences"""
-        return self.user_preferences.get('personalization_settings', {}).get('remember_preferences', True)
+        return self.user_preferences.get('remember_preferences', True)
     
     def should_give_proactive_suggestions(self) -> bool:
         """Check if should give proactive suggestions"""
-        return self.user_preferences.get('personalization_settings', {}).get('proactive_suggestions', True)
+        return self.user_preferences.get('proactive_suggestions', True)
     
     def personalize_response(self, base_response: str, context: Dict[str, Any] = None) -> str:
         """Personalize response based on user preferences and agent personality"""
@@ -253,16 +279,17 @@ class ConfigManager:
     def update_user_preferences(self, updates: Dict[str, Any]) -> bool:
         """Update user preferences"""
         try:
-            # Deep merge updates into existing preferences
-            def deep_merge(base_dict, update_dict):
-                for key, value in update_dict.items():
-                    if key in base_dict and isinstance(base_dict[key], dict) and isinstance(value, dict):
-                        deep_merge(base_dict[key], value)
-                    else:
-                        base_dict[key] = value
+            # Get current preferences
+            current_prefs = self.user_preferences.copy()
             
-            deep_merge(self.user_preferences, updates)
-            return self.save_config('user', self.user_preferences)
+            # Update with new values
+            current_prefs.update(updates)
+            
+            # Save to database
+            success = self.save_config('user', current_prefs)
+            if success:
+                self.refresh_cache()
+            return success
             
         except Exception as e:
             st.error(f"Error updating preferences: {str(e)}")
@@ -271,7 +298,56 @@ class ConfigManager:
     def reset_user_preferences(self) -> bool:
         """Reset user preferences to default"""
         try:
-            default_prefs = self._load_config(self.user_preferences_path)
-            return self.save_config('user', default_prefs)
+            default_prefs = self.db_manager._get_default_user_preferences()
+            success = self.save_config('user', default_prefs)
+            if success:
+                self.refresh_cache()
+            return success
         except Exception:
             return False
+    
+    # ===== NEW DATABASE-SPECIFIC METHODS =====
+    
+    def get_conversation_history(self, conversation_id: str, limit: int = None) -> List[tuple]:
+        """Get conversation history"""
+        return self.db_manager.get_conversation_history(conversation_id, limit)
+    
+    def save_message(self, conversation_id: str, message_type: str, content: str, metadata: Dict = None) -> bool:
+        """Save message to conversation history"""
+        return self.db_manager.save_message(conversation_id, message_type, content, metadata)
+    
+    def create_conversation(self, title: str) -> str:
+        """Create new conversation"""
+        return self.db_manager.create_conversation(title)
+    
+    def get_conversations(self) -> List[Dict]:
+        """Get all conversations"""
+        return self.db_manager.get_conversations()
+    
+    def get_active_conversation(self) -> str:
+        """Get active conversation ID"""
+        return self.db_manager.get_active_conversation()
+    
+    def set_active_conversation(self, conversation_id: str) -> bool:
+        """Set active conversation"""
+        return self.db_manager.set_active_conversation(conversation_id)
+    
+    def save_car_booking(self, booking: Dict[str, Any]) -> int:
+        """Save car booking"""
+        return self.db_manager.save_car_booking(booking)
+    
+    def save_hotel_booking(self, booking: Dict[str, Any]) -> int:
+        """Save hotel booking"""
+        return self.db_manager.save_hotel_booking(booking)
+    
+    def get_user_bookings(self, booking_type: str = 'all') -> Dict[str, List]:
+        """Get user bookings"""
+        return self.db_manager.get_user_bookings('default', booking_type)
+    
+    def update_conversation_title(self, conversation_id: str, new_title: str) -> bool:
+        """Update conversation title"""
+        return self.db_manager.update_conversation_title(conversation_id, new_title)
+    
+    def delete_conversation(self, conversation_id: str) -> bool:
+        """Delete conversation"""
+        return self.db_manager.delete_conversation(conversation_id)

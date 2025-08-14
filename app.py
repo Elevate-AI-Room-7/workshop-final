@@ -19,6 +19,16 @@ from src.travel_planner_agent import TravelPlannerAgent
 from src.utils.tts import create_audio_button
 from src.config_manager import ConfigManager
 from components.config_sidebar import render_config_sidebar
+from components.conversation_manager import (
+    render_conversation_title_display, 
+    initialize_conversation_if_needed,
+    save_user_message,
+    save_assistant_message
+)
+from components.conversation_history_page import (
+    render_conversation_history_page,
+    update_conversation_title_if_needed
+)
 
 # Load environment variables
 load_dotenv()
@@ -105,6 +115,10 @@ div[data-testid="stChatMessage"]:has([data-testid="chat-message-assistant"]) > d
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
+# Initialize chat history from database if needed
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
+
 # Initialize config manager first
 if "config_manager" not in st.session_state:
     st.session_state["config_manager"] = ConfigManager()
@@ -124,15 +138,30 @@ agent_avatar = config_manager.get_agent_avatar()
 st.sidebar.title(f"{agent_avatar} {agent_name}")
 st.sidebar.markdown("*Trợ lý du lịch thông minh với AI và RAG*")
 
+# Initialize conversation system
+initialize_conversation_if_needed(config_manager)
+
+# Display current conversation title
+render_conversation_title_display(config_manager)
+
 # Render configuration sidebar
 render_config_sidebar()
+
+# Initialize selected page in session state
+if "selected_page" not in st.session_state:
+    st.session_state.selected_page = "💬 Chat"
 
 # Menu selection
 selected_page = st.sidebar.selectbox(
     "Chọn chức năng:",
-    ["💬 Chat", "📚 Knowledge Base"],
-    index=0
+    ["💬 Chat", "📜 Lịch sử hội thoại", "📚 Knowledge Base"],
+    index=["💬 Chat", "📜 Lịch sử hội thoại", "📚 Knowledge Base"].index(st.session_state.selected_page),
+    key="page_selectbox"
 )
+
+# Update session state when selectbox changes
+if selected_page != st.session_state.selected_page:
+    st.session_state.selected_page = selected_page
 
 # Initialize session state for page management
 if "current_action" not in st.session_state:
@@ -213,6 +242,9 @@ if selected_page == "💬 Chat":
             "content": user_input
         })
         
+        # Save user message to database
+        save_user_message(config_manager, user_input)
+        
         # Show dynamic spinner based on smart detection
         spinner_text = "🧠 Đang phân tích yêu cầu..."
         with st.spinner(spinner_text):
@@ -221,11 +253,20 @@ if selected_page == "💬 Chat":
                 
                 # Prepare chat history
                 chat_history = []
-                for msg in st.session_state["messages"][:-1]:  # Exclude current message
-                    if msg["role"] == "user":
-                        chat_history.append(("user", msg["content"]))
-                    elif msg["role"] == "assistant":
-                        chat_history.append(("assistant", msg["content"]))
+                
+                # First try to get from database if we have an active conversation
+                active_conversation_id = st.session_state.get('active_conversation_id')
+                if active_conversation_id:
+                    db_history = config_manager.get_conversation_history(active_conversation_id)
+                    # Use database history but exclude the last message (current user input)
+                    chat_history = db_history[:-1] if db_history else []
+                else:
+                    # Fallback to session state
+                    for msg in st.session_state["messages"][:-1]:  # Exclude current message
+                        if msg["role"] == "user":
+                            chat_history.append(("user", msg["content"]))
+                        elif msg["role"] == "assistant":
+                            chat_history.append(("assistant", msg["content"]))
                 
                 # Execute with new smart flow
                 result = agent.plan_travel(user_input, chat_history)
@@ -247,6 +288,12 @@ if selected_page == "💬 Chat":
                             "tool_used": result.get("tool_used", "RAG"),
                             "context": result.get("context", "")
                         })
+                        
+                        # Save assistant message to database
+                        save_assistant_message(config_manager, fallback_message, {
+                            "tool_used": result.get("tool_used", "RAG"),
+                            "need_fallback": True
+                        })
                     else:
                         st.session_state["messages"].append({
                             "role": "assistant",
@@ -260,6 +307,15 @@ if selected_page == "💬 Chat":
                             "city": result.get("city", ""),
                             "booking_details": result.get("booking_details", {})
                         })
+                        
+                        # Save assistant message to database
+                        save_assistant_message(config_manager, result["response"], {
+                            "tool_used": result.get("tool_used", "GENERAL"),
+                            "rag_used": result.get("rag_used", False),
+                            "city": result.get("city", ""),
+                            "weather_type": result.get("weather_type", ""),
+                            "booking_details": result.get("booking_details", {})
+                        })
                 else:
                     st.session_state["messages"].append({
                         "role": "assistant",
@@ -268,11 +324,24 @@ if selected_page == "💬 Chat":
                         "tool_used": result.get("tool_used", "ERROR")
                     })
                     
+                    # Save error message to database
+                    save_assistant_message(config_manager, result["response"], {
+                        "tool_used": result.get("tool_used", "ERROR"),
+                        "error": True
+                    })
+                    
             except Exception as e:
+                error_message = f"❌ Xin lỗi, có lỗi xảy ra: {str(e)}"
                 st.session_state["messages"].append({
                     "role": "assistant",
-                    "content": f"❌ Xin lỗi, có lỗi xảy ra: {str(e)}",
+                    "content": error_message,
                     "error": True
+                })
+                
+                # Save exception message to database
+                save_assistant_message(config_manager, error_message, {
+                    "error": True,
+                    "exception": str(e)
                 })
         
         # Rerun to show new messages
@@ -444,6 +513,13 @@ if selected_page == "💬 Chat":
                         )
                     
                     st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Auto-update conversation title if needed (after first user message)
+    update_conversation_title_if_needed(config_manager)
+
+elif selected_page == "📜 Lịch sử hội thoại":
+    # Render conversation history page
+    render_conversation_history_page(config_manager)
 
 elif selected_page == "📚 Knowledge Base":
     # Get RAG system from agent
