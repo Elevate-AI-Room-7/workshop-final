@@ -51,13 +51,25 @@ class TravelPlannerAgent:
         self.no_relevant_info = False
         self.fallback_query = ""
         
-        # Initialize LLM
-        self.llm = ChatOpenAI(
-            model="GPT-4o-mini",
-            temperature=0.7,
-            openai_api_key=self.openai_api_key,
-            base_url=self.openai_endpoint
-        )
+        # Initialize LLM  
+        try:
+            from langchain_openai import AzureChatOpenAI
+            self.llm = AzureChatOpenAI(
+                azure_deployment="GPT-4o-mini",
+                azure_endpoint=self.openai_endpoint,
+                api_key=self.openai_api_key,
+                api_version="2024-07-01-preview",
+                temperature=0.7
+            )
+            logger.info("Using AzureChatOpenAI")
+        except Exception as e:
+            logger.warning(f"Failed to initialize AzureChatOpenAI: {e}")
+            logger.info("Falling back to regular ChatOpenAI")
+            self.llm = ChatOpenAI(
+                model="gpt-4o-mini",
+                temperature=0.7,
+                openai_api_key=self.openai_api_key
+            )
         
         # Setup tools and agent
         self.tools = self._setup_tools()

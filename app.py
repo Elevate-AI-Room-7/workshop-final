@@ -104,7 +104,17 @@ if "messages" not in st.session_state:
 
 if "travel_agent" not in st.session_state:
     with st.spinner("🔄 Đang khởi tạo AI Travel Assistant..."):
-        st.session_state["travel_agent"] = TravelPlannerAgent()
+        try:
+            agent = TravelPlannerAgent()
+            st.session_state["travel_agent"] = agent
+            
+            # Debug info
+            rag_type = type(agent.rag_system).__name__
+            st.sidebar.info(f"🔧 RAG System: {rag_type}")
+            
+        except Exception as e:
+            st.error(f"❌ Lỗi khởi tạo: {str(e)}")
+            st.stop()
 
 # Sidebar menu
 st.sidebar.title("🌍 AI Travel Assistant")
@@ -536,6 +546,10 @@ elif selected_page == "📚 Knowledge Base":
             if submitted:
                 if new_id and new_text:
                     try:
+                        # Debug info
+                        st.write(f"🔧 Debug: RAG System type: {type(rag_system).__name__}")
+                        st.write(f"🔧 Debug: Has upsert method: {hasattr(rag_system, 'upsert')}")
+                        
                         metadata = {
                             "location": location,
                             "category": category,
@@ -548,7 +562,13 @@ elif selected_page == "📚 Knowledge Base":
                         metadata = rag_system._sanitize_metadata(metadata)
                         metadata["text"] = new_text
                         
-                        rag_system.upsert([(new_id, embedding, metadata)])
+                        # Check if upsert method exists before calling
+                        if hasattr(rag_system, 'upsert'):
+                            rag_system.upsert([(new_id, embedding, metadata)])
+                        else:
+                            st.error(f"❌ RAG system {type(rag_system).__name__} không có method upsert")
+                            st.write(f"Available methods: {[m for m in dir(rag_system) if not m.startswith('_')]}")
+                            raise AttributeError(f"'{type(rag_system).__name__}' object has no attribute 'upsert'")
                         
                         st.success(f"✅ Đã tạo record '{new_id}' thành công!")
                         st.session_state["current_action"] = "list"
