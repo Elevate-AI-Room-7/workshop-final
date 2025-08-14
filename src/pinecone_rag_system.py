@@ -4,10 +4,16 @@ Pinecone RAG System - Retrieval-Augmented Generation with Pinecone Vector Databa
 
 import os
 import json
+import sys
 from typing import Dict, Any, List, Optional
 from pinecone import Pinecone, ServerlessSpec
 from openai import AzureOpenAI
 import logging
+import warnings
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config.ssl_config import configure_openai_client, disable_ssl_warnings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,9 +31,16 @@ class PineconeRAGSystem:
         self.embed_model = os.getenv("AZURE_OPENAI_EMBED_MODEL", "text-embedding-3-small")
         self.index_name = os.getenv("PINECONE_INDEX_NAME", "travel-agency")
         
+        # SSL Verification setting
+        self.verify_ssl = os.getenv("VERIFY_SSL", "True").lower() != "false"
+        
+        # Disable SSL warnings if needed
+        disable_ssl_warnings()
+        
         # Initialize clients
         self.pc = Pinecone(api_key=self.pinecone_api_key)
-        self.embedding_client = AzureOpenAI(
+        self.embedding_client = configure_openai_client(
+            AzureOpenAI,
             api_key=self.azure_api_key,
             azure_endpoint=self.azure_endpoint,
             api_version="2024-07-01-preview"
@@ -247,7 +260,8 @@ class PineconeRAGSystem:
     def _generate_answer_with_sources(self, question: str, context: str, chunk_mapping: Dict) -> Dict[str, Any]:
         """Generate answer and track which chunks were actually used"""
         try:
-            client = AzureOpenAI(
+            client = configure_openai_client(
+                AzureOpenAI,
                 api_key=self.azure_api_key,
                 azure_endpoint=self.azure_endpoint,
                 api_version="2024-07-01-preview"
@@ -326,7 +340,8 @@ class PineconeRAGSystem:
     def _generate_answer(self, question: str, context: str) -> str:
         """Generate answer using context and question"""
         try:
-            client = AzureOpenAI(
+            client = configure_openai_client(
+                AzureOpenAI,
                 api_key=self.azure_api_key,
                 azure_endpoint=self.azure_endpoint,
                 api_version="2024-07-01-preview"

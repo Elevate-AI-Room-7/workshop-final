@@ -9,6 +9,7 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 import requests
 import json
+import warnings
 from .pinecone_rag_system import PineconeRAGSystem
 
 
@@ -24,6 +25,13 @@ class TravelPlannerAgent:
         self.openai_api_key = os.getenv("AZURE_OPENAI_API_KEY")
         self.weather_api_key = os.getenv("WEATHER_API_KEY")
         self.openai_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        
+        # SSL Verification setting
+        self.verify_ssl = os.getenv("VERIFY_SSL", "True").lower() != "false"
+        if not self.verify_ssl:
+            # Disable SSL warnings when verification is disabled
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         
         # Initialize RAG system
         self.rag_system = PineconeRAGSystem()
@@ -76,7 +84,7 @@ class TravelPlannerAgent:
             """Get weather information for a city"""
             try:
                 url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={self.weather_api_key}&units=metric"
-                response = requests.get(url, timeout=10)
+                response = requests.get(url, timeout=10, verify=self.verify_ssl)
                 
                 if response.status_code != 200:
                     return f"Không tìm thấy thông tin thời tiết cho {city}"
