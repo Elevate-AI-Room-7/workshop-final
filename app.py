@@ -27,6 +27,10 @@ st.set_page_config(
     layout="wide"
 )
 
+# Set default port via environment
+if "STREAMLIT_SERVER_PORT" not in os.environ:
+    os.environ["STREAMLIT_SERVER_PORT"] = "8505"
+
 # Custom CSS for chat styling
 st.markdown("""
 <style>

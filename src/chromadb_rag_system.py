@@ -6,14 +6,21 @@ import os
 import json
 import sys
 from typing import Dict, Any, List, Optional
+from dotenv import load_dotenv
 import chromadb
 from chromadb.config import Settings
 from openai import AzureOpenAI
 import logging
 import warnings
 
+# Load environment variables
+load_dotenv()
+
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Try to import SSL config, but don't fail if not available
 try:
@@ -24,9 +31,6 @@ except ImportError:
         return client
     def disable_ssl_warnings():
         pass
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class ChromaDBRAGSystem:
