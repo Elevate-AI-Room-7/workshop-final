@@ -327,6 +327,16 @@ class InMemoryRAGSystem:
             logger.error(f"Error deleting documents: {e}")
             return False
     
+    def get_index_stats(self) -> Dict:
+        """Get statistics"""
+        return {
+            "total_vectors": len(self.documents),
+            "dimension": 1536,
+            "index_fullness": 0,
+            "database": "In-Memory",
+            "status": "active"
+        }
+    
     # Compatibility methods for Pinecone-like interface
     
     def index(self):

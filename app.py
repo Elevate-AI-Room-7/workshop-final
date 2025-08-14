@@ -108,9 +108,19 @@ if "travel_agent" not in st.session_state:
             agent = TravelPlannerAgent()
             st.session_state["travel_agent"] = agent
             
-            # Debug info
-            rag_type = type(agent.rag_system).__name__
-            st.sidebar.info(f"🔧 RAG System: {rag_type}")
+            # Debug info - show RAG system type
+            rag_type = type(agent.rag_system).__name__.replace('RAGSystem', '')
+            st.sidebar.success(f"🔧 RAG System: {rag_type}")
+            
+            # Show additional info if available
+            try:
+                stats = agent.rag_system.get_index_stats()
+                if stats.get('database'):
+                    st.sidebar.info(f"📊 Database: {stats['database']}")
+                if stats.get('total_vectors', 0) > 0:
+                    st.sidebar.info(f"📚 Records: {stats['total_vectors']}")
+            except:
+                pass
             
         except Exception as e:
             st.error(f"❌ Lỗi khởi tạo: {str(e)}")
@@ -414,10 +424,22 @@ elif selected_page == "📚 Knowledge Base":
             st.metric("📊 Records", "0")
     
     with col2:
-        st.metric("📐 Dimension", "1536")
+        try:
+            stats = rag_system.get_index_stats()
+            dimension = stats.get('dimension', 1536)
+            st.metric("📐 Dimension", dimension)
+        except:
+            st.metric("📐 Dimension", "1536")
     
     with col3:
-        st.metric("🗃️ Database", "Pinecone")
+        try:
+            stats = rag_system.get_index_stats()
+            database_name = stats.get('database', type(rag_system).__name__.replace('RAGSystem', ''))
+            st.metric("🗃️ Database", database_name)
+        except:
+            # Fallback to RAG system class name
+            rag_type = type(rag_system).__name__.replace('RAGSystem', '')
+            st.metric("🗃️ Database", rag_type)
     
     with col4:
         if st.button("➕ Tạo mới", type="primary", use_container_width=True):

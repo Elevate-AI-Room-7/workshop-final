@@ -424,6 +424,7 @@ class PineconeRAGSystem:
                 "total_vectors": 0,
                 "dimension": 1536,
                 "index_fullness": 0,
+                "database": "Pinecone",
                 "status": "offline"
             }
             
@@ -431,8 +432,10 @@ class PineconeRAGSystem:
             stats = self.index.describe_index_stats()
             return {
                 "total_vectors": stats.get('total_vector_count', 0),
-                "dimension": stats.get('dimension', 0),
-                "index_fullness": stats.get('index_fullness', 0)
+                "dimension": stats.get('dimension', 1536),
+                "index_fullness": stats.get('index_fullness', 0),
+                "database": "Pinecone",
+                "index_name": self.index_name
             }
         except Exception as e:
             logger.error(f"Error getting index stats: {e}")
