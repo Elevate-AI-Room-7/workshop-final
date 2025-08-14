@@ -9,7 +9,7 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 import requests
 import json
-from .pinecone_rag_system import PineconeRAGSystem
+from .rag_system import create_rag_system
 from .config_manager import ConfigManager
 
 
