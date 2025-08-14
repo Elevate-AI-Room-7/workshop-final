@@ -12,8 +12,9 @@ python-dotenv>=1.0.0
 # OpenAI & Azure OpenAI
 openai>=1.6.0
 
-# Pinecone Vector Database
+# Vector Databases
 pinecone>=3.0.0
+chromadb>=0.4.0
 
 # LangChain Framework
 langchain>=0.1.0

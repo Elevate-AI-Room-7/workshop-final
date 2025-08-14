@@ -10,13 +10,13 @@ from langchain.prompts import PromptTemplate
 import requests
 import json
 import warnings
-from .pinecone_rag_system import PineconeRAGSystem
+from .rag_factory import create_rag_system
 
 
 class TravelPlannerAgent:
     """
     Unified Travel Planner Agent that combines:
-    - RAG system for travel knowledge
+    - RAG system for travel knowledge (supports both Pinecone and ChromaDB)
     - Weather information
     - Hotel booking functionality
     """
@@ -33,8 +33,8 @@ class TravelPlannerAgent:
             import urllib3
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         
-        # Initialize RAG system
-        self.rag_system = PineconeRAGSystem()
+        # Initialize RAG system using factory pattern
+        self.rag_system = create_rag_system()
         
         # Initialize variables for tracking sources and fallback
         self.last_rag_sources = []
