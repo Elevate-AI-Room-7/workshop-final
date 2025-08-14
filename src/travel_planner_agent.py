@@ -28,6 +28,9 @@ class TravelPlannerAgent:
         # Initialize RAG system
         self.rag_system = PineconeRAGSystem()
         
+        # Initialize variables for tracking sources
+        self.last_rag_sources = []
+        
         # Initialize LLM
         self.llm = ChatOpenAI(
             model="GPT-4o-mini",
@@ -47,7 +50,13 @@ class TravelPlannerAgent:
             """Search travel knowledge base using RAG"""
             try:
                 result = self.rag_system.query(query)
-                return result.get('answer', 'Không tìm thấy thông tin phù hợp.')
+                answer = result.get('answer', 'Không tìm thấy thông tin phù hợp.')
+                sources = result.get('sources', [])
+                
+                # Store sources in class variable for access later
+                self.last_rag_sources = sources
+                
+                return answer
             except Exception as e:
                 return f"Lỗi tìm kiếm: {str(e)}"
         
@@ -214,6 +223,9 @@ class TravelPlannerAgent:
             Trả lời bằng tiếng Việt, thân thiện và chi tiết.
             """
             
+            # Clear previous sources
+            self.last_rag_sources = []
+            
             # Run agent
             response = self.agent.run({
                 "input": f"{system_prompt}\n\nYêu cầu của khách hàng: {user_input}",
@@ -223,7 +235,8 @@ class TravelPlannerAgent:
             return {
                 "success": True,
                 "response": response,
-                "sources": "Travel knowledge base + Tools"
+                "sources": self.last_rag_sources,
+                "rag_used": len(self.last_rag_sources) > 0
             }
             
         except Exception as e:

@@ -179,8 +179,20 @@ if selected_page == "💬 Chat":
             "content": user_input
         })
         
-        # Show processing spinner
-        with st.spinner("🤔 Đang suy nghĩ..."):
+        # Detect if query might use RAG
+        rag_keywords = [
+            "gợi ý", "thông tin", "địa điểm", "du lịch", "nhà hàng", "khách sạn", 
+            "hoạt động", "lịch trình", "kế hoạch", "điểm đến", "ăn uống", "tham quan",
+            "hà nội", "hồ chí minh", "đà nẵng", "nha trang", "phú quốc", "sapa", 
+            "hạ long", "huế", "hội an", "đà lạt", "cần thơ", "vịnh", "núi", "biển",
+            "món ăn", "đặc sản", "văn hóa", "lễ hội", "chùa", "đền", "bảo tàng",
+            "resort", "villa", "homestay", "booking", "giá", "tour", "package"
+        ]
+        likely_rag = any(keyword in user_input.lower() for keyword in rag_keywords)
+        
+        # Show appropriate spinner
+        spinner_text = "🔍 Đang tìm kiếm..." if likely_rag else "🤔 Đang suy nghĩ..."
+        with st.spinner(spinner_text):
             try:
                 agent = st.session_state["travel_agent"]
                 
@@ -200,7 +212,8 @@ if selected_page == "💬 Chat":
                     st.session_state["messages"].append({
                         "role": "assistant",
                         "content": result["response"],
-                        "sources": result.get("sources", ""),
+                        "sources": result.get("sources", []),
+                        "rag_used": result.get("rag_used", False),
                         "mode": result.get("mode", "full")
                     })
                 else:
@@ -272,6 +285,26 @@ if selected_page == "💬 Chat":
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
+                
+                # Show sources if RAG was used
+                if message.get("rag_used") and message.get("sources"):
+                    sources = message["sources"]
+                    if sources:
+                        # Limit to 3 sources and add + if more
+                        display_sources = sources[:3]
+                        has_more = len(sources) > 3
+                        
+                        sources_text = ", ".join([f"`{source}`" for source in display_sources])
+                        if has_more:
+                            sources_text += f" +{len(sources) - 3}"
+                        
+                        st.markdown(f"""
+                        <div style="margin-left: 40px; margin-top: 5px;">
+                            <small style="color: #666; font-size: 12px;">
+                                📚 <strong>Sources:</strong> {sources_text}
+                            </small>
+                        </div>
+                        """, unsafe_allow_html=True)
                 
                 # TTS button for the latest message
                 if i == len(st.session_state["messages"]) - 1 and not message.get("error"):

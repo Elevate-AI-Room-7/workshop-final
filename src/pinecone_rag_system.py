@@ -206,7 +206,8 @@ class PineconeRAGSystem:
             return {
                 "answer": answer,
                 "source_documents": documents,
-                "context_used": context
+                "context_used": context,
+                "sources": [doc["id"] for doc in documents]  # Add source IDs
             }
             
         except Exception as e:
