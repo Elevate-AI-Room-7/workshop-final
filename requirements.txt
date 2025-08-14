@@ -14,7 +14,8 @@ openai>=1.6.0
 
 # Vector Databases
 pinecone>=3.0.0
-chromadb>=0.4.0
+chromadb>=0.4.0  # Optional: Use scripts/install_chromadb.bat if installation fails
+scikit-learn>=1.3.0  # For cosine similarity in fallback mode
 
 # LangChain Framework
 langchain>=0.1.0

@@ -9,28 +9,69 @@ from typing import Union
 logger = logging.getLogger(__name__)
 
 
-def create_rag_system() -> Union['PineconeRAGSystem', 'ChromaDBRAGSystem']:
+def create_rag_system() -> Union['PineconeRAGSystem', 'ChromaDBRAGSystem', 'InMemoryRAGSystem']:
     """
     Factory function to create appropriate RAG system based on environment configuration
     
     Returns:
-        RAG system instance (either PineconeRAGSystem or ChromaDBRAGSystem)
+        RAG system instance (PineconeRAGSystem, ChromaDBRAGSystem, or InMemoryRAGSystem)
     """
     vector_db_type = os.getenv("VECTOR_DB_TYPE", "chromadb").lower()
     
     logger.info(f"Creating RAG system with vector DB type: {vector_db_type}")
     
     if vector_db_type == "pinecone":
-        from .pinecone_rag_system import PineconeRAGSystem
-        return PineconeRAGSystem()
+        try:
+            from .pinecone_rag_system import PineconeRAGSystem
+            return PineconeRAGSystem()
+        except Exception as e:
+            logger.error(f"Failed to initialize Pinecone: {e}")
+            logger.info("Falling back to in-memory RAG system")
+            return _create_fallback_rag_system()
+    
     elif vector_db_type == "chromadb":
-        from .chromadb_rag_system import ChromaDBRAGSystem
-        return ChromaDBRAGSystem()
+        try:
+            from .chromadb_rag_system import ChromaDBRAGSystem
+            return ChromaDBRAGSystem()
+        except ImportError as e:
+            logger.error(f"ChromaDB not installed: {e}")
+            logger.info("ChromaDB requires additional dependencies. See scripts/install_chromadb.bat")
+            logger.info("Falling back to Pinecone or in-memory system")
+            return _create_fallback_rag_system()
+        except Exception as e:
+            logger.error(f"Failed to initialize ChromaDB: {e}")
+            logger.info("Falling back to in-memory RAG system")
+            return _create_fallback_rag_system()
+    
     else:
-        # Default to ChromaDB if unknown type
-        logger.warning(f"Unknown vector DB type: {vector_db_type}, defaulting to ChromaDB")
-        from .chromadb_rag_system import ChromaDBRAGSystem
-        return ChromaDBRAGSystem()
+        # Default to ChromaDB if unknown type, with fallback
+        logger.warning(f"Unknown vector DB type: {vector_db_type}, trying ChromaDB first")
+        try:
+            from .chromadb_rag_system import ChromaDBRAGSystem
+            return ChromaDBRAGSystem()
+        except:
+            return _create_fallback_rag_system()
+
+def _create_fallback_rag_system():
+    """Create fallback RAG system when primary options fail"""
+    # Try Pinecone first if available
+    try:
+        from .pinecone_rag_system import PineconeRAGSystem
+        pinecone_api_key = os.getenv("PINECONE_API_KEY")
+        if pinecone_api_key:
+            logger.info("Trying Pinecone as fallback")
+            return PineconeRAGSystem()
+    except Exception as e:
+        logger.error(f"Pinecone fallback failed: {e}")
+    
+    # Fall back to in-memory system
+    logger.info("Using in-memory RAG system (no persistence)")
+    return _create_in_memory_rag_system()
+
+def _create_in_memory_rag_system():
+    """Create a simple in-memory RAG system"""
+    from .in_memory_rag_system import InMemoryRAGSystem
+    return InMemoryRAGSystem()
 
 
 class RAGSystemInterface:

@@ -548,7 +548,7 @@ elif selected_page == "📚 Knowledge Base":
                         metadata = rag_system._sanitize_metadata(metadata)
                         metadata["text"] = new_text
                         
-                        rag_system.index.upsert([(new_id, embedding, metadata)])
+                        rag_system.upsert([(new_id, embedding, metadata)])
                         
                         st.success(f"✅ Đã tạo record '{new_id}' thành công!")
                         st.session_state["current_action"] = "list"
@@ -570,15 +570,17 @@ elif selected_page == "📚 Knowledge Base":
             st.rerun()
         
         try:
-            results = rag_system.index.query(
-                id=item_id,
-                top_k=1,
-                include_metadata=True
-            )
+            # Search for the specific document
+            search_results = rag_system.search(item_id, top_k=10)
+            # Find exact match by ID
+            record_found = None
+            for result in search_results:
+                if result.get('id') == item_id:
+                    record_found = result
+                    break
             
-            if results.matches:
-                record = results.matches[0]
-                metadata = record.metadata
+            if record_found:
+                metadata = record_found.get('metadata', {})
                 
                 # Display details
                 st.info(f"**🆔 ID:** {item_id}")
@@ -625,15 +627,17 @@ elif selected_page == "📚 Knowledge Base":
             st.rerun()
         
         try:
-            results = rag_system.index.query(
-                id=item_id,
-                top_k=1,
-                include_metadata=True
-            )
+            # Search for the specific document
+            search_results = rag_system.search(item_id, top_k=10)
+            # Find exact match by ID
+            record_found = None
+            for result in search_results:
+                if result.get('id') == item_id:
+                    record_found = result
+                    break
             
-            if results.matches:
-                record = results.matches[0]
-                existing_metadata = record.metadata
+            if record_found:
+                existing_metadata = record_found.get('metadata', {})
                 
                 with st.form("edit_form"):
                     updated_text = st.text_area(
@@ -682,7 +686,7 @@ elif selected_page == "📚 Knowledge Base":
                             metadata = rag_system._sanitize_metadata(metadata)
                             metadata["text"] = updated_text
                             
-                            rag_system.index.upsert([(item_id, embedding, metadata)])
+                            rag_system.upsert([(item_id, embedding, metadata)])
                             
                             st.success(f"✅ Đã cập nhật record '{item_id}' thành công!")
                             st.session_state["current_action"] = "list"
@@ -707,15 +711,17 @@ elif selected_page == "📚 Knowledge Base":
             st.rerun()
         
         try:
-            results = rag_system.index.query(
-                id=item_id,
-                top_k=1,
-                include_metadata=True
-            )
+            # Search for the specific document
+            search_results = rag_system.search(item_id, top_k=10)
+            # Find exact match by ID
+            record_found = None
+            for result in search_results:
+                if result.get('id') == item_id:
+                    record_found = result
+                    break
             
-            if results.matches:
-                record = results.matches[0]
-                metadata = record.metadata
+            if record_found:
+                metadata = record_found.get('metadata', {})
                 
                 st.warning("⚠️ **Bạn có chắc chắn muốn xóa record này?**")
                 
@@ -737,7 +743,7 @@ elif selected_page == "📚 Knowledge Base":
                 with col2:
                     if st.button("🗑️ XÓA VĨNH VIỄN", type="primary", use_container_width=True):
                         try:
-                            rag_system.index.delete(ids=[item_id])
+                            rag_system.delete([item_id])
                             st.success(f"✅ Đã xóa record '{item_id}' thành công!")
                             st.session_state["current_action"] = "list"
                             st.rerun()

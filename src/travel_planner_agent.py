@@ -10,7 +10,11 @@ from langchain.prompts import PromptTemplate
 import requests
 import json
 import warnings
+import logging
 from .rag_factory import create_rag_system
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class TravelPlannerAgent:
@@ -34,7 +38,13 @@ class TravelPlannerAgent:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         
         # Initialize RAG system using factory pattern
-        self.rag_system = create_rag_system()
+        try:
+            logger.info("Initializing RAG system...")
+            self.rag_system = create_rag_system()
+            logger.info(f"RAG system initialized successfully: {type(self.rag_system).__name__}")
+        except Exception as e:
+            logger.error(f"Failed to initialize RAG system: {e}")
+            raise
         
         # Initialize variables for tracking sources and fallback
         self.last_rag_sources = []
@@ -273,6 +283,7 @@ class TravelPlannerAgent:
             }
             
         except Exception as e:
+            logger.error(f"Error in plan_travel: {e}", exc_info=True)
             return {
                 "success": False,
                 "response": f"Xin lỗi, có lỗi xảy ra: {str(e)}",
@@ -308,6 +319,7 @@ class TravelPlannerAgent:
                 "general_knowledge": True
             }
         except Exception as e:
+            logger.error(f"Error in get_general_knowledge_response: {e}", exc_info=True)
             return {
                 "success": False,
                 "response": f"Xin lỗi, có lỗi xảy ra: {str(e)}",
