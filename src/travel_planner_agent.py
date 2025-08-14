@@ -249,6 +249,8 @@ class TravelPlannerAgent:
                 result = self._execute_hotel_booking(user_input, rewritten_context)
             elif detected_tool == "CAR":
                 result = self._execute_car_booking(user_input, rewritten_context)
+            elif detected_tool == "TRAVEL_PLAN":
+                result = self._execute_travel_planning(user_input, rewritten_context, chat_history)
             else:
                 # Default to general conversation
                 result = self._execute_general_response(user_input, rewritten_context)
@@ -346,19 +348,21 @@ class TravelPlannerAgent:
             2. WEATHER - Kiểm tra thời tiết hiện tại hoặc dự đoán thời tiết tương lai
             3. HOTEL - Đặt phòng khách sạn
             4. CAR - Đặt xe/vận chuyển
-            5. GENERAL - Trò chuyện chung, không cần công cụ đặc biệt
+            5. TRAVEL_PLAN - Lên kế hoạch du lịch chi tiết, lưu kế hoạch
+            6. GENERAL - Trò chuyện chung, không cần công cụ đặc biệt
             
             Quy tắc phân loại (ĐẶC BIỆT chú ý ngữ cảnh):
             - RAG: Hỏi về địa điểm, danh lam, ẩm thực, hoạt động du lịch, "có gì", "làm gì"
             - WEATHER: Hỏi về thời tiết, nhiệt độ, trời mưa/nắng, dự báo (CHÚ Ý: nếu ngữ cảnh có địa điểm, thời tiết sẽ của địa điểm đó)
             - HOTEL: Yêu cầu đặt phòng, tìm khách sạn, booking accommodation
             - CAR: Yêu cầu đặt xe, thuê xe, book transportation, di chuyển
+            - TRAVEL_PLAN: Lên kế hoạch du lịch, tạo itinerary, lưu kế hoạch, "lên kế hoạch", "tạo kế hoạch", "lưu kế hoạch"
             - GENERAL: Chào hỏi, cảm ơn, câu hỏi chung không liên quan du lịch
             
             QUAN TRỌNG: Nếu câu hỏi đơn giản như "thời tiết" nhưng ngữ cảnh có địa điểm, 
             vẫn chọn WEATHER vì người dùng muốn biết thời tiết của địa điểm đó.
             
-            Trả lời CHÍNH XÁC một trong: RAG, WEATHER, HOTEL, CAR, GENERAL
+            Trả lời CHÍNH XÁC một trong: RAG, WEATHER, HOTEL, CAR, TRAVEL_PLAN, GENERAL
             """
             
             detected = self.llm.predict(detection_prompt).strip().upper()
@@ -371,7 +375,7 @@ class TravelPlannerAgent:
                 print(f"🔧 Detected tool: {detected}")
             
             # Validate detection result
-            valid_tools = ["RAG", "WEATHER", "HOTEL", "CAR", "GENERAL"]
+            valid_tools = ["RAG", "WEATHER", "HOTEL", "CAR", "TRAVEL_PLAN", "GENERAL"]
             if detected in valid_tools:
                 if self.debug_mode:
                     print(f"✅ Valid tool selected: {detected}")
@@ -390,6 +394,8 @@ class TravelPlannerAgent:
                     fallback = "HOTEL"
                 elif any(keyword in user_lower for keyword in ["đặt xe", "thuê xe", "car", "taxi", "di chuyển", "transport"]):
                     fallback = "CAR"
+                elif any(keyword in user_lower for keyword in ["lên kế hoạch", "tạo kế hoạch", "kế hoạch du lịch", "itinerary", "lưu kế hoạch"]):
+                    fallback = "TRAVEL_PLAN"
                 elif any(keyword in user_lower for keyword in ["địa điểm", "danh lam", "thắng cảnh", "du lịch", "gợi ý", "tham quan", "có gì"]):
                     fallback = "RAG"
                 else:
@@ -588,6 +594,66 @@ class TravelPlannerAgent:
                 "response": f"Lỗi đặt xe: {str(e)}",
                 "error": str(e),
                 "tool_used": "CAR"
+            }
+    
+    def _execute_travel_planning(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """
+        Execute travel planning with interactive conversation flow
+        """
+        try:
+            # Extract travel plan information from user input, context, and chat history
+            travel_info = self._extract_travel_plan_info(user_input, context, chat_history)
+            
+            # Get required vs optional questions based on user specification
+            required_questions = [
+                'destination', 'dates', 'duration', 'participants', 
+                'budget', 'visa_requirements', 'health_requirements'
+            ]
+            
+            optional_questions = [
+                'travel_style', 'activities', 'accommodations', 
+                'transportation', 'meals', 'interests'
+            ]
+            
+            # Check what's missing from required information
+            missing_required = []
+            for question in required_questions:
+                if not travel_info.get(question):
+                    missing_required.append(question)
+            
+            if missing_required:
+                # Request missing required information
+                missing_info_message = self._request_missing_travel_info(missing_required, travel_info)
+                return {
+                    "success": False,
+                    "response": missing_info_message,
+                    "sources": ["AI Travel Planning System"],
+                    "rag_used": False,
+                    "tool_used": "TRAVEL_PLAN_VALIDATION",
+                    "travel_info": travel_info,
+                    "missing_required": missing_required
+                }
+            
+            # All required information is complete - show confirmation
+            confirmation_message = self._generate_travel_plan_confirmation(travel_info)
+            
+            return {
+                "success": True,
+                "response": confirmation_message,
+                "sources": ["AI Travel Planning System"],
+                "rag_used": False,
+                "tool_used": "TRAVEL_PLAN_CONFIRMATION",
+                "context": context,
+                "travel_info": travel_info,
+                "awaiting_confirmation": True
+            }
+            
+        except Exception as e:
+            return {
+                "success": False,
+                "response": f"Lỗi lên kế hoạch du lịch: {str(e)}",
+                "error": str(e),
+                "tool_used": "TRAVEL_PLAN"
             }
     
     def _execute_general_response(self, user_input: str, context: str) -> Dict[str, Any]:
@@ -1383,5 +1449,519 @@ Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin."""
 
 Trả lời "**Có**" hoặc "**Xác nhận**" để tiến hành đặt xe.
 Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin."""
+        
+        return message
+    
+    # Travel Planning helper methods
+    def _extract_travel_plan_info(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """
+        Extract travel plan information from user input, context, and chat history
+        Based on the JSON schema provided by the user
+        """
+        travel_info = {}
+        
+        # Extract destination information
+        travel_info['destination'] = self._extract_travel_destination(user_input, context, chat_history)
+        
+        # Extract dates and duration
+        travel_info['dates'] = self._extract_travel_dates(user_input, context, chat_history)
+        travel_info['duration'] = self._extract_travel_duration(user_input, context, chat_history)
+        
+        # Extract participants
+        travel_info['participants'] = self._extract_travel_participants(user_input, context, chat_history)
+        
+        # Extract budget
+        travel_info['budget'] = self._extract_travel_budget(user_input, context, chat_history)
+        
+        # Extract requirements (visa, health, etc.)
+        travel_info['visa_requirements'] = self._extract_visa_requirements(user_input, context, chat_history)
+        travel_info['health_requirements'] = self._extract_health_requirements(user_input, context, chat_history)
+        
+        # Extract optional preferences
+        travel_info['travel_style'] = self._extract_travel_style(user_input, context, chat_history)
+        travel_info['activities'] = self._extract_preferred_activities(user_input, context, chat_history)
+        travel_info['accommodations'] = self._extract_accommodation_preferences(user_input, context, chat_history)
+        travel_info['transportation'] = self._extract_transportation_preferences(user_input, context, chat_history)
+        travel_info['meals'] = self._extract_meal_preferences(user_input, context, chat_history)
+        travel_info['interests'] = self._extract_interests_from_config()
+        
+        return travel_info
+    
+    def _extract_travel_destination(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract destination information"""
+        import re
+        
+        text = user_input + " " + context
+        
+        # Look for destination patterns
+        patterns = [
+            r'(?:đến|tới|du lịch|ghé)\s+([A-Za-zÀ-ỹ\s,]+)',
+            r'điểm đến:\s*([A-Za-zÀ-ỹ\s,]+)',
+            r'(?:ở|tại)\s+([A-Za-zÀ-ỹ\s,]+)'
+        ]
+        
+        destination_info = {}
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                location = match.group(1).strip()
+                if len(location) > 2:
+                    destination_info['primary'] = location
+                    destination_info['country'] = self._determine_country(location)
+                    destination_info['region'] = self._determine_region(location)
+                    break
+        
+        return destination_info if destination_info else None
+    
+    def _extract_travel_dates(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract travel dates"""
+        import re
+        from datetime import datetime, timedelta
+        
+        text = user_input + " " + context
+        dates_info = {}
+        
+        # Look for date patterns
+        patterns = [
+            r'ngày\s+(\d{1,2})/(\d{1,2})/(\d{4})',
+            r'(\d{1,2})/(\d{1,2})/(\d{4})',
+            r'ngày\s+(\d{1,2})\s+tháng\s+(\d{1,2})\s+năm\s+(\d{4})',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text)
+            if match:
+                try:
+                    if len(match.groups()) == 3:
+                        day, month, year = match.groups()
+                        start_date = datetime(int(year), int(month), int(day))
+                        dates_info['start_date'] = start_date.strftime("%Y-%m-%d")
+                        dates_info['flexible'] = False
+                        break
+                    elif len(match.groups()) == 2:
+                        day, month = match.groups()
+                        year = datetime.now().year
+                        date_obj = datetime(year, int(month), int(day))
+                        dates_info['start_date'] = date_obj.strftime("%Y-%m-%d")
+                        break
+                except:
+                    continue
+        
+        # Look for relative dates
+        if not dates_info and any(word in text.lower() for word in ["tuần sau", "tháng sau", "sắp tới"]):
+            dates_info['flexible'] = True
+            dates_info['timeframe'] = "tương lai gần"
+        
+        return dates_info if dates_info else None
+    
+    def _extract_travel_duration(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract travel duration"""
+        import re
+        
+        text = user_input + " " + context
+        duration_info = {}
+        
+        patterns = [
+            r'(\d+)\s*ngày',
+            r'(\d+)\s*tuần',
+            r'(\d+)\s*tháng',
+            r'(\d+)\s*days?',
+            r'(\d+)\s*weeks?',
+            r'(\d+)\s*months?'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                try:
+                    number = int(match.group(1))
+                    if 'ngày' in match.group() or 'days' in match.group():
+                        duration_info['total_days'] = number
+                        duration_info['unit'] = 'days'
+                    elif 'tuần' in match.group() or 'weeks' in match.group():
+                        duration_info['total_days'] = number * 7
+                        duration_info['unit'] = 'weeks'
+                    elif 'tháng' in match.group() or 'months' in match.group():
+                        duration_info['total_days'] = number * 30
+                        duration_info['unit'] = 'months'
+                    break
+                except:
+                    continue
+        
+        return duration_info if duration_info else None
+    
+    def _extract_travel_participants(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract travel participants information"""
+        import re
+        
+        text = user_input + " " + context
+        participants_info = {
+            'adults': 1,  # Default
+            'children': 0,
+            'total': 1
+        }
+        
+        # Look for participant patterns
+        patterns = [
+            r'(\d+)\s*(?:người|khách|people)',
+            r'(?:gia đình|family)\s*(\d+)\s*(?:người|members)',
+            r'(\d+)\s*(?:adults?|người lớn)',
+            r'(\d+)\s*(?:children|trẻ em)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                try:
+                    number = int(match.group(1))
+                    if 'adults' in match.group() or 'người lớn' in match.group():
+                        participants_info['adults'] = number
+                    elif 'children' in match.group() or 'trẻ em' in match.group():
+                        participants_info['children'] = number
+                    elif 'gia đình' in match.group() or 'family' in match.group():
+                        participants_info['total'] = number
+                        participants_info['type'] = 'family'
+                    else:
+                        participants_info['total'] = number
+                    break
+                except:
+                    continue
+        
+        participants_info['total'] = participants_info['adults'] + participants_info['children']
+        return participants_info
+    
+    def _extract_travel_budget(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract budget information"""
+        import re
+        
+        text = user_input + " " + context
+        budget_info = {}
+        
+        # Look for budget patterns
+        patterns = [
+            r'(?:ngân sách|budget)\s*[:=]\s*([0-9,]+)\s*(?:đồng|vnd|usd|\$)',
+            r'([0-9,]+)\s*(?:triệu|million)',
+            r'([0-9,]+)\s*(?:nghìn|thousand)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                try:
+                    amount_str = match.group(1).replace(',', '')
+                    amount = int(amount_str)
+                    
+                    if 'triệu' in match.group() or 'million' in match.group():
+                        amount *= 1000000
+                        budget_info['currency'] = 'VND'
+                    elif 'nghìn' in match.group() or 'thousand' in match.group():
+                        amount *= 1000
+                        budget_info['currency'] = 'VND'
+                    elif 'usd' in match.group() or '$' in match.group():
+                        budget_info['currency'] = 'USD'
+                    else:
+                        budget_info['currency'] = 'VND'
+                    
+                    budget_info['total_amount'] = amount
+                    budget_info['per_person'] = amount // max(1, self._get_participant_count(user_input, context))
+                    break
+                except:
+                    continue
+        
+        # Check budget level from user config
+        if not budget_info:
+            budget_level = self.config_manager.get_user_budget_range('accommodation')
+            if budget_level:
+                budget_info['level'] = budget_level
+                budget_info['flexible'] = True
+        
+        return budget_info if budget_info else None
+    
+    def _extract_visa_requirements(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract visa requirements"""
+        text = (user_input + " " + context).lower()
+        
+        visa_info = {}
+        
+        if any(word in text for word in ['visa', 'thị thực', 'hộ chiếu', 'passport']):
+            visa_info['needs_visa'] = True
+            
+            if any(word in text for word in ['có sẵn', 'đã có', 'ready']):
+                visa_info['status'] = 'ready'
+            elif any(word in text for word in ['cần xin', 'chưa có', 'need to apply']):
+                visa_info['status'] = 'need_to_apply'
+            else:
+                visa_info['status'] = 'unknown'
+        
+        return visa_info if visa_info else None
+    
+    def _extract_health_requirements(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract health requirements"""
+        text = (user_input + " " + context).lower()
+        
+        health_info = {}
+        
+        if any(word in text for word in ['vaccine', 'vắc xin', 'tiêm chủng', 'y tế', 'health']):
+            health_info['needs_vaccination'] = True
+            
+            if any(word in text for word in ['đã tiêm', 'completed', 'done']):
+                health_info['vaccination_status'] = 'completed'
+            else:
+                health_info['vaccination_status'] = 'needed'
+        
+        # Check for special health needs
+        if any(word in text for word in ['dị ứng', 'allergy', 'bệnh', 'illness']):
+            health_info['special_needs'] = True
+        
+        return health_info if health_info else None
+    
+    def _extract_travel_style(self, user_input: str, context: str, chat_history: List) -> str:
+        """Extract travel style from user input or config"""
+        text = (user_input + " " + context).lower()
+        
+        style_keywords = {
+            'budget': ['tiết kiệm', 'rẻ', 'budget', 'cheap'],
+            'luxury': ['sang trọng', 'cao cấp', 'luxury', 'premium'],
+            'adventure': ['phiêu lưu', 'adventure', 'thám hiểm'],
+            'cultural': ['văn hóa', 'culture', 'lịch sử'],
+            'relaxation': ['thư giãn', 'nghỉ dưỡng', 'relaxation'],
+            'family': ['gia đình', 'family']
+        }
+        
+        for style, keywords in style_keywords.items():
+            if any(keyword in text for keyword in keywords):
+                return style
+        
+        # Get from user config
+        user_interests = self.config_manager.get_user_interests()
+        if user_interests:
+            if user_interests.get('adventure'):
+                return 'adventure'
+            elif user_interests.get('culture'):
+                return 'cultural'
+            elif user_interests.get('beach'):
+                return 'relaxation'
+        
+        return 'general'
+    
+    def _extract_preferred_activities(self, user_input: str, context: str, chat_history: List) -> List[str]:
+        """Extract preferred activities"""
+        text = (user_input + " " + context).lower()
+        activities = []
+        
+        activity_keywords = {
+            'sightseeing': ['tham quan', 'ngắm cảnh', 'sightseeing'],
+            'food_tour': ['ẩm thực', 'food', 'đặc sản'],
+            'shopping': ['mua sắm', 'shopping'],
+            'photography': ['chụp ảnh', 'photography'],
+            'outdoor': ['ngoài trời', 'outdoor', 'trekking'],
+            'beach': ['biển', 'beach', 'bơi lội'],
+            'cultural': ['văn hóa', 'cultural', 'bảo tàng', 'museum'],
+            'nightlife': ['đêm', 'nightlife', 'bar']
+        }
+        
+        for activity, keywords in activity_keywords.items():
+            if any(keyword in text for keyword in keywords):
+                activities.append(activity)
+        
+        # Get from user config
+        user_interests = self.config_manager.get_user_interests()
+        if user_interests:
+            for interest, enabled in user_interests.items():
+                if enabled and interest not in activities:
+                    activities.append(interest)
+        
+        return activities
+    
+    def _extract_accommodation_preferences(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract accommodation preferences"""
+        text = (user_input + " " + context).lower()
+        accommodation_info = {}
+        
+        if any(word in text for word in ['khách sạn', 'hotel']):
+            accommodation_info['type'] = 'hotel'
+        elif any(word in text for word in ['resort']):
+            accommodation_info['type'] = 'resort'
+        elif any(word in text for word in ['homestay']):
+            accommodation_info['type'] = 'homestay'
+        elif any(word in text for word in ['hostel']):
+            accommodation_info['type'] = 'hostel'
+        
+        # Get budget level from user config
+        budget_level = self.config_manager.get_user_budget_range('accommodation')
+        if budget_level:
+            accommodation_info['budget_level'] = budget_level
+        
+        return accommodation_info if accommodation_info else None
+    
+    def _extract_transportation_preferences(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract transportation preferences"""
+        text = (user_input + " " + context).lower()
+        transport_info = {}
+        
+        if any(word in text for word in ['máy bay', 'flight', 'fly']):
+            transport_info['primary'] = 'flight'
+        elif any(word in text for word in ['tàu', 'train']):
+            transport_info['primary'] = 'train'
+        elif any(word in text for word in ['xe buýt', 'bus']):
+            transport_info['primary'] = 'bus'
+        elif any(word in text for word in ['xe hơi', 'car', 'ô tô']):
+            transport_info['primary'] = 'car'
+        
+        return transport_info if transport_info else None
+    
+    def _extract_meal_preferences(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
+        """Extract meal preferences"""
+        meal_info = {}
+        
+        # Get dietary restrictions from user config
+        dietary = self.config_manager.get_user_dietary_restrictions()
+        if dietary:
+            meal_info.update(dietary)
+        
+        text = (user_input + " " + context).lower()
+        
+        if any(word in text for word in ['ăn chay', 'vegetarian']):
+            meal_info['vegetarian'] = True
+        elif any(word in text for word in ['halal']):
+            meal_info['halal'] = True
+        
+        return meal_info if meal_info else None
+    
+    def _extract_interests_from_config(self) -> List[str]:
+        """Extract interests from user configuration"""
+        user_interests = self.config_manager.get_user_interests()
+        if user_interests:
+            return [interest for interest, enabled in user_interests.items() if enabled]
+        return []
+    
+    # Helper methods for travel planning
+    def _determine_country(self, location: str) -> str:
+        """Determine country from location"""
+        vietnam_locations = [
+            'hà nội', 'hồ chí minh', 'đà nẵng', 'nha trang', 'huế', 
+            'hội an', 'sapa', 'đà lạt', 'phú quốc', 'cần thơ',
+            'hạ long', 'ninh bình', 'mù cang chải'
+        ]
+        
+        if any(vn_loc in location.lower() for vn_loc in vietnam_locations):
+            return 'Việt Nam'
+        
+        # Add more country detection logic here
+        return 'Unknown'
+    
+    def _determine_region(self, location: str) -> str:
+        """Determine region from location"""
+        north_locations = ['hà nội', 'sapa', 'hạ long', 'ninh bình']
+        central_locations = ['huế', 'đà nẵng', 'hội an']
+        south_locations = ['hồ chí minh', 'đà lạt', 'nha trang', 'phú quốc']
+        
+        location_lower = location.lower()
+        
+        if any(loc in location_lower for loc in north_locations):
+            return 'Miền Bắc'
+        elif any(loc in location_lower for loc in central_locations):
+            return 'Miền Trung'
+        elif any(loc in location_lower for loc in south_locations):
+            return 'Miền Nam'
+        
+        return 'Unknown'
+    
+    def _get_participant_count(self, user_input: str, context: str) -> int:
+        """Get participant count from text"""
+        import re
+        text = user_input + " " + context
+        
+        match = re.search(r'(\d+)\s*(?:người|khách)', text)
+        if match:
+            return int(match.group(1))
+        return 1
+    
+    def _request_missing_travel_info(self, missing_fields: list, current_info: dict) -> str:
+        """Generate message requesting missing travel information"""
+        
+        field_prompts = {
+            'destination': "🎯 Điểm đến muốn du lịch",
+            'dates': "📅 Thời gian du lịch (ngày bắt đầu)",
+            'duration': "⏱️ Thời gian du lịch (số ngày/tuần)",
+            'participants': "👥 Số người tham gia",
+            'budget': "💰 Ngân sách dự kiến",
+            'visa_requirements': "📋 Yêu cầu visa/thị thực",
+            'health_requirements': "🏥 Yêu cầu sức khỏe/tiêm chủng"
+        }
+        
+        current_info_display = []
+        for key, value in current_info.items():
+            if value and key in field_prompts:
+                if isinstance(value, dict):
+                    # Handle complex objects
+                    if key == 'destination' and value.get('primary'):
+                        current_info_display.append(f"✅ {field_prompts[key]}: {value['primary']}")
+                    elif key == 'participants':
+                        current_info_display.append(f"✅ {field_prompts[key]}: {value.get('total', 1)} người")
+                    elif key == 'budget' and value.get('total_amount'):
+                        current_info_display.append(f"✅ {field_prompts[key]}: {value['total_amount']:,} {value.get('currency', 'VND')}")
+                else:
+                    current_info_display.append(f"✅ {field_prompts[key]}: {value}")
+        
+        missing_info_display = []
+        for field in missing_fields:
+            if field in field_prompts:
+                missing_info_display.append(f"❓ {field_prompts[field]}")
+        
+        message = "🧳 **Thông tin lên kế hoạch du lịch chưa đủ**\n\n"
+        
+        if current_info_display:
+            message += "**Thông tin đã có:**\n" + "\n".join(current_info_display) + "\n\n"
+        
+        message += "**Cần bổ sung:**\n" + "\n".join(missing_info_display) + "\n\n"
+        message += "💡 Vui lòng cung cấp thông tin còn thiếu để tôi có thể tạo kế hoạch du lịch chi tiết cho bạn."
+        
+        return message
+    
+    def _generate_travel_plan_confirmation(self, travel_info: dict) -> str:
+        """Generate travel plan confirmation message"""
+        
+        message = f"""🧳 **XÁC NHẬN KẾ HOẠCH DU LỊCH**
+
+🎯 **Điểm đến:** {travel_info.get('destination', {}).get('primary', 'N/A')}
+🌍 **Quốc gia:** {travel_info.get('destination', {}).get('country', 'N/A')}
+
+📅 **Thời gian:** {travel_info.get('dates', {}).get('start_date', 'N/A')}
+⏱️ **Thời lượng:** {travel_info.get('duration', {}).get('total_days', 'N/A')} ngày
+
+👥 **Số người:** {travel_info.get('participants', {}).get('total', 1)}
+👩‍👩‍👧‍👦 **Người lớn:** {travel_info.get('participants', {}).get('adults', 1)}
+👶 **Trẻ em:** {travel_info.get('participants', {}).get('children', 0)}
+
+💰 **Ngân sách:** {travel_info.get('budget', {}).get('total_amount', 'N/A'):,} {travel_info.get('budget', {}).get('currency', 'VND')}
+
+"""
+        
+        # Add optional information if available
+        if travel_info.get('travel_style'):
+            message += f"🎨 **Phong cách du lịch:** {travel_info['travel_style']}\n"
+        
+        if travel_info.get('activities'):
+            message += f"🎯 **Hoạt động yêu thích:** {', '.join(travel_info['activities'])}\n"
+        
+        if travel_info.get('accommodations'):
+            message += f"🏨 **Lưu trú:** {travel_info['accommodations'].get('type', 'N/A')}\n"
+        
+        if travel_info.get('visa_requirements'):
+            visa_status = travel_info['visa_requirements'].get('status', 'unknown')
+            message += f"📋 **Visa:** {visa_status}\n"
+        
+        if travel_info.get('health_requirements'):
+            health_status = travel_info['health_requirements'].get('vaccination_status', 'unknown')
+            message += f"🏥 **Y tế:** {health_status}\n"
+        
+        message += f"""
+❓ **Thông tin kế hoạch trên có chính xác không?**
+
+Trả lời "**Có**" hoặc "**Xác nhận**" để lưu kế hoạch du lịch.
+Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin.
+"""
         
         return message

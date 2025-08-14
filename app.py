@@ -31,6 +31,7 @@ from components.conversation_history_page import (
 )
 from components.car_booking_page import render_car_booking_page
 from components.hotel_booking_page import render_hotel_booking_page
+from components.travel_plan_page import render_travel_plan_page
 
 # Load environment variables
 load_dotenv()
@@ -125,6 +126,93 @@ def save_booking_to_database(config_manager, booking_type: str, booking_details:
             "response": f"❌ Lỗi hệ thống: {str(e)}",
             "sources": [],
             "tool_used": "BOOKING_ERROR"
+        }
+
+def save_travel_plan_to_database(config_manager, travel_info: dict):
+    """Save confirmed travel plan to database"""
+    try:
+        import uuid
+        from datetime import datetime
+        
+        # Generate travel plan ID
+        plan_id = str(uuid.uuid4())
+        
+        # Convert travel_info to the JSON schema format expected by database
+        travel_plan = {
+            "id": plan_id,
+            "user_id": "default",
+            "title": f"Kế hoạch du lịch {travel_info.get('destination', {}).get('primary', 'Unknown')}",
+            
+            # Map travel_info to database schema
+            "destination": travel_info.get('destination', {}),
+            "dates": travel_info.get('dates', {}),
+            "duration": travel_info.get('duration', {}),
+            "participants": travel_info.get('participants', {}),
+            "budget": travel_info.get('budget', {}),
+            "requirements": {
+                "visa": travel_info.get('visa_requirements', {}),
+                "health": travel_info.get('health_requirements', {})
+            },
+            "preferences": {
+                "travel_style": travel_info.get('travel_style', ''),
+                "activities": travel_info.get('activities', []),
+                "accommodations": travel_info.get('accommodations', {}),
+                "transportation": travel_info.get('transportation', {}),
+                "meals": travel_info.get('meals', {})
+            },
+            "activities": travel_info.get('activities', []),
+            "logistics": {},
+            "itinerary": [],
+            "status": {
+                "current": "planning",
+                "created_date": datetime.now().isoformat(),
+                "updated_date": datetime.now().isoformat()
+            },
+            "emergency_contacts": [],
+            "documents": {},
+            "notes": "Kế hoạch được tạo bởi AI Travel Assistant",
+            "created_by": "AI Assistant",
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
+        }
+        
+        # Save travel plan to database
+        success = config_manager.db_manager.save_travel_plan(travel_plan)
+        
+        if success:
+            return {
+                "success": True,
+                "response": f"""✅ **Kế hoạch du lịch đã được lưu!**
+
+🧳 **Thông tin kế hoạch:**
+- **Mã kế hoạch:** {plan_id[:8]}...
+- **Điểm đến:** {travel_info.get('destination', {}).get('primary', 'N/A')}
+- **Thời gian:** {travel_info.get('dates', {}).get('start_date', 'N/A')}
+- **Thời lượng:** {travel_info.get('duration', {}).get('total_days', 'N/A')} ngày
+- **Số người:** {travel_info.get('participants', {}).get('total', 1)}
+- **Ngân sách:** {travel_info.get('budget', {}).get('total_amount', 'N/A'):,} {travel_info.get('budget', {}).get('currency', 'VND')}
+
+📱 **Tiếp theo:** Bạn có thể tìm hiểu thêm về địa điểm, thời tiết, và đặt dịch vụ cho chuyến đi của mình.
+🗂️ **Quản lý:** Xem kế hoạch đã lưu tại **🧳 Quản lý kế hoạch du lịch**.""",
+                "sources": ["AI Travel Planning System"],
+                "rag_used": False,
+                "tool_used": "TRAVEL_PLAN_SAVED",
+                "plan_id": plan_id
+            }
+        else:
+            return {
+                "success": False,
+                "response": "❌ Có lỗi xảy ra khi lưu kế hoạch du lịch. Vui lòng thử lại.",
+                "sources": [],
+                "tool_used": "TRAVEL_PLAN_ERROR"
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "response": f"❌ Lỗi hệ thống: {str(e)}",
+            "sources": [],
+            "tool_used": "TRAVEL_PLAN_ERROR"
         }
 
 # Page configuration
@@ -248,8 +336,8 @@ if "selected_page" not in st.session_state:
 # Menu selection
 selected_page = st.sidebar.selectbox(
     "Chọn chức năng:",
-    ["💬 Chat", "📜 Lịch sử hội thoại", "🚗 Quản lý đặt xe", "🏨 Quản lý đặt phòng", "📚 Knowledge Base"],
-    index=["💬 Chat", "📜 Lịch sử hội thoại", "🚗 Quản lý đặt xe", "🏨 Quản lý đặt phòng", "📚 Knowledge Base"].index(st.session_state.selected_page),
+    ["💬 Chat", "📜 Lịch sử hội thoại", "🚗 Quản lý đặt xe", "🏨 Quản lý đặt phòng", "🧳 Quản lý kế hoạch du lịch", "📚 Knowledge Base"],
+    index=["💬 Chat", "📜 Lịch sử hội thoại", "🚗 Quản lý đặt xe", "🏨 Quản lý đặt phòng", "🧳 Quản lý kế hoạch du lịch", "📚 Knowledge Base"].index(st.session_state.selected_page),
     key="page_selectbox"
 )
 
@@ -370,14 +458,11 @@ if selected_page == "💬 Chat":
                 # Check if the last assistant message is awaiting confirmation
                 if len(st.session_state["messages"]) >= 2:
                     last_msg = st.session_state["messages"][-2]  # -1 is current user message, -2 is last assistant
-                    if last_msg.get("awaiting_confirmation") and last_msg.get("pending_booking"):
-                        pending_booking = last_msg["pending_booking"]
+                    if last_msg.get("awaiting_confirmation") and (last_msg.get("pending_booking") or last_msg.get("travel_info")):
+                        pending_booking = last_msg.get("pending_booking") or last_msg.get("travel_info")
                         tool_used = last_msg.get("tool_used", "")
                         
-                        if tool_used in ["HOTEL_CONFIRMATION", "CAR_CONFIRMATION"]:
-                            booking_type = "hotel" if "HOTEL" in tool_used else "car"
-                            
-                            # Check for confirmation keywords
+                        if tool_used in ["HOTEL_CONFIRMATION", "CAR_CONFIRMATION", "TRAVEL_PLAN_CONFIRMATION"]:
                             confirmation_words = ["có", "xác nhận", "đồng ý", "ok", "yes", "correct", "chính xác"]
                             rejection_words = ["không", "sai", "sửa", "no", "wrong", "incorrect", "thay đổi"]
                             
@@ -385,16 +470,32 @@ if selected_page == "💬 Chat":
                             
                             if any(word in user_lower for word in confirmation_words):
                                 is_booking_confirmation = True
-                                # Save booking to database
-                                result = save_booking_to_database(config_manager, booking_type, pending_booking)
+                                
+                                if tool_used == "TRAVEL_PLAN_CONFIRMATION":
+                                    # Save travel plan to database
+                                    result = save_travel_plan_to_database(config_manager, pending_booking)
+                                else:
+                                    # Save booking to database
+                                    booking_type = "hotel" if "HOTEL" in tool_used else "car"
+                                    result = save_booking_to_database(config_manager, booking_type, pending_booking)
+                                    
                             elif any(word in user_lower for word in rejection_words):
-                                result = {
-                                    "success": True,
-                                    "response": "Được rồi! Vui lòng cho tôi biết thông tin nào cần điều chỉnh, hoặc bạn có thể bắt đầu đặt lại.",
-                                    "sources": [],
-                                    "rag_used": False,
-                                    "tool_used": "BOOKING_EDIT"
-                                }
+                                if tool_used == "TRAVEL_PLAN_CONFIRMATION":
+                                    result = {
+                                        "success": True,
+                                        "response": "Được rồi! Vui lòng cho tôi biết thông tin nào cần điều chỉnh trong kế hoạch du lịch, hoặc bạn có thể bắt đầu lại từ đầu.",
+                                        "sources": [],
+                                        "rag_used": False,
+                                        "tool_used": "TRAVEL_PLAN_EDIT"
+                                    }
+                                else:
+                                    result = {
+                                        "success": True,
+                                        "response": "Được rồi! Vui lòng cho tôi biết thông tin nào cần điều chỉnh, hoặc bạn có thể bắt đầu đặt lại.",
+                                        "sources": [],
+                                        "rag_used": False,
+                                        "tool_used": "BOOKING_EDIT"
+                                    }
                                 is_booking_confirmation = True
                 
                 # Execute with new smart flow (only if not handling booking confirmation)
@@ -438,10 +539,13 @@ if selected_page == "💬 Chat":
                             "booking_details": result.get("booking_details", {})
                         }
                         
-                        # Handle booking confirmation flow
+                        # Handle booking and travel plan confirmation flow
                         if result.get("awaiting_confirmation"):
                             response_msg["awaiting_confirmation"] = True
-                            response_msg["pending_booking"] = result.get("booking_details", {})
+                            if result.get("booking_details"):
+                                response_msg["pending_booking"] = result.get("booking_details", {})
+                            elif result.get("travel_info"):
+                                response_msg["travel_info"] = result.get("travel_info", {})
                         
                         st.session_state["messages"].append(response_msg)
                         
@@ -665,6 +769,10 @@ elif selected_page == "🚗 Quản lý đặt xe":
 elif selected_page == "🏨 Quản lý đặt phòng":
     # Render hotel booking management page
     render_hotel_booking_page(config_manager)
+
+elif selected_page == "🧳 Quản lý kế hoạch du lịch":
+    # Render travel plan management page
+    render_travel_plan_page(config_manager)
 
 elif selected_page == "📚 Knowledge Base":
     # Get RAG system from agent

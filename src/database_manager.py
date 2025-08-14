@@ -170,11 +170,38 @@ class DatabaseManager:
                 )
             """)
             
+            # Create travel plans table
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS travel_plans (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL DEFAULT 'default',
+                title TEXT NOT NULL,
+                destination_data TEXT NOT NULL,  -- JSON for destination object
+                dates_data TEXT NOT NULL,       -- JSON for dates object
+                participants_data TEXT NOT NULL, -- JSON for participants object
+                budget_data TEXT NOT NULL,      -- JSON for budget object
+                requirements_data TEXT,         -- JSON for requirements object
+                preferences_data TEXT,          -- JSON for preferences object
+                activities_data TEXT,           -- JSON for activities object
+                logistics_data TEXT,            -- JSON for logistics object
+                itinerary_data TEXT,            -- JSON for itinerary array
+                status_data TEXT NOT NULL,      -- JSON for status object
+                emergency_contacts_data TEXT,   -- JSON for emergency contacts
+                documents_data TEXT,            -- JSON for documents object
+                notes TEXT,
+                created_by TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+            """)
+            
             # Create indexes for better performance
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_conversation_history_conv_id ON conversation_history (conversation_id)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_conversation_history_timestamp ON conversation_history (timestamp)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_book_car_user_date ON book_car (user_id, pickup_date)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_book_hotel_user_date ON book_hotel (user_id, checkin_date)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_travel_plans_user_id ON travel_plans (user_id)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_travel_plans_created_at ON travel_plans (created_at)")
             
             conn.commit()
     
@@ -811,6 +838,172 @@ class DatabaseManager:
             
         except Exception as e:
             print(f"Error saving enhanced hotel booking: {e}")
+            return False
+
+    # Travel Plans Management Methods
+    def save_travel_plan(self, travel_plan: Dict[str, Any]) -> bool:
+        """Save travel plan to database"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT OR REPLACE INTO travel_plans (
+                        id, user_id, title, destination_data, dates_data, 
+                        participants_data, budget_data, requirements_data,
+                        preferences_data, activities_data, logistics_data,
+                        itinerary_data, status_data, emergency_contacts_data,
+                        documents_data, notes, created_by, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (
+                    travel_plan['id'],
+                    travel_plan.get('user_id', 'default'),
+                    travel_plan['title'],
+                    json.dumps(travel_plan['destination'], ensure_ascii=False),
+                    json.dumps(travel_plan['dates'], ensure_ascii=False),
+                    json.dumps(travel_plan['participants'], ensure_ascii=False),
+                    json.dumps(travel_plan['budget'], ensure_ascii=False),
+                    json.dumps(travel_plan.get('requirements', {}), ensure_ascii=False),
+                    json.dumps(travel_plan.get('preferences', {}), ensure_ascii=False),
+                    json.dumps(travel_plan.get('activities', {}), ensure_ascii=False),
+                    json.dumps(travel_plan.get('logistics', {}), ensure_ascii=False),
+                    json.dumps(travel_plan.get('itinerary', []), ensure_ascii=False),
+                    json.dumps(travel_plan['status'], ensure_ascii=False),
+                    json.dumps(travel_plan.get('emergency_contacts', []), ensure_ascii=False),
+                    json.dumps(travel_plan.get('documents', {}), ensure_ascii=False),
+                    travel_plan.get('notes', ''),
+                    travel_plan.get('created_by', 'AI Assistant')
+                ))
+                conn.commit()
+                return True
+        except Exception as e:
+            print(f"Error saving travel plan: {e}")
+            return False
+    
+    def get_all_travel_plans(self, user_id: str = 'default') -> List[Dict[str, Any]]:
+        """Get all travel plans for a user"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT * FROM travel_plans 
+                    WHERE user_id = ?
+                    ORDER BY created_at DESC
+                """, (user_id,))
+                rows = cursor.fetchall()
+                
+                plans = []
+                for row in rows:
+                    row_dict = dict(row)
+                    # Parse JSON fields
+                    try:
+                        row_dict['destination'] = json.loads(row_dict['destination_data'])
+                        row_dict['dates'] = json.loads(row_dict['dates_data'])
+                        row_dict['participants'] = json.loads(row_dict['participants_data'])
+                        row_dict['budget'] = json.loads(row_dict['budget_data'])
+                        row_dict['requirements'] = json.loads(row_dict['requirements_data'] or '{}')
+                        row_dict['preferences'] = json.loads(row_dict['preferences_data'] or '{}')
+                        row_dict['activities'] = json.loads(row_dict['activities_data'] or '{}')
+                        row_dict['logistics'] = json.loads(row_dict['logistics_data'] or '{}')
+                        row_dict['itinerary'] = json.loads(row_dict['itinerary_data'] or '[]')
+                        row_dict['status'] = json.loads(row_dict['status_data'])
+                        row_dict['emergency_contacts'] = json.loads(row_dict['emergency_contacts_data'] or '[]')
+                        row_dict['documents'] = json.loads(row_dict['documents_data'] or '{}')
+                        
+                        # Remove JSON string fields
+                        for field in ['destination_data', 'dates_data', 'participants_data', 'budget_data', 
+                                    'requirements_data', 'preferences_data', 'activities_data', 
+                                    'logistics_data', 'itinerary_data', 'status_data',
+                                    'emergency_contacts_data', 'documents_data']:
+                            if field in row_dict:
+                                del row_dict[field]
+                        
+                        plans.append(row_dict)
+                    except json.JSONDecodeError as e:
+                        print(f"Error parsing JSON for travel plan {row_dict['id']}: {e}")
+                        continue
+                
+                return plans
+        except Exception as e:
+            print(f"Error getting travel plans: {e}")
+            return []
+    
+    def get_travel_plan(self, plan_id: str) -> Dict[str, Any]:
+        """Get a specific travel plan by ID"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM travel_plans WHERE id = ?", (plan_id,))
+                row = cursor.fetchone()
+                
+                if row:
+                    row_dict = dict(row)
+                    # Parse JSON fields
+                    row_dict['destination'] = json.loads(row_dict['destination_data'])
+                    row_dict['dates'] = json.loads(row_dict['dates_data'])
+                    row_dict['participants'] = json.loads(row_dict['participants_data'])
+                    row_dict['budget'] = json.loads(row_dict['budget_data'])
+                    row_dict['requirements'] = json.loads(row_dict['requirements_data'] or '{}')
+                    row_dict['preferences'] = json.loads(row_dict['preferences_data'] or '{}')
+                    row_dict['activities'] = json.loads(row_dict['activities_data'] or '{}')
+                    row_dict['logistics'] = json.loads(row_dict['logistics_data'] or '{}')
+                    row_dict['itinerary'] = json.loads(row_dict['itinerary_data'] or '[]')
+                    row_dict['status'] = json.loads(row_dict['status_data'])
+                    row_dict['emergency_contacts'] = json.loads(row_dict['emergency_contacts_data'] or '[]')
+                    row_dict['documents'] = json.loads(row_dict['documents_data'] or '{}')
+                    
+                    # Remove JSON string fields
+                    for field in ['destination_data', 'dates_data', 'participants_data', 'budget_data', 
+                                'requirements_data', 'preferences_data', 'activities_data', 
+                                'logistics_data', 'itinerary_data', 'status_data',
+                                'emergency_contacts_data', 'documents_data']:
+                        if field in row_dict:
+                            del row_dict[field]
+                    
+                    return row_dict
+                return {}
+        except Exception as e:
+            print(f"Error getting travel plan: {e}")
+            return {}
+    
+    def delete_travel_plan(self, plan_id: str) -> bool:
+        """Delete a travel plan"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM travel_plans WHERE id = ?", (plan_id,))
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error deleting travel plan: {e}")
+            return False
+    
+    def update_travel_plan_status(self, plan_id: str, status: str, progress: int = None) -> bool:
+        """Update travel plan status"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                
+                # Get current status data
+                cursor.execute("SELECT status_data FROM travel_plans WHERE id = ?", (plan_id,))
+                row = cursor.fetchone()
+                if not row:
+                    return False
+                
+                status_data = json.loads(row['status_data'])
+                status_data['current_status'] = status
+                if progress is not None:
+                    status_data['progress_percentage'] = progress
+                status_data['last_updated'] = datetime.now().isoformat()
+                
+                cursor.execute("""
+                    UPDATE travel_plans 
+                    SET status_data = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?
+                """, (json.dumps(status_data, ensure_ascii=False), plan_id))
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error updating travel plan status: {e}")
             return False
 
 
