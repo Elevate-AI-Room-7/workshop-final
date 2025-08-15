@@ -351,3 +351,73 @@ class ConfigManager:
     def delete_conversation(self, conversation_id: str) -> bool:
         """Delete conversation"""
         return self.db_manager.delete_conversation(conversation_id)
+    
+    # ===== SUGGESTION ENGINE CONFIGURATION =====
+    
+    def get_suggestion_enabled(self) -> bool:
+        """Check if suggestion system is enabled"""
+        return self.agent_config.get('enable_suggestions', True)
+    
+    def get_max_suggestions(self) -> int:
+        """Get maximum number of suggestions to display"""
+        return self.agent_config.get('max_suggestions', 5)
+    
+    def get_suggestion_min_score(self) -> float:
+        """Get minimum relevance score for suggestions"""
+        return self.agent_config.get('suggestion_min_score', 0.3)
+    
+    def get_suggestion_diversity_factor(self) -> float:
+        """Get diversity factor for suggestion selection"""
+        return self.agent_config.get('suggestion_diversity_factor', 0.7)
+    
+    def should_show_cross_tool_suggestions(self) -> bool:
+        """Check if cross-tool suggestions should be shown"""
+        return self.agent_config.get('show_cross_tool_suggestions', True)
+    
+    def should_show_location_suggestions(self) -> bool:
+        """Check if location-based suggestions should be shown"""
+        return self.agent_config.get('show_location_suggestions', True)
+    
+    def should_show_rag_suggestions(self) -> bool:
+        """Check if RAG-based suggestions should be shown"""
+        return self.agent_config.get('show_rag_suggestions', True)
+    
+    def get_suggestion_display_mode(self) -> str:
+        """Get suggestion display mode (inline, full, carousel)"""
+        return self.agent_config.get('suggestion_display_mode', 'inline')
+    
+    def should_collect_suggestion_feedback(self) -> bool:
+        """Check if suggestion feedback should be collected"""
+        return self.agent_config.get('collect_suggestion_feedback', True)
+    
+    def get_suggestion_templates_config(self) -> Dict[str, Any]:
+        """Get suggestion templates configuration"""
+        return self.agent_config.get('suggestion_templates', {})
+    
+    def update_suggestion_config(self, config_updates: Dict[str, Any]) -> bool:
+        """Update suggestion-related configuration"""
+        try:
+            current_config = self.agent_config.copy()
+            
+            # Update suggestion-related keys
+            suggestion_keys = [
+                'enable_suggestions', 'max_suggestions', 'suggestion_min_score',
+                'suggestion_diversity_factor', 'show_cross_tool_suggestions',
+                'show_location_suggestions', 'show_rag_suggestions',
+                'suggestion_display_mode', 'collect_suggestion_feedback',
+                'suggestion_templates'
+            ]
+            
+            for key, value in config_updates.items():
+                if key in suggestion_keys:
+                    current_config[key] = value
+            
+            # Save updated config
+            success = self.save_config('agent', current_config)
+            if success:
+                self.refresh_cache()
+            return success
+            
+        except Exception as e:
+            st.error(f"Error updating suggestion config: {str(e)}")
+            return False

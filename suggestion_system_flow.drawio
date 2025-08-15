@@ -1,0 +1,154 @@
+<mxfile host="65bd71144e">
+    <diagram id="uVD3zhSPo9hdYfQFWWp4" name="Page-1">
+        <mxGraphModel dx="720" dy="465" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="AI Travel Agent - Relation Messages Suggestion System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#2E7D32;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="20" width="569" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="start" value="User Interaction Complete" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#4CAF50;fontColor=#2E7D32;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="485" y="70" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="context" value="Context Analysis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#FF9800;fontColor=#E65100;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="485" y="190" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="toolDetect" value="Which Tool Was Used?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#2196F3;fontColor=#0D47A1;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="290" width="250" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="ragBranch" value="RAG Search Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#4CAF50;fontColor=#2E7D32;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="420" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="weatherBranch" value="Weather Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#00BCD4;fontColor=#006064;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="420" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="hotelBranch" value="Hotel Booking Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#E91E63;fontColor=#880E4F;" parent="1" vertex="1">
+                    <mxGeometry x="390" y="420" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="carBranch" value="Car Booking Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#9C27B0;fontColor=#4A148C;" parent="1" vertex="1">
+                    <mxGeometry x="560" y="420" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="travelBranch" value="Travel Planning Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#FFC107;fontColor=#F57F17;" parent="1" vertex="1">
+                    <mxGeometry x="730" y="420" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="generalBranch" value="General Chat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFEBE9;strokeColor=#795548;fontColor=#3E2723;" parent="1" vertex="1">
+                    <mxGeometry x="900" y="420" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="ragProcess" value="Extract Related Chunks from Pinecone • Analyze chunk categories (attractions, food, hotels) • Extract location mentions • Find related destinations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#4CAF50;fontColor=#2E7D32;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="10" y="520" width="220" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="locationContext" value="Location Context Analysis • Extract city/province from query • Get weather for location • Find hotels in area • Transportation options" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#00BCD4;fontColor=#006064;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="520" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="serviceContext" value="Service Context Analysis • Related booking options • Package deals • Combo suggestions • Follow-up services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#E91E63;fontColor=#880E4F;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="470" y="520" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="planContext" value="Planning Context Analysis • Itinerary suggestions • Activity recommendations • Time optimization • Budget planning" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#FFC107;fontColor=#F57F17;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="690" y="520" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="genContext" value="General Context Analysis • Topic exploration • Interest discovery • Preference learning • Conversation starters" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFEBE9;strokeColor=#795548;fontColor=#3E2723;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="910" y="520" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="suggestionGen" value="Suggestion Generation Engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD9;strokeColor=#E1499A;fontColor=#AD1457;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="450" y="660" width="270" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="filterEngine" value="Smart Filter Engine • Relevance scoring • User preference matching • Context appropriateness • Diversity balancing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#3F51B5;fontColor=#1A237E;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="785" y="660" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="output" value="Display Related Questions/Prompts (3-5 personalized suggestions)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#4CAF50;fontColor=#2E7D32;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="485" y="780" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#4CAF50;strokeWidth=2;" parent="1" source="start" target="context" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#FF9800;strokeWidth=2;" parent="1" source="context" target="toolDetect" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2196F3;strokeWidth=2;" parent="1" source="toolDetect" target="ragBranch" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2196F3;strokeWidth=2;" parent="1" source="toolDetect" target="weatherBranch" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2196F3;strokeWidth=2;" parent="1" source="toolDetect" target="hotelBranch" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.6;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2196F3;strokeWidth=2;" parent="1" source="toolDetect" target="carBranch" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2196F3;strokeWidth=2;" parent="1" source="toolDetect" target="travelBranch" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2196F3;strokeWidth=2;" parent="1" source="toolDetect" target="generalBranch" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#4CAF50;strokeWidth=2;" parent="1" source="ragBranch" target="ragProcess" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#00BCD4;strokeWidth=2;" parent="1" source="weatherBranch" target="locationContext" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#E91E63;strokeWidth=2;" parent="1" source="hotelBranch" target="serviceContext" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#9C27B0;strokeWidth=2;" parent="1" source="carBranch" target="serviceContext" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#FFC107;strokeWidth=2;" parent="1" source="travelBranch" target="planContext" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#795548;strokeWidth=2;" parent="1" source="generalBranch" target="genContext" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.1;entryY=0;entryDx=0;entryDy=0;strokeColor=#4CAF50;strokeWidth=2;" parent="1" source="ragProcess" target="suggestionGen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;strokeColor=#00BCD4;strokeWidth=2;" parent="1" source="locationContext" target="suggestionGen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#E91E63;strokeWidth=2;" parent="1" source="serviceContext" target="suggestionGen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.7;entryY=0;entryDx=0;entryDy=0;strokeColor=#FFC107;strokeWidth=2;" parent="1" source="planContext" target="suggestionGen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.9;entryY=0;entryDx=0;entryDy=0;strokeColor=#795548;strokeWidth=2;" parent="1" source="genContext" target="suggestionGen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#E1499A;strokeWidth=2;" parent="1" source="suggestionGen" target="filterEngine" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;strokeColor=#3F51B5;strokeWidth=2;" parent="1" source="filterEngine" target="output" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#E1499A;strokeWidth=2;" parent="1" source="suggestionGen" target="output" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ragSuggestions" value="RAG Suggestions Examples: • &#39;Thời tiết Hà Nội như thế nào?&#39; • &#39;Đặt khách sạn gần Hồ Hoàn Kiếm&#39; • &#39;Lên kế hoạch 3 ngày ở Hà Nội&#39; • &#39;Thuê xe từ sân bay Nội Bài&#39;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F8F0;strokeColor=#4CAF50;fontColor=#2E7D32;align=left;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="10" y="680" width="180" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="weatherSuggestions" value="Weather Suggestions Examples: • &#39;Đặt khách sạn ở [location]&#39; • &#39;Thuê xe di chuyển tại [location]&#39; • &#39;Địa điểm du lịch ở [location]&#39; • &#39;Lên kế hoạch du lịch [location]&#39;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F9FF;strokeColor=#00BCD4;fontColor=#006064;align=left;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="670" width="180" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="ragLabel" value="RAG" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#4CAF50;" parent="1" vertex="1">
+                    <mxGeometry x="85" y="400" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="weatherLabel" value="WEATHER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#00BCD4;" parent="1" vertex="1">
+                    <mxGeometry x="255" y="400" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="hotelLabel" value="HOTEL" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#E91E63;" parent="1" vertex="1">
+                    <mxGeometry x="425" y="400" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="carLabel" value="CAR" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#9C27B0;" parent="1" vertex="1">
+                    <mxGeometry x="595" y="400" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="planLabel" value="TRAVEL_PLAN" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#FFC107;" parent="1" vertex="1">
+                    <mxGeometry x="765" y="400" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="genLabel" value="GENERAL" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#795548;" parent="1" vertex="1">
+                    <mxGeometry x="935" y="400" width="70" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
