@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script để tạo dữ liệu mẫu cho ChromaDB
+Script để tạo dữ liệu mẫu cho Pinecone
 Tạo dữ liệu du lịch cho 10 tỉnh thành Việt Nam
 """
 
@@ -17,7 +17,7 @@ src_path = os.path.join(project_root, 'src')
 sys.path.insert(0, src_path)
 
 try:
-    from rag_system import create_rag_system
+    from pinecone_rag_system import PineconeRAGSystem
 except ImportError as e:
     print(f"❌ Import error: {e}")
     print(f"🔧 Script directory: {script_dir}")
@@ -211,7 +211,7 @@ PROVINCES_DATA = {
 }
 
 def create_sample_records() -> List[Dict[str, Any]]:
-    """Tạo danh sách records mẫu cho ChromaDB"""
+    """Tạo danh sách records mẫu cho Pinecone"""
     records = []
     record_id = 1
     
@@ -267,13 +267,13 @@ def create_sample_records() -> List[Dict[str, Any]]:
     return records
 
 def main():
-    """Hàm chính để upload dữ liệu vào ChromaDB"""
-    print("🚀 Bắt đầu tạo dữ liệu mẫu cho ChromaDB...")
+    """Hàm chính để upload dữ liệu vào Pinecone"""
+    print("🚀 Bắt đầu tạo dữ liệu mẫu cho Pinecone...")
     
     try:
         # Khởi tạo RAG system
-        print("📦 Khởi tạo ChromaDB RAG system...")
-        rag_system = create_rag_system()
+        print("📦 Khởi tạo Pinecone RAG system...")
+        rag_system = PineconeRAGSystem()
         
         # Tạo dữ liệu mẫu
         print("📝 Tạo dữ liệu mẫu...")
@@ -299,7 +299,7 @@ def main():
                 print(f"    - {location}: {count} records")
         
         # Upload dữ liệu
-        print("\n⬆️  Upload dữ liệu vào ChromaDB...")
+        print("\n⬆️  Upload dữ liệu vào Pinecone...")
         uploaded_count = 0
         
         for record in records:
@@ -311,8 +311,8 @@ def main():
                 metadata = rag_system._sanitize_metadata(record["metadata"])
                 metadata["text"] = record["text"]
                 
-                # Upsert vào ChromaDB
-                rag_system.upsert([(record["id"], embedding, metadata)])
+                # Upsert vào Pinecone
+                rag_system.index.upsert([(record["id"], embedding, metadata)])
                 uploaded_count += 1
                 
                 if uploaded_count % 10 == 0:
@@ -322,7 +322,7 @@ def main():
                 print(f"❌ Lỗi upload record {record['id']}: {str(e)}")
                 continue
         
-        print(f"\n✅ Hoàn thành! Đã upload {uploaded_count}/{len(records)} records vào ChromaDB")
+        print(f"\n✅ Hoàn thành! Đã upload {uploaded_count}/{len(records)} records vào Pinecone")
         
         # Kiểm tra kết quả
         try:

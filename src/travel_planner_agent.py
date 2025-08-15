@@ -9,16 +9,17 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 import requests
 import json
-from .rag_system import create_rag_system
+from .pinecone_rag_system import PineconeRAGSystem
 from .config_manager import ConfigManager
 
 
 class TravelPlannerAgent:
     """
     Unified Travel Planner Agent that combines:
-    - RAG system for travel knowledge
+    - Pinecone RAG system for travel knowledge
     - Weather information
     - Hotel booking functionality
+    - Travel planning with database storage
     """
     
     def __init__(self, debug_mode: bool = False):
@@ -32,7 +33,7 @@ class TravelPlannerAgent:
         # Initialize configuration manager
         self.config_manager = ConfigManager()
         
-        # Initialize RAG system
+        # Initialize Pinecone RAG system
         self.rag_system = PineconeRAGSystem()
         
         # Initialize variables for tracking sources and fallback

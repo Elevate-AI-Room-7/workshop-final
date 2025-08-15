@@ -2,9 +2,9 @@
 
 ## 🗂️ Available Scripts
 
-### 1. `generate_sample_data.py` - Tạo dữ liệu mẫu cho ChromaDB
+### 1. `generate_sample_data.py` - Tạo dữ liệu mẫu cho Pinecone
 
-**Purpose**: Tạo dữ liệu du lịch mẫu cho 10 tỉnh thành Việt Nam và upload vào ChromaDB.
+**Purpose**: Tạo dữ liệu du lịch mẫu cho 10 tỉnh thành Việt Nam và upload vào Pinecone.
 
 **Data Coverage**:
 - **10 Tỉnh thành**: Hà Nội, TP.HCM, Đà Nẵng, Nha Trang, Đà Lạt, Huế, Hội An, Sapa, Phú Quốc, Cần Thơ
