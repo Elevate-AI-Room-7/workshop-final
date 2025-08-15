@@ -31,6 +31,13 @@ from components.conversation_history_page import (
 from components.car_booking_page import render_car_booking_page
 from components.hotel_booking_page import render_hotel_booking_page
 from components.travel_plan_page import render_travel_plan_page
+from components.suggestion_display import (
+    render_suggestions, 
+    render_inline_suggestions,
+    handle_suggestion_click,
+    get_pending_suggestion,
+    render_suggestion_stats
+)
 
 # Load environment variables
 load_dotenv()
@@ -412,8 +419,13 @@ if selected_page == "💬 Chat":
                 })
                 st.rerun()
 
-    # Chat input
-    user_input = st.chat_input("Hỏi tôi về du lịch, thời tiết, đặt khách sạn hoặc đặt xe...")
+    # Check for pending suggestion
+    pending_suggestion = get_pending_suggestion()
+    if pending_suggestion:
+        user_input = pending_suggestion
+    else:
+        # Chat input
+        user_input = st.chat_input("Hỏi tôi về du lịch, thời tiết, đặt khách sạn hoặc đặt xe...")
 
     # Process user input
     if user_input:
@@ -535,7 +547,8 @@ if selected_page == "💬 Chat":
                             "context": result.get("context", ""),
                             "weather_type": result.get("weather_type", ""),
                             "city": result.get("city", ""),
-                            "booking_details": result.get("booking_details", {})
+                            "booking_details": result.get("booking_details", {}),
+                            "suggestions": result.get("suggestions", [])
                         }
                         
                         # Handle booking and travel plan confirmation flow
@@ -753,6 +766,35 @@ if selected_page == "💬 Chat":
                         )
                     
                     st.markdown("</div>", unsafe_allow_html=True)
+                
+                # Display suggestions for the latest message
+                if (i == len(st.session_state["messages"]) - 1 and 
+                    not message.get("error") and 
+                    not message.get("need_fallback") and
+                    not message.get("awaiting_confirmation")):
+                    
+                    suggestions = message.get("suggestions", [])
+                    if suggestions:
+                        st.markdown("""
+                        <div style="margin-left: 40px; margin-top: 15px;">
+                        """, unsafe_allow_html=True)
+                        
+                        # Render suggestions and handle clicks
+                        selected_suggestion = render_inline_suggestions(
+                            suggestions, 
+                            max_display=3,
+                            key_prefix=f"msg_{i}"
+                        )
+                        
+                        # Handle suggestion click
+                        if selected_suggestion and handle_suggestion_click(selected_suggestion):
+                            st.rerun()
+                        
+                        # Show debug stats if enabled
+                        if st.session_state.get('debug_mode', False):
+                            render_suggestion_stats(suggestions)
+                        
+                        st.markdown("</div>", unsafe_allow_html=True)
     
     # Auto-update conversation title if needed (after first user message)
     update_conversation_title_if_needed(config_manager)

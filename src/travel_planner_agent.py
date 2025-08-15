@@ -11,6 +11,7 @@ import requests
 import json
 from .pinecone_rag_system import PineconeRAGSystem
 from .config_manager import ConfigManager
+from .suggestion_engine import SuggestionEngine, SuggestionContext, ToolType
 
 
 class TravelPlannerAgent:
@@ -35,6 +36,9 @@ class TravelPlannerAgent:
         
         # Initialize Pinecone RAG system
         self.rag_system = PineconeRAGSystem()
+        
+        # Initialize Suggestion Engine
+        self.suggestion_engine = SuggestionEngine(self.config_manager)
         
         # Initialize variables for tracking sources and fallback
         self.last_rag_sources = []
@@ -256,10 +260,18 @@ class TravelPlannerAgent:
                 # Default to general conversation
                 result = self._execute_general_response(user_input, rewritten_context)
             
+            # Step 4: Generate contextual suggestions
+            if result.get('success', False) and result.get('response'):
+                suggestions = self._generate_contextual_suggestions(
+                    user_input, result, detected_tool, rewritten_context, chat_history
+                )
+                result['suggestions'] = suggestions
+            
             if self.debug_mode:
                 print(f"\n✅ [DEBUG] Execution Complete:")
                 print(f"🎯 Success: {result.get('success', False)}")
                 print(f"📄 Response length: {len(result.get('response', ''))}")
+                print(f"💡 Suggestions generated: {len(result.get('suggestions', []))}")
                 print(f"{'='*60}")
             
             return result
@@ -1966,3 +1978,90 @@ Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin.
 """
         
         return message
+    
+    def _generate_contextual_suggestions(self, user_input: str, result: Dict[str, Any], 
+                                       detected_tool: str, context: str, 
+                                       chat_history: List) -> List[Dict[str, str]]:
+        """
+        Generate contextual suggestions based on user interaction and result
+        
+        Args:
+            user_input: User's original query
+            result: Agent's response result
+            detected_tool: Tool that was used (RAG, WEATHER, etc.)
+            context: Conversation context
+            chat_history: Previous conversation history
+            
+        Returns:
+            List of suggestion dictionaries with text and target tool
+        """
+        try:
+            # Get user interests from config
+            user_interests = []
+            if self.config_manager:
+                interests = self.config_manager.get_user_interests()
+                if interests:
+                    user_interests = [k for k, v in interests.items() if v]
+            
+            # Extract location from various sources
+            location = (
+                result.get('city') or  # From weather queries
+                self._extract_location_from_text(user_input) or
+                self._extract_location_from_text(context)
+            )
+            
+            # Create suggestion context
+            suggestion_context = SuggestionContext(
+                tool_used=ToolType(detected_tool),
+                user_query=user_input,
+                agent_response=result.get('response', ''),
+                location=location,
+                rag_sources=result.get('sources'),
+                booking_details=result.get('booking_details'),
+                chat_history=chat_history,
+                user_interests=user_interests
+            )
+            
+            # Generate suggestions using the suggestion engine
+            suggestions = self.suggestion_engine.generate_suggestions(suggestion_context)
+            
+            # Convert suggestions to format expected by UI
+            formatted_suggestions = []
+            for suggestion in suggestions:
+                formatted_suggestions.append({
+                    'text': suggestion.text,
+                    'category': suggestion.category,
+                    'tool_target': suggestion.tool_target.value,
+                    'score': suggestion.total_score()
+                })
+            
+            if self.debug_mode:
+                print(f"\n💡 [DEBUG] Generated {len(formatted_suggestions)} suggestions:")
+                for i, sugg in enumerate(formatted_suggestions, 1):
+                    print(f"  {i}. {sugg['text']} (→ {sugg['tool_target']}, score: {sugg['score']:.2f})")
+            
+            return formatted_suggestions
+            
+        except Exception as e:
+            if self.debug_mode:
+                print(f"\n❌ [ERROR] Suggestion generation failed: {str(e)}")
+            return []
+    
+    def _extract_location_from_text(self, text: str) -> str:
+        """Extract location from text using simple pattern matching - consistent with suggestion engine"""
+        if not text:
+            return None
+            
+        # Vietnamese location patterns
+        vietnam_locations = [
+            "hà nội", "hồ chí minh", "đà nẵng", "nha trang", "huế", "hội an",
+            "sapa", "đà lạt", "phú quốc", "cần thơ", "vũng tầu", "phan thiết",
+            "hạ long", "ninh bình", "mù cang chải", "tam cốc", "bái đính"
+        ]
+        
+        text_lower = text.lower()
+        for location in vietnam_locations:
+            if location in text_lower:
+                return location.title()
+        
+        return None
