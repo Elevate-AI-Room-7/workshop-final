@@ -6,6 +6,13 @@ Allows users to customize agent settings and personal preferences
 import streamlit as st
 from src.config_manager import ConfigManager
 
+# Try to import TTS components
+try:
+    from components.vietnamese_tts_components import create_tts_settings_panel
+    TTS_SETTINGS_AVAILABLE = True
+except ImportError:
+    TTS_SETTINGS_AVAILABLE = False
+
 def render_config_sidebar():
     """Render configuration sidebar for agent and user settings"""
     
@@ -270,5 +277,33 @@ def render_config_sidebar():
                 st.rerun()
             else:
                 st.error("❌ Lỗi khi reset!")
+    
+    # Vietnamese TTS Settings
+    if TTS_SETTINGS_AVAILABLE:
+        with st.sidebar.expander("🎤 Text-to-Speech", expanded=False):
+            try:
+                create_tts_settings_panel(config_manager)
+            except Exception as e:
+                st.error(f"TTS settings error: {e}")
+                # Show basic TTS toggle as fallback
+                tts_enabled = st.checkbox(
+                    "Enable TTS",
+                    value=config_manager.get_tts_enabled(),
+                    help="Enable text-to-speech functionality"
+                )
+                if tts_enabled != config_manager.get_tts_enabled():
+                    config_manager.update_tts_config({'enable_tts': tts_enabled})
+                    st.rerun()
+    else:
+        with st.sidebar.expander("🎤 Text-to-Speech", expanded=False):
+            st.info("Vietnamese TTS not available. Install dependencies to enable enhanced features.")
+            # Show basic TTS status
+            from src.utils.tts import get_tts_availability
+            tts_status = get_tts_availability()
+            
+            if tts_status.get("basic_tts"):
+                st.success("✅ Basic TTS available")
+            else:
+                st.error("❌ TTS not available")
     
     return config_manager

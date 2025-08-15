@@ -421,3 +421,106 @@ class ConfigManager:
         except Exception as e:
             st.error(f"Error updating suggestion config: {str(e)}")
             return False
+    
+    # ===== VIETNAMESE TTS CONFIGURATION =====
+    
+    def get_tts_enabled(self) -> bool:
+        """Check if TTS system is enabled"""
+        return self.agent_config.get('enable_tts', True)
+    
+    def get_tts_primary_model(self) -> str:
+        """Get primary TTS model"""
+        return self.agent_config.get('tts_primary_model', 'facebook/mms-tts-vie')
+    
+    def get_tts_fallback_models(self) -> List[str]:
+        """Get fallback TTS models"""
+        return self.agent_config.get('tts_fallback_models', [
+            'zalopay/vietnamese-tts',
+            'hynt/F5-TTS-Vietnamese-100h',
+            'gtts'
+        ])
+    
+    def get_tts_voice_speed(self) -> float:
+        """Get TTS voice speed"""
+        return self.agent_config.get('tts_voice_speed', 1.0)
+    
+    def get_tts_voice_pitch(self) -> float:
+        """Get TTS voice pitch"""
+        return self.agent_config.get('tts_voice_pitch', 1.0)
+    
+    def get_tts_audio_quality(self) -> str:
+        """Get TTS audio quality setting"""
+        return self.agent_config.get('tts_audio_quality', 'medium')
+    
+    def get_tts_cache_enabled(self) -> bool:
+        """Check if TTS caching is enabled"""
+        return self.agent_config.get('tts_enable_cache', True)
+    
+    def get_tts_cache_size_mb(self) -> int:
+        """Get TTS cache size limit in MB"""
+        return self.agent_config.get('tts_cache_size_mb', 500)
+    
+    def get_tts_async_enabled(self) -> bool:
+        """Check if async TTS generation is enabled"""
+        return self.agent_config.get('tts_enable_async', True)
+    
+    def get_tts_gpu_enabled(self) -> bool:
+        """Check if GPU acceleration is enabled for TTS"""
+        return self.agent_config.get('tts_gpu_enabled', True)
+    
+    def get_tts_auto_play(self) -> bool:
+        """Check if auto-play is enabled for TTS"""
+        return self.agent_config.get('tts_auto_play', False)
+    
+    def get_tts_show_controls(self) -> bool:
+        """Check if TTS controls should be shown"""
+        return self.agent_config.get('tts_show_controls', True)
+    
+    def get_tts_button_position(self) -> str:
+        """Get TTS button position (top, bottom, inline)"""
+        return self.agent_config.get('tts_button_position', 'inline')
+    
+    def update_tts_config(self, config_updates: Dict[str, Any]) -> bool:
+        """Update TTS-related configuration"""
+        try:
+            current_config = self.agent_config.copy()
+            
+            # Update TTS-related keys
+            tts_keys = [
+                'enable_tts', 'tts_primary_model', 'tts_fallback_models',
+                'tts_voice_speed', 'tts_voice_pitch', 'tts_audio_quality',
+                'tts_enable_cache', 'tts_cache_size_mb', 'tts_enable_async',
+                'tts_gpu_enabled', 'tts_auto_play', 'tts_show_controls',
+                'tts_button_position'
+            ]
+            
+            for key, value in config_updates.items():
+                if key in tts_keys:
+                    current_config[key] = value
+            
+            # Save updated config
+            success = self.save_config('agent', current_config)
+            if success:
+                self.refresh_cache()
+            return success
+            
+        except Exception as e:
+            st.error(f"Error updating TTS config: {str(e)}")
+            return False
+    
+    def get_tts_config_dict(self) -> Dict[str, Any]:
+        """Get complete TTS configuration as dictionary"""
+        return {
+            'primary_model': self.get_tts_primary_model(),
+            'fallback_models': self.get_tts_fallback_models(),
+            'voice_speed': self.get_tts_voice_speed(),
+            'voice_pitch': self.get_tts_voice_pitch(),
+            'audio_quality': self.get_tts_audio_quality(),
+            'enable_cache': self.get_tts_cache_enabled(),
+            'cache_size_mb': self.get_tts_cache_size_mb(),
+            'enable_async': self.get_tts_async_enabled(),
+            'gpu_enabled': self.get_tts_gpu_enabled(),
+            'auto_play': self.get_tts_auto_play(),
+            'show_controls': self.get_tts_show_controls(),
+            'button_position': self.get_tts_button_position()
+        }

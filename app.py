@@ -15,7 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'components'))
 
 from src.travel_planner_agent import TravelPlannerAgent
-from src.utils.tts import create_audio_button
+from src.utils.tts import create_audio_button, create_smart_audio_button, get_tts_availability
 from src.config_manager import ConfigManager
 from components.config_sidebar import render_config_sidebar
 from components.conversation_manager import (
@@ -760,9 +760,12 @@ if selected_page == "💬 Chat":
                     
                     col1, col2 = st.columns([1, 4])
                     with col1:
-                        create_audio_button(
+                        create_smart_audio_button(
                             text=message["content"],
-                            key=f"tts_{i}_{hash(message['content'][:20])}"
+                            key=f"tts_{i}_{hash(message['content'][:20])}",
+                            config_manager=config_manager,
+                            show_generation_info=True,
+                            auto_generate=config_manager.get_tts_auto_play() if config_manager else False
                         )
                     
                     st.markdown("</div>", unsafe_allow_html=True)
