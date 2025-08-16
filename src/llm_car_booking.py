@@ -122,15 +122,37 @@ def _extract_with_regex(user_input: str, conversation_context: str = "") -> Dict
     if phone_match:
         info['phone'] = phone_match.group(1)
     
-    # Điểm đón
-    pickup_match = re.search(r'(?:điểm đón[:\s]*|đón[:\s]*|từ )([^,]+?)(?:,|$)', text)
-    if pickup_match:
-        info['pickup'] = pickup_match.group(1).strip()
+    # Enhanced pickup location extraction
+    pickup_patterns = [
+        r'(?:điểm đón[:\s]*|đón[:\s]*tại[:\s]*|pickup\s*from[:\s]*|từ[:\s]+)([^,\n]+?)(?:\s*(?:đến|tới|to|,)|$)',
+        r'\b(?:từ|from)\s+([^,\n]+?)(?:\s+(?:đến|tới|to)|,|$)',
+        r'(?:pickup|đón)\s+(?:at|tại)?\s*([^,\n]+?)(?:\s*(?:đến|tới|to|,)|$)',
+    ]
     
-    # Điểm đến  
-    dest_match = re.search(r'(?:điểm đến[:\s]*|đến[:\s]*|tới )([^,]+?)(?:,|$)', text)
-    if dest_match:
-        info['destination'] = dest_match.group(1).strip()
+    for pattern in pickup_patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            pickup = match.group(1).strip()
+            # Clean up common words
+            pickup = re.sub(r'^(?:tại|at)\s+', '', pickup, flags=re.IGNORECASE)
+            info['pickup'] = pickup
+            break
+    
+    # Enhanced destination extraction
+    destination_patterns = [
+        r'(?:điểm đến[:\s]*|đến[:\s]*|tới[:\s]*|destination[:\s]*|to[:\s]+)([^,\n]+?)(?:\s*[,.]|$)',
+        r'\b(?:đến|tới|to)\s+([^,\n]+?)(?:\s*[,.]|$)',
+        r'(?:destination|đích)\s*(?:is)?\s*([^,\n]+?)(?:\s*[,.]|$)',
+    ]
+    
+    for pattern in destination_patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            destination = match.group(1).strip()
+            # Clean up common words
+            destination = re.sub(r'^(?:là|is)\s+', '', destination, flags=re.IGNORECASE)
+            info['destination'] = destination
+            break
     
     # Smart default destination từ conversation context
     if not info.get('destination') and conversation_context:

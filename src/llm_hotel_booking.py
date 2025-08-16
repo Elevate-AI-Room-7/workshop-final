@@ -44,28 +44,39 @@ def extract_hotel_booking_info_with_llm(user_input: str, current_booking: Dict[s
         # Fallback về regex nếu có lỗi
         return _extract_hotel_with_regex(user_input, conversation_context)
     
-    # Template để extract thông tin khách sạn
+    # Template để extract thông tin khách sạn với improved prompting
     extraction_prompt = ChatPromptTemplate.from_messages([
-        ("system", """Bạn là một AI chuyên trích xuất thông tin đặt khách sạn từ text tiếng Việt.
+        ("system", """Bạn là AI chuyên trích xuất thông tin đặt khách sạn từ tiếng Việt và tiếng Anh.
 
-Từ input của user, hãy trích xuất các thông tin sau (nếu có):
-- name: Tên khách hàng  
-- phone: Số điện thoại (format: 0xxxxxxxxx)
-- email: Email (nếu có)
-- hotel_name: Tên khách sạn
-- location: Địa điểm/thành phố
-- check_in_date: Ngày check-in (format: YYYY-MM-DD)
+NHIỆM VỤ: Trích xuất chính xác các thông tin sau:
+- name: Tên khách hàng (họ tên đầy đủ)
+- phone: Số điện thoại (0xxxxxxxxx)
+- email: Địa chỉ email  
+- hotel_name: Tên khách sạn (bao gồm brand như Marriott, Hilton, Sheraton, Lotte, InterContinental, etc.)
+- location: Thành phố/địa điểm (Hà Nội, Đà Nẵng, HCMC, Nha Trang, Huế, Hội An, etc.)
+- check_in_date: Ngày check-in (format: YYYY-MM-DD, default năm 2025)
 - nights: Số đêm ở (số nguyên)
 - guests: Số khách (số nguyên)
-- room_type: Loại phòng (single, double, suite, family, etc.)
+- room_type: Loại phòng
 
-Trả về kết quả dưới dạng JSON với các key trên. Nếu không tìm thấy thông tin nào thì để giá trị rỗng "".
+HƯỚNG DẪN TRÍCH XUẤT CHI TIẾT:
+1. Tên khách sạn: Tìm brand names hoặc keywords "khách sạn", "hotel"
+   - VD: "Marriott", "Hilton Đà Nẵng", "khách sạn Lotte", "Sheraton"
+2. Địa điểm: Tìm tên thành phố Việt Nam
+   - VD: "Đà Nẵng", "Hà Nội", "HCMC", "Sài Gòn", "Nha Trang"
+3. Ngày checkin: Convert formats khác nhau
+   - "25/12" → "2025-12-25", "20th December" → "2025-12-20"
+4. Số đêm: Tìm "đêm", "nights", "ngày ở"
+5. Số khách: Tìm "người", "guests", "khách"
 
-Ví dụ:
-Input: "Tôi là Nguyễn Văn A, SĐT 0912345678, muốn đặt phòng khách sạn Lotte ở Hà Nội, 2 đêm từ ngày 25/12"
-Output: {"name": "Nguyễn Văn A", "phone": "0912345678", "email": "", "hotel_name": "Lotte", "location": "Hà Nội", "check_in_date": "2025-12-25", "nights": "2", "guests": "", "room_type": ""}
+VÍ DỤ THỰC TẾ:
+Input: "Đặt Marriott Đà Nẵng 2 đêm từ 25/12"
+Output: {"name": "", "phone": "", "email": "", "hotel_name": "Marriott", "location": "Đà Nẵng", "check_in_date": "2025-12-25", "nights": "2", "guests": "", "room_type": ""}
 
-Chỉ trả về JSON, không có text khác."""),
+Input: "Book Hilton Hà Nội for 3 nights, 2 guests"  
+Output: {"name": "", "phone": "", "email": "", "hotel_name": "Hilton", "location": "Hà Nội", "check_in_date": "", "nights": "3", "guests": "2", "room_type": ""}
+
+CHỈ TRẢ VỀ JSON OBJECT, KHÔNG TEXT KHÁC."""),
         ("human", "Input: {user_input}")
     ])
     
@@ -103,57 +114,131 @@ Chỉ trả về JSON, không có text khác."""),
 
 
 def _extract_hotel_with_regex(user_input: str, conversation_context: str = "") -> Dict[str, Any]:
-    """Fallback regex extraction cho hotel"""
+    """Enhanced fallback regex extraction cho hotel với improved patterns"""
     import re
     
     info = {}
     text = user_input.lower()
+    original_text = user_input
     
-    # Tên - pattern đơn giản
+    # Tên - enhanced patterns
     name_patterns = [
         r'tên ([A-ZÀ-Ỹ][a-zà-ỹ]+(?: [A-ZÀ-Ỹ][a-zà-ỹ]+)*)',  # "Tên Hiển Võ"
         r'^([A-ZÀ-Ỹ][a-zà-ỹ]+(?: [A-ZÀ-Ỹ][a-zà-ỹ]+)*),',  # "Hiển Võ,"
-        r'(?:tôi là |mình là )([A-ZÀ-Ỹ][a-zà-ỹ]+(?: [A-ZÀ-Ỹ][a-zà-ỹ]+)*)',
+        r'(?:tôi là |mình là |i am |my name is )([A-ZÀ-Ỹ][a-zà-ỹ]+(?: [A-ZÀ-Ỹ][a-zà-ỹ]+)*)',
     ]
     
     for pattern in name_patterns:
-        match = re.search(pattern, user_input)
+        match = re.search(pattern, original_text)
         if match:
             info['name'] = match.group(1)
             break
     
-    # Số điện thoại
-    phone_match = re.search(r'(0\d{8,9})', user_input)
+    # Số điện thoại - enhanced
+    phone_match = re.search(r'(0\d{8,9})', original_text)
     if phone_match:
         info['phone'] = phone_match.group(1)
     
     # Email
-    email_match = re.search(r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', user_input)
+    email_match = re.search(r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', original_text)
     if email_match:
         info['email'] = email_match.group(1)
     
-    # Tên khách sạn
-    hotel_patterns = [
-        r'khách sạn ([^,\n]+)',
-        r'hotel ([^,\n]+)',
-        r'ở ([^,\n]+)',
+    # Hotel names - enhanced với brand recognition
+    hotel_brand_patterns = [
+        # Direct brand names
+        r'\b(marriott|hilton|sheraton|intercontinental|lotte|hyatt|peninsula|regent|sofitel|novotel|pullman|mercure|accor)\b',
+        # With hotel keyword
+        r'(?:khách sạn|hotel)\s+([a-zà-ỹA-ZÀ-Ỹ0-9\s]+?)(?:\s+(?:ở|tại|in|at|,|$))',
+        # Brand + location
+        r'\b(marriott|hilton|sheraton|intercontinental|lotte|hyatt|peninsula|regent|sofitel|novotel|pullman|mercure)\s+([a-zà-ỹA-ZÀ-Ỹ\s]+)',
     ]
     
-    for pattern in hotel_patterns:
+    for pattern in hotel_brand_patterns:
         match = re.search(pattern, text)
         if match:
-            info['hotel_name'] = match.group(1).strip()
+            if len(match.groups()) == 1:
+                info['hotel_name'] = match.group(1).strip().title()
+            else:
+                info['hotel_name'] = f"{match.group(1).title()}"
             break
     
-    # Số đêm
-    nights_match = re.search(r'(\d+)\s*(?:đêm|night)', text)
-    if nights_match:
-        info['nights'] = nights_match.group(1)
+    # Location extraction - enhanced
+    location_patterns = [
+        # Specific Vietnamese cities
+        r'\b(đà nẵng|hà nội|hồ chí minh|hcmc|sài gòn|nha trang|huế|hội an|đà lạt|vũng tầu|cần thơ|hải phòng|phú quốc|quy nhon)\b',
+        # With prepositions
+        r'(?:ở|tại|in|at)\s+([a-zà-ỹA-ZÀ-Ỹ\s]+?)(?:\s*[,.]|$)',
+    ]
     
-    # Số khách
-    guests_match = re.search(r'(\d+)\s*(?:người|khách|guest)', text)
-    if guests_match:
-        info['guests'] = guests_match.group(1)
+    for pattern in location_patterns:
+        match = re.search(pattern, text)
+        if match:
+            location = match.group(1).strip()
+            # Normalize common city names
+            city_mapping = {
+                'hcmc': 'Hồ Chí Minh',
+                'sài gòn': 'Hồ Chí Minh',
+                'đà nẵng': 'Đà Nẵng',
+                'hà nội': 'Hà Nội',
+                'nha trang': 'Nha Trang'
+            }
+            info['location'] = city_mapping.get(location.lower(), location.title())
+            break
+    
+    # Check-in date extraction - enhanced
+    date_patterns = [
+        r'(?:từ|from|checkin|check-in)\s*(?:ngày\s*)?(\d{1,2})[/\-](\d{1,2})(?:[/\-](\d{4}))?',
+        r'(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})',
+        r'(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december)',
+    ]
+    
+    for pattern in date_patterns:
+        match = re.search(pattern, text)
+        if match:
+            if 'january' in match.group(0).lower() or 'february' in match.group(0).lower():
+                # Handle English month names
+                month_map = {
+                    'january': '01', 'february': '02', 'march': '03', 'april': '04',
+                    'may': '05', 'june': '06', 'july': '07', 'august': '08',
+                    'september': '09', 'october': '10', 'november': '11', 'december': '12'
+                }
+                day = match.group(1).zfill(2)
+                month_name = next(m for m in month_map.keys() if m in match.group(0).lower())
+                month = month_map[month_name]
+                info['check_in_date'] = f"2025-{month}-{day}"
+            else:
+                day = match.group(1).zfill(2)
+                month = match.group(2).zfill(2)
+                year = match.group(3) if len(match.groups()) > 2 and match.group(3) else "2025"
+                info['check_in_date'] = f"{year}-{month}-{day}"
+            break
+    
+    # Số đêm - enhanced
+    nights_patterns = [
+        r'(\d+)\s*(?:đêm|night|nights)',
+        r'(?:stay|ở)\s+(\d+)\s*(?:đêm|night|nights)',
+        r'(\d+)\s*(?:ngày|days?)\s*(?:đêm|nights?)',
+    ]
+    
+    for pattern in nights_patterns:
+        match = re.search(pattern, text)
+        if match:
+            info['nights'] = match.group(1)
+            break
+    
+    # Số khách - enhanced  
+    guests_patterns = [
+        r'(\d+)\s*(?:người|khách|guest|guests|pax)',
+        r'(?:for|cho)\s+(\d+)\s*(?:người|khách|guest|guests|pax)',
+        r'(\d+)\s*adults?',
+    ]
+    
+    for pattern in guests_patterns:
+        match = re.search(pattern, text)
+        if match:
+            info['guests'] = match.group(1)
+            break
     
     # Smart default location từ conversation context
     if not info.get('location') and conversation_context:
@@ -165,13 +250,13 @@ def _extract_hotel_with_regex(user_input: str, conversation_context: str = "") -
         
         for city in common_cities:
             if city in context_lower and city not in text:
-                info['location'] = f"{city.title()} (địa danh được đề cập)"
+                info['location'] = f"{city.title()} (từ context)"
                 break
     
     return {
         "extracted_info": info,
         "new_fields": list(info.keys()),
-        "method": "REGEX_FALLBACK"
+        "method": "ENHANCED_REGEX_FALLBACK"
     }
 
 
