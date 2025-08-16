@@ -678,7 +678,7 @@ class DatabaseManager:
         for personality_type, template in templates["personalities"].items():
             self.save_personality_template(personality_type, template)
         
-        print("✅ Default personality templates initialized in database")
+        print("[OK] Default personality templates initialized in database")
 
     def get_all_car_bookings(self) -> List[Dict[str, Any]]:
         """Get all car booking records"""

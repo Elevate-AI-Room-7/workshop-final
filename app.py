@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'components'))
 
-from src.travel_planner_agent import TravelPlannerAgent
+from src.travel_agent_langchain import TravelAssistantLangChain
 from src.utils.tts import create_audio_button
 from src.config_manager import ConfigManager
 from components.config_sidebar import render_config_sidebar
@@ -318,7 +318,7 @@ if "travel_agent" not in st.session_state:
     with st.spinner(f"🔄 Đang khởi tạo {agent_name}..."):
         # Enable debug mode if DEBUG_TRAVEL_AGENT env var is set
         debug_mode = os.getenv("DEBUG_TRAVEL_AGENT", "false").lower() == "true"
-        st.session_state["travel_agent"] = TravelPlannerAgent(debug_mode=debug_mode)
+        st.session_state["travel_agent"] = TravelAssistantLangChain(debug_mode=debug_mode)
 
 # Sidebar menu with personalized title
 agent_name = config_manager.get_agent_name()

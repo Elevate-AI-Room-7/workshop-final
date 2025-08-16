@@ -14,7 +14,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 load_dotenv()
 
 from src.config_manager import ConfigManager
-from src.travel_planner_agent import TravelPlannerAgent
+from src.travel_agent_langchain import TravelAssistantLangChain
 
 
 def test_complete_booking_flow():

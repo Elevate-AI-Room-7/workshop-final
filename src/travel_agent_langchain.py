@@ -276,3 +276,22 @@ Hãy luôn tự nhiên và hữu ích trong mọi tương tác!
             {"name": "create_travel_plan", "description": "Tạo kế hoạch du lịch"},
             {"name": "general_conversation", "description": "Trò chuyện chung"}
         ]
+    
+    def plan_travel(self, user_input: str, conversation_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Legacy interface compatibility - delegates to process_message
+        
+        Args:
+            user_input (str): User's input message
+            conversation_id (str, optional): Conversation ID
+        
+        Returns:
+            Dict[str, Any]: Response compatible with old interface
+        """
+        return self.process_message(user_input, conversation_id)
+    
+    @property
+    def rag_system(self):
+        """Property to access RAG system for backward compatibility"""
+        from .travel_tools import _tools_manager
+        return _tools_manager.get_rag_system()

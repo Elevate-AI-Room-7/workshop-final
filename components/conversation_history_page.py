@@ -402,8 +402,8 @@ def auto_name_conversation_with_llm(config_manager, first_message: str) -> str:
     try:
         # Get the travel agent for LLM access
         if "travel_agent" not in st.session_state:
-            from src.travel_planner_agent import TravelPlannerAgent
-            st.session_state["travel_agent"] = TravelPlannerAgent()
+            from src.travel_agent_langchain import TravelAssistantLangChain
+            st.session_state["travel_agent"] = TravelAssistantLangChain()
         
         agent = st.session_state["travel_agent"]
         
