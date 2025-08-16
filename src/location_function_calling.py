@@ -181,11 +181,21 @@ class LocationFunctionCaller:
     def __init__(self, openai_api_key: str = None, model: str = "gpt-3.5-turbo"):
         """Initialize the function calling system"""
         
-        self.llm = ChatOpenAI(
-            model=model,
-            api_key=openai_api_key,
-            temperature=0.1  # Low temperature for consistent results
-        )
+        self.use_agent = False
+        self.agent_executor = None
+        
+        # Only initialize agent if API key is available
+        if openai_api_key:
+            try:
+                self.llm = ChatOpenAI(
+                    model=model,
+                    api_key=openai_api_key,
+                    temperature=0.1  # Low temperature for consistent results
+                )
+                self.use_agent = True
+            except Exception as e:
+                print(f"⚠️ Could not initialize OpenAI agent: {str(e)}")
+                self.use_agent = False
         
         # Define available tools
         self.tools = [
@@ -193,9 +203,11 @@ class LocationFunctionCaller:
             extract_location_from_text
         ]
         
-        # Create the function calling prompt
-        self.prompt = ChatPromptTemplate.from_messages([
-            SystemMessage(content="""Bạn là trợ lý du lịch thông minh chuyên xử lý thông tin địa điểm.
+        # Initialize agent components only if using agent
+        if self.use_agent:
+            # Create the function calling prompt
+            self.prompt = ChatPromptTemplate.from_messages([
+                SystemMessage(content="""Bạn là trợ lý du lịch thông minh chuyên xử lý thông tin địa điểm.
 
 Nhiệm vụ của bạn:
 1. Phân tích yêu cầu của người dùng để xác định xem có cần thông tin địa điểm không
@@ -213,26 +225,26 @@ Loại yêu cầu cần địa điểm:
 - hotel: Đặt khách sạn  
 - car: Đặt xe di chuyển
 - travel_plan: Lập kế hoạch du lịch"""),
+                
+                HumanMessage(content="{input}"),
+                MessagesPlaceholder(variable_name="agent_scratchpad")
+            ])
             
-            HumanMessage(content="{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad")
-        ])
-        
-        # Create the agent
-        self.agent = create_openai_functions_agent(
-            llm=self.llm,
-            tools=self.tools,
-            prompt=self.prompt
-        )
-        
-        # Create agent executor
-        self.agent_executor = AgentExecutor(
-            agent=self.agent,
-            tools=self.tools,
-            verbose=False,
-            handle_parsing_errors=True,
-            max_iterations=3
-        )
+            # Create the agent
+            self.agent = create_openai_functions_agent(
+                llm=self.llm,
+                tools=self.tools,
+                prompt=self.prompt
+            )
+            
+            # Create agent executor
+            self.agent_executor = AgentExecutor(
+                agent=self.agent,
+                tools=self.tools,
+                verbose=False,
+                handle_parsing_errors=True,
+                max_iterations=3
+            )
     
     def detect_and_handle_location(
         self, 
@@ -268,6 +280,10 @@ Hãy xử lý theo quy trình:
 1. Trích xuất địa điểm từ câu hỏi bằng extract_location_from_text
 2. Nếu không tìm thấy địa điểm, sử dụng request_location_information để yêu cầu người dùng cung cấp
 """
+        
+        # If no agent available, use direct tool calls
+        if not self.use_agent or self.agent_executor is None:
+            return self._fallback_location_detection(user_query, query_type, conversation_history)
         
         try:
             # Execute the agent
@@ -325,10 +341,10 @@ Hãy xử lý theo quy trình:
         
         try:
             # Try to extract location directly
-            extraction_result = extract_location_from_text(
-                text=user_query,
-                conversation_history=conversation_history
-            )
+            extraction_result = extract_location_from_text.invoke({
+                "text": user_query,
+                "conversation_history": conversation_history
+            })
             
             if extraction_result["location_found"]:
                 return {
@@ -341,10 +357,10 @@ Hãy xử lý theo quy trình:
                 }
             else:
                 # Request location from user
-                request_result = request_location_information(
-                    query_type=query_type,
-                    context=user_query
-                )
+                request_result = request_location_information.invoke({
+                    "query_type": query_type,
+                    "context": user_query
+                })
                 
                 return {
                     "success": True,

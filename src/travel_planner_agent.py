@@ -2057,12 +2057,28 @@ Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin.
                 if interests:
                     user_interests = [k for k, v in interests.items() if v]
             
-            # Extract location from various sources
-            location = (
-                result.get('city') or  # From weather queries
-                self._extract_location_from_text(user_input) or
-                self._extract_location_from_text(context)
-            )
+            # Extract location from various sources with enhanced detection
+            location = None
+            
+            # Try function calling location detection first (most accurate)
+            try:
+                location_result = self._detect_location_with_function_calling(
+                    user_query=user_input,
+                    query_type=detected_tool.lower(),
+                    context=context
+                )
+                if location_result.get("location_found", False):
+                    location = location_result.get("location")
+            except:
+                pass
+            
+            # Fallback to existing methods
+            if not location:
+                location = (
+                    result.get('city') or  # From weather queries
+                    self._extract_location_from_text(user_input) or
+                    self._extract_location_from_text(context)
+                )
             
             # Create suggestion context
             suggestion_context = SuggestionContext(

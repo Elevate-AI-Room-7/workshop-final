@@ -15,8 +15,11 @@ class ToolType(Enum):
     """Enum for different tool types"""
     RAG = "RAG"
     WEATHER = "WEATHER"
+    WEATHER_LOCATION_REQUEST = "WEATHER_LOCATION_REQUEST"
     HOTEL = "HOTEL"
+    HOTEL_VALIDATION = "HOTEL_VALIDATION"
     CAR = "CAR"
+    CAR_VALIDATION = "CAR_VALIDATION"
     TRAVEL_PLAN = "TRAVEL_PLAN"
     GENERAL = "GENERAL"
 
@@ -733,6 +736,46 @@ class SuggestionEngine:
                         "tool_target": "RAG",
                         "priority": 0.8,
                         "keywords": ["ẩm thực", "sài gòn"]
+                    }
+                ],
+                "Hải Phòng": [
+                    {
+                        "text": "Khám phá Cát Bà và vịnh Lan Hạ",
+                        "tool_target": "RAG",
+                        "priority": 0.9,
+                        "keywords": ["cát bà", "vịnh lan hạ", "thiên nhiên"]
+                    },
+                    {
+                        "text": "Ẩm thực hải sản Hải Phòng",
+                        "tool_target": "RAG",
+                        "priority": 0.8,
+                        "keywords": ["hải sản", "ẩm thực", "bánh đa cua"]
+                    },
+                    {
+                        "text": "Đặt khách sạn gần cảng Hải Phòng",
+                        "tool_target": "HOTEL",
+                        "priority": 0.7,
+                        "keywords": ["khách sạn", "cảng"]
+                    }
+                ],
+                "Đà Nẵng": [
+                    {
+                        "text": "Khám phá Bà Nà Hills và cầu Vàng",
+                        "tool_target": "RAG",
+                        "priority": 0.9,
+                        "keywords": ["bà nà hills", "cầu vàng"]
+                    },
+                    {
+                        "text": "Thưởng thức mì Quảng đặc sản",
+                        "tool_target": "RAG",
+                        "priority": 0.8,
+                        "keywords": ["mì quảng", "ẩm thực"]
+                    },
+                    {
+                        "text": "Đặt khách sạn gần biển Mỹ Khê",
+                        "tool_target": "HOTEL",
+                        "priority": 0.7,
+                        "keywords": ["khách sạn", "biển mỹ khê"]
                     }
                 ]
             },
