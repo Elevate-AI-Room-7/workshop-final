@@ -1,0 +1,413 @@
+<mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- Title -->
+    <mxCell id="title" value="LangChain Travel Assistant - Message Processing Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=18;fontColor=#1565C0;" vertex="1" parent="1">
+      <mxGeometry x="400" y="20" width="600" height="40" as="geometry" />
+    </mxCell>
+    
+    <!-- User Input Layer -->
+    <mxCell id="user-input" value="👤 User Input&#xa;st.chat_input()&#xa;(app.py:428)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#01579B;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="50" y="80" width="180" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Session State Update -->
+    <mxCell id="session-update" value="📝 Add to Session State&#xa;messages.append()&#xa;(app.py:433-436)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="280" y="80" width="180" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Save to Database -->
+    <mxCell id="save-db" value="💾 Save User Message&#xa;save_user_message()&#xa;(app.py:439)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="510" y="80" width="180" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Get Agent -->
+    <mxCell id="get-agent" value="🤖 Get Travel Agent&#xa;st.session_state[&quot;travel_agent&quot;]&#xa;TravelAssistantLangChain&#xa;(app.py:445)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#2E7D32;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="740" y="80" width="180" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Prepare Chat History -->
+    <mxCell id="chat-history" value="📚 Prepare Chat History&#xa;Get from database or session&#xa;(app.py:447-470)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#AD1457;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="50" y="200" width="180" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Call Plan Travel -->
+    <mxCell id="plan-travel" value="🧠 Call plan_travel()&#xa;agent.plan_travel(user_input, chat_history)&#xa;(app.py:514)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="280" y="200" width="220" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Legacy Compatibility -->
+    <mxCell id="legacy-compat" value="🔄 Legacy Compatibility&#xa;plan_travel() delegates to&#xa;process_message()&#xa;(travel_agent_langchain.py:280-291)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFECB3;strokeColor=#FF8F00;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="550" y="200" width="200" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Process Message Core -->
+    <mxCell id="process-message" value="⚡ process_message()&#xa;Core LangChain processing&#xa;(travel_agent_langchain.py:80-120)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0277BD;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="800" y="200" width="200" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Get Conversation Context -->
+    <mxCell id="get-context" value="📖 Get Conversation Context&#xa;_get_conversation_context()&#xa;Load last 10 messages&#xa;(travel_agent_langchain.py:96)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1F8E9;strokeColor=#689F38;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="50" y="320" width="180" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Create System Message -->
+    <mxCell id="system-message" value="📋 Create System Message&#xa;_create_system_message()&#xa;Travel assistant instructions&#xa;(travel_agent_langchain.py:99)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#FFA000;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="280" y="320" width="180" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- Prepare Messages -->
+    <mxCell id="prepare-messages" value="📝 Prepare Messages Array&#xa;[SystemMessage, ...context, HumanMessage]&#xa;(travel_agent_langchain.py:102)" style="rounded=1;whiteSpace=wrap;html=1;fillColor="#EFEBE9";strokeColor="#5D4037";fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="510" y="320" width="180" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- LangChain Agent Invoke -->
+    <mxCell id="agent-invoke" value="🚀 LangChain Agent Invoke&#xa;self.agent.invoke({&quot;messages&quot;: messages})&#xa;create_react_agent processes&#xa;(travel_agent_langchain.py:105)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#2E7D32;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="740" y="320" width="220" height="80" as="geometry" />
+    </mxCell>
+    
+    <!-- LangChain Decision Layer -->
+    <mxCell id="langchain-decision" value="🤖 LangChain Tool Selection&#xa;Agent analyzes user intent&#xa;and automatically selects tools" style="rhombus;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="580" y="460" width="200" height="120" as="geometry" />
+    </mxCell>
+    
+    <!-- Travel Tools (6 tools in 2 rows) -->
+    <mxCell id="tool-rag" value="🔍 search_travel_information&#xa;RAG search for travel info&#xa;(travel_tools.py:47-77)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;strokeColor=#2E7D32;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="50" y="630" width="170" height="70" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="tool-weather" value="🌤️ get_weather_info&#xa;Weather API integration&#xa;(travel_tools.py:80-155)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor="#0277BD";fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="250" y="630" width="170" height="70" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="tool-hotel" value="🏨 book_hotel&#xa;Hotel booking functionality&#xa;(travel_tools.py:158-213)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor="#7B1FA2";fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="450" y="630" width="170" height="70" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="tool-car" value="🚗 book_car_service&#xa;Car/transport booking&#xa;(travel_tools.py:216-271)" style="rounded=1;whiteSpace=wrap;html=1;fillColor="#FFF3E0";strokeColor="#F57C00";fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="650" y="630" width="170" height="70" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="tool-plan" value="📋 create_travel_plan&#xa;Travel planning&#xa;(travel_tools.py:274-355)" style="rounded=1;whiteSpace=wrap;html=1;fillColor="#FCE4EC";strokeColor="#AD1457";fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="850" y="630" width="170" height="70" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="tool-general" value="💬 general_conversation&#xa;General chat handling&#xa;(travel_tools.py:358-400)" style="rounded=1;whiteSpace=wrap;html=1;fillColor="#F5F5F5";strokeColor="#616161";fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="1050" y="630" width="170" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Tool Execution Results -->
+    <mxCell id="tool-results" value="📊 Tool Execution Results&#xa;Each tool returns structured data&#xa;with type validation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1F8E9;strokeColor=#689F38;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="580" y="750" width="200" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Extract Response -->
+    <mxCell id="extract-response" value="📤 Extract AI Response&#xa;response[&quot;messages&quot;][-1].content&#xa;(travel_agent_langchain.py:108)" style="rounded=1;whiteSpace=wrap;html=1;fillColor="#EFEBE9";strokeColor="#5D4037";fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="850" y="750" width="200" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Update Conversation History -->
+    <mxCell id="update-history" value="💾 Update Conversation History&#xa;_update_conversation_history()&#xa;Save to database and memory&#xa;(travel_agent_langchain.py:111)" style="rounded=1;whiteSpace=wrap;html=1;fillColor="#FFECB3";strokeColor="#FF8F00";fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1100" y="750" width="200" height="70" as="geometry" />
+    </mxCell>
+    
+    <!-- Return Result -->
+    <mxCell id="return-result" value="📋 Return Result Dict&#xa;{&quot;response&quot;: ai_response,&#xa; &quot;conversation_id&quot;: id,&#xa; &quot;tools_used&quot;: [...],&#xa; &quot;success&quot;: True}&#xa;(travel_agent_langchain.py:114-122)" style="rounded=1;whiteSpace=wrap;html=1;fillColor="#E1F5FE";strokeColor="#0277BD";fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="320" y="750" width="200" height="90" as="geometry" />
+    </mxCell>
+    
+    <!-- Back to App.py Response Handling -->
+    <mxCell id="app-response" value="📱 App.py Response Handling&#xa;Display result in Streamlit UI&#xa;Add to session messages&#xa;Show tool indicators&#xa;(app.py:517-580)" style="rounded=1;whiteSpace=wrap;html=1;fillColor="#E1F5FE";strokeColor="#01579B";fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="50" y="750" width="200" height="90" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrows -->
+    <!-- Row 1 arrows -->
+    <mxCell id="arrow1" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="user-input" target="session-update">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="240" y="115" as="sourcePoint" />
+        <mxPoint x="270" y="115" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow2" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="session-update" target="save-db">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="470" y="115" as="sourcePoint" />
+        <mxPoint x="500" y="115" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow3" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="save-db" target="get-agent">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="115" as="sourcePoint" />
+        <mxPoint x="730" y="115" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Down arrows -->
+    <mxCell id="arrow4" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="user-input" target="chat-history">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="140" y="160" as="sourcePoint" />
+        <mxPoint x="140" y="190" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow5" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="chat-history" target="plan-travel">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="240" y="235" as="sourcePoint" />
+        <mxPoint x="270" y="235" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow6" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="plan-travel" target="legacy-compat">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="510" y="235" as="sourcePoint" />
+        <mxPoint x="540" y="235" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow7" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="legacy-compat" target="process-message">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="760" y="235" as="sourcePoint" />
+        <mxPoint x="790" y="235" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Down to processing steps -->
+    <mxCell id="arrow8" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="process-message" target="get-context">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="900" y="280" as="sourcePoint" />
+        <mxPoint x="140" y="310" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="900" y="290" />
+          <mxPoint x="140" y="290" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow9" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="get-context" target="system-message">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="240" y="360" as="sourcePoint" />
+        <mxPoint x="270" y="360" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow10" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="system-message" target="prepare-messages">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="470" y="360" as="sourcePoint" />
+        <mxPoint x="500" y="360" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow11" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="prepare-messages" target="agent-invoke">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="700" y="360" as="sourcePoint" />
+        <mxPoint x="730" y="360" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Agent to decision -->
+    <mxCell id="arrow12" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="agent-invoke" target="langchain-decision">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="850" y="410" as="sourcePoint" />
+        <mxPoint x="680" y="450" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="850" y="430" />
+          <mxPoint x="680" y="430" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Decision to tools (fan out) -->
+    <mxCell id="arrow13" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="langchain-decision" target="tool-rag">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="580" y="580" as="sourcePoint" />
+        <mxPoint x="135" y="620" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="580" y="600" />
+          <mxPoint x="135" y="600" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow14" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="langchain-decision" target="tool-weather">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="650" y="580" as="sourcePoint" />
+        <mxPoint x="335" y="620" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="650" y="600" />
+          <mxPoint x="335" y="600" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow15" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="langchain-decision" target="tool-hotel">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="680" y="580" as="sourcePoint" />
+        <mxPoint x="535" y="620" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="680" y="600" />
+          <mxPoint x="535" y="600" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow16" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="langchain-decision" target="tool-car">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="710" y="580" as="sourcePoint" />
+        <mxPoint x="735" y="620" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="710" y="600" />
+          <mxPoint x="735" y="600" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow17" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="langchain-decision" target="tool-plan">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="740" y="580" as="sourcePoint" />
+        <mxPoint x="935" y="620" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="740" y="600" />
+          <mxPoint x="935" y="600" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow18" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="langchain-decision" target="tool-general">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="780" y="580" as="sourcePoint" />
+        <mxPoint x="1135" y="620" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="780" y="600" />
+          <mxPoint x="1135" y="600" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Tools to results (fan in) -->
+    <mxCell id="arrow19" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="tool-rag" target="tool-results">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="135" y="710" as="sourcePoint" />
+        <mxPoint x="580" y="740" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="135" y="720" />
+          <mxPoint x="580" y="720" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow20" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="tool-weather" target="tool-results">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="335" y="710" as="sourcePoint" />
+        <mxPoint x="600" y="740" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="335" y="720" />
+          <mxPoint x="600" y="720" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow21" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="tool-hotel" target="tool-results">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="535" y="710" as="sourcePoint" />
+        <mxPoint x="620" y="740" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="535" y="720" />
+          <mxPoint x="620" y="720" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow22" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="tool-car" target="tool-results">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="735" y="710" as="sourcePoint" />
+        <mxPoint x="680" y="740" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="735" y="720" />
+          <mxPoint x="680" y="720" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow23" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="tool-plan" target="tool-results">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="935" y="710" as="sourcePoint" />
+        <mxPoint x="720" y="740" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="935" y="720" />
+          <mxPoint x="720" y="720" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow24" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="tool-general" target="tool-results">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1135" y="710" as="sourcePoint" />
+        <mxPoint x="760" y="740" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="1135" y="720" />
+          <mxPoint x="760" y="720" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Final processing arrows -->
+    <mxCell id="arrow25" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="tool-results" target="extract-response">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="790" y="785" as="sourcePoint" />
+        <mxPoint x="840" y="785" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow26" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="extract-response" target="update-history">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1060" y="785" as="sourcePoint" />
+        <mxPoint x="1090" y="785" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow27" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="tool-results" target="return-result">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="580" y="785" as="sourcePoint" />
+        <mxPoint x="530" y="785" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="arrow28" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="return-result" target="app-response">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="310" y="795" as="sourcePoint" />
+        <mxPoint x="260" y="795" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Add labels to sections -->
+    <mxCell id="section1" value="1. User Input &amp; Preparation (app.py)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;fontColor=#666;" vertex="1" parent="1">
+      <mxGeometry x="50" y="50" width="300" height="20" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="section2" value="2. Agent Invocation &amp; Legacy Compatibility" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;fontColor=#666;" vertex="1" parent="1">
+      <mxGeometry x="50" y="170" width="400" height="20" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="section3" value="3. LangChain Message Processing (travel_agent_langchain.py)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;fontColor=#666;" vertex="1" parent="1">
+      <mxGeometry x="50" y="290" width="500" height="20" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="section4" value="4. Intelligent Tool Selection &amp; Execution (travel_tools.py)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;fontColor=#666;" vertex="1" parent="1">
+      <mxGeometry x="300" y="430" width="500" height="20" as="geometry" />
+    </mxCell>
+    
+    <mxCell id="section5" value="5. Result Processing &amp; Response (back to app.py)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;fontColor=#666;" vertex="1" parent="1">
+      <mxGeometry x="50" y="720" width="400" height="20" as="geometry" />
+    </mxCell>
+    
+    <!-- Key difference highlight -->
+    <mxCell id="key-difference" value="🔑 KEY DIFFERENCE: LangChain Agent automatically selects&#xa;and calls the appropriate @tool functions based on user intent.&#xa;No manual detection logic needed!" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#D32F2F;fontStyle=1;fontSize=12;fontColor=#B71C1C;" vertex="1" parent="1">
+      <mxGeometry x="1050" y="460" width="280" height="90" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel>
