@@ -13,6 +13,10 @@ from .pinecone_rag_system import PineconeRAGSystem
 from .config_manager import ConfigManager
 from .suggestion_engine import SuggestionEngine, SuggestionContext, ToolType
 from .location_function_calling import LocationFunctionCaller
+from .conversational_car_booking import ConversationalCarBookingAgent
+from .simple_car_booking import SimpleCarBooking
+from .llm_car_booking import LLMCarBooking
+from .llm_hotel_booking import LLMHotelBooking
 
 
 class TravelPlannerAgent:
@@ -45,6 +49,18 @@ class TravelPlannerAgent:
         self.location_function_caller = LocationFunctionCaller(
             openai_api_key=self.openai_api_key,
             model="gpt-3.5-turbo"
+        )
+        
+        # Initialize LLM car booking (preferred) với fallback
+        self.llm_car_booking = LLMCarBooking()
+        self.simple_car_booking = SimpleCarBooking()  # Fallback
+        
+        # Initialize LLM hotel booking (preferred)
+        self.llm_hotel_booking = LLMHotelBooking()
+        
+        # Initialize conversational car booking agent (backup)
+        self.car_booking_agent = ConversationalCarBookingAgent(
+            openai_api_key=self.openai_api_key
         )
         
         # Initialize variables for tracking sources and fallback
@@ -545,88 +561,65 @@ class TravelPlannerAgent:
     
     def _execute_hotel_booking(self, user_input: str, context: str) -> Dict[str, Any]:
         """
-        Execute hotel booking with validation and confirmation
+        Execute enhanced LLM hotel booking with conversation state management
         """
         try:
-            # Extract booking details
-            booking_details = self._extract_hotel_booking_details(user_input, context)
+            # Use the new LLM hotel booking system
+            result = self.llm_hotel_booking.process(user_input, context)
             
-            # Check if required information is complete
-            required_fields = ['customer_name', 'customer_phone', 'hotel_name', 'location', 'check_in_date', 'nights']
-            missing_fields = [field for field in required_fields if not booking_details.get(field)]
+            # Add sources info for compatibility
+            result["sources"] = ["LLM Hotel Booking System"]
+            result["rag_used"] = False
             
-            if missing_fields:
-                # Request missing information
-                missing_info = self._request_missing_hotel_info(missing_fields, booking_details)
-                return {
-                    "success": False,
-                    "response": missing_info,
-                    "sources": ["AI Hotel Booking System"],
-                    "rag_used": False,
-                    "tool_used": "HOTEL_VALIDATION",
-                    "booking_details": booking_details,
-                    "missing_fields": missing_fields
-                }
-            
-            # All information complete - show confirmation
-            confirmation_message = self._generate_hotel_booking_confirmation(booking_details)
-            
-            return {
-                "success": True,
-                "response": confirmation_message,
-                "sources": ["AI Hotel Booking System"],
-                "rag_used": False,
-                "tool_used": "HOTEL_CONFIRMATION",
-                "context": context,
-                "booking_details": booking_details,
-                "awaiting_confirmation": True
-            }
+            return result
             
         except Exception as e:
+            if self.debug_mode:
+                print(f"🐛 [DEBUG] Hotel booking error: {str(e)}")
+            
             return {
                 "success": False,
                 "response": f"Lỗi đặt khách sạn: {str(e)}",
                 "error": str(e),
-                "tool_used": "HOTEL"
+                "tool_used": "LLM_HOTEL_BOOKING"
             }
     
     def _execute_car_booking(self, user_input: str, context: str) -> Dict[str, Any]:
         """
-        Execute car booking with validation and confirmation
+        Execute simple car booking for demo
         """
         try:
-            # Extract booking details
-            booking_details = self._extract_car_booking_details(user_input, context)
+            # Get conversation ID for maintaining state
+            conversation_id = None
+            try:
+                import streamlit as st
+                conversation_id = st.session_state.get('active_conversation_id', 'default')
+            except:
+                conversation_id = 'default'
             
-            # Check if required information is complete
-            required_fields = ['customer_name', 'customer_phone', 'pickup_location', 'destination', 'pickup_time', 'car_type']
-            missing_fields = [field for field in required_fields if not booking_details.get(field)]
+            # Use LLM car booking (preferred)
+            result = self.llm_car_booking.process(user_input)
             
-            if missing_fields:
-                # Request missing information
-                missing_info = self._request_missing_car_info(missing_fields, booking_details)
-                return {
-                    "success": False,
-                    "response": missing_info,
-                    "sources": ["AI Car Booking System"],
-                    "rag_used": False,
-                    "tool_used": "CAR_VALIDATION",
-                    "booking_details": booking_details,
-                    "missing_fields": missing_fields
-                }
+            if self.debug_mode:
+                print(f"\n🚗 [DEBUG] LLM Car Booking:")
+                print(f"📝 User input: {user_input}")
+                print(f"✅ Success: {result.get('success', False)}")
+                print(f"🔧 Status: {result.get('status', 'unknown')}")
+                print(f"🤖 Method: {result.get('extraction_method', 'unknown')}")
+                print(f"🆕 New fields: {result.get('new_fields_detected', [])}")
             
-            # All information complete - show confirmation
-            confirmation_message = self._generate_car_booking_confirmation(booking_details)
-            
+            # Transform result to match expected format
             return {
-                "success": True,
-                "response": confirmation_message,
-                "sources": ["AI Car Booking System"],
+                "success": result.get("success", True),
+                "response": result.get("response", "Có lỗi xảy ra trong quá trình đặt xe."),
+                "sources": ["Simple Car Booking Demo"],
                 "rag_used": False,
-                "tool_used": "CAR_CONFIRMATION",
-                "context": context,
-                "booking_details": booking_details,
-                "awaiting_confirmation": True
+                "tool_used": result.get("tool_used", "SIMPLE_CAR_BOOKING"),
+                "booking_details": result.get("current_info", {}),
+                "status": result.get("status", "unknown"),
+                "missing_fields": result.get("missing_fields", []),
+                "completion_rate": result.get("completion_rate", "0%"),
+                "context": context
             }
             
         except Exception as e:
