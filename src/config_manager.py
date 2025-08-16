@@ -421,3 +421,56 @@ class ConfigManager:
         except Exception as e:
             st.error(f"Error updating suggestion config: {str(e)}")
             return False
+    
+    # Location Context Tracking Methods
+    def get_conversation_locations(self, conversation_id: str) -> List[str]:
+        """Get all locations mentioned in a conversation"""
+        try:
+            # Get conversation history and extract locations
+            history = self.get_conversation_history(conversation_id)
+            locations = []
+            
+            for entry in history:
+                if len(entry) >= 2:
+                    message_content = entry[1]  # Message content
+                    location = self._extract_location_from_text(message_content)
+                    if location and location not in locations:
+                        locations.append(location)
+            
+            return locations
+        except Exception as e:
+            return []
+    
+    def get_latest_conversation_location(self, conversation_id: str) -> str:
+        """Get the most recently mentioned location in a conversation"""
+        locations = self.get_conversation_locations(conversation_id)
+        return locations[-1] if locations else None
+    
+    def _extract_location_from_text(self, text: str) -> str:
+        """Extract location from text using simple pattern matching"""
+        if not text:
+            return None
+            
+        # Vietnamese location patterns - sync with travel_planner_agent
+        vietnam_locations = [
+            "hà nội", "hồ chí minh", "đà nẵng", "nha trang", "huế", "hội an",
+            "sapa", "đà lạt", "phú quốc", "cần thơ", "vũng tầu", "phan thiết",
+            "hạ long", "ninh bình", "mù cang chải", "tam cốc", "bái đính",
+            "kiên giang", "an giang", "cà mau", "bạc liêu", "sóc trăng", 
+            "đồng tháp", "tiền giang", "bến tre", "vĩnh long", "trà vinh",
+            "hà giang", "cao bằng", "lào cai", "yên bái", "tuyên quang",
+            "thái nguyên", "bắc kạn", "lang sơn", "quảng ninh", "hải phòng",
+            "nam định", "thái bình", "hưng yên", "hà nam", "ninh bình",
+            "thanh hóa", "nghệ an", "hà tĩnh", "quảng bình", "quảng trì",
+            "quảng nam", "quảng ngãi", "bình định", "phú yên", "khánh hòa",
+            "ninh thuận", "bình thuận", "kon tum", "gia lai", "đắk lắk",
+            "đắk nông", "lâm đồng", "bình phước", "tây ninh", "bình dương",
+            "đồng nai", "bà rịa vũng tầu", "long an"
+        ]
+        
+        text_lower = text.lower()
+        for location in vietnam_locations:
+            if location in text_lower:
+                return location.title()
+        
+        return None

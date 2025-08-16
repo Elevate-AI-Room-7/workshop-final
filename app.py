@@ -392,7 +392,7 @@ if selected_page == "💬 Chat":
         with col1:
             if st.button("🌤️ Kiểm tra thời tiết", key="weather_prompt", use_container_width=True):
                 # Use the same suggestion system as inline suggestions
-                handle_suggestion_click("Kiểm tra thời tiết Hà Nội hôm nay")
+                handle_suggestion_click("Kiểm tra thời tiết hôm nay")
                 st.rerun()
                 
             if st.button("🏨 Đặt khách sạn", key="hotel_prompt", use_container_width=True):
@@ -408,7 +408,7 @@ if selected_page == "💬 Chat":
                 
             if st.button("🚗 Đặt xe", key="car_prompt", use_container_width=True):
                 # Use the same suggestion system as inline suggestions
-                handle_suggestion_click("Đặt xe từ Hà Nội đi Hạ Long ngày 25/12/2025")
+                handle_suggestion_click("Đặt xe di chuyển trong ngày 25/12/2025")
                 st.rerun()
 
     # Check for pending suggestion
@@ -959,7 +959,7 @@ elif selected_page == "📚 Knowledge Base":
             # Metadata
             col1, col2 = st.columns(2)
             with col1:
-                location = st.text_input("📍 Địa điểm", placeholder="Hà Nội")
+                location = st.text_input("📍 Địa điểm", placeholder="Ví dụ: Hà Nội, Đà Nẵng...")
                 category = st.selectbox("📂 Danh mục", ["destination", "hotel", "restaurant", "activity", "transport"])
             with col2:
                 rating = st.number_input("⭐ Đánh giá", min_value=0.0, max_value=5.0, value=0.0, step=0.1)

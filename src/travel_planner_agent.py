@@ -3,7 +3,7 @@ Travel Planner Agent - Unified agent for travel planning with RAG and tools
 """
 
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from langchain.agents import initialize_agent, Tool
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
@@ -473,8 +473,28 @@ class TravelPlannerAgent:
         Execute weather query with context-aware city extraction
         """
         try:
+            # Get conversation ID for context tracking
+            conversation_id = None
+            try:
+                import streamlit as st
+                conversation_id = st.session_state.get('active_conversation_id')
+            except:
+                pass
+            
             # Extract city from user input AND context
-            city = self._extract_city_from_query_with_context(user_input, context)
+            city = self._extract_city_from_query_with_context(user_input, context, conversation_id)
+            
+            # Check if location was found
+            if not city:
+                return {
+                    "success": True,
+                    "response": "🏙️ **Tôi cần biết địa điểm để kiểm tra thời tiết.**\n\nVui lòng cho tôi biết bạn muốn xem thời tiết ở đâu? (Ví dụ: Hà Nội, Đà Nẵng, Hồ Chí Minh...)",
+                    "sources": [],
+                    "rag_used": False,
+                    "tool_used": "WEATHER",
+                    "weather_type": "location_missing",
+                    "city": None
+                }
             
             # Debug output
             if self.debug_mode:
@@ -727,7 +747,7 @@ class TravelPlannerAgent:
             }
     
     # Helper methods
-    def _extract_city_from_query(self, query: str) -> str:
+    def _extract_city_from_query(self, query: str) -> Optional[str]:
         """Extract city name from weather query - legacy method"""
         # Simple extraction - can be enhanced with NER
         cities = ["hà nội", "hồ chí minh", "đà nẵng", "nha trang", "huế", "hội an", "sapa", "đà lạt", "phú quốc", "cần thơ"]
@@ -737,10 +757,10 @@ class TravelPlannerAgent:
             if city in query_lower:
                 return city.title()
         
-        return "Hà Nội"  # Default city
+        return None  # No default city - require location to be specified
     
-    def _extract_city_from_query_with_context(self, query: str, context: str) -> str:
-        """Extract city name from query with context awareness - prioritizes provinces over cities"""
+    def _extract_city_from_query_with_context(self, query: str, context: str, conversation_id: str = None) -> Optional[str]:
+        """Extract city name from query with context awareness and conversation history"""
         # Separate provinces and cities to prioritize properly
         provinces = [
             "kiên giang", "an giang", "cà mau", "bạc liêu", "sóc trăng", 
@@ -767,11 +787,12 @@ class TravelPlannerAgent:
             print(f"\n🔍 [DEBUG] Enhanced City Extraction:")
             print(f"📝 Query: {query}")
             print(f"🎯 Context: {context}")
+            print(f"🆔 Conversation ID: {conversation_id}")
         
         # Strategy: Find all matching locations, then prioritize
         found_locations = []
         
-        # Check current query first
+        # Check current query first (highest priority)
         query_lower = query.lower()
         for location in all_locations:
             if location in query_lower:
@@ -787,14 +808,30 @@ class TravelPlannerAgent:
                 if self.debug_mode:
                     print(f"📚 Found in context: {location}")
         
+        # If no location found in query/context, check conversation history
+        if not found_locations and conversation_id:
+            try:
+                from .config_manager import ConfigManager
+                config_manager = ConfigManager()
+                conversation_location = config_manager.get_latest_conversation_location(conversation_id)
+                if conversation_location:
+                    found_locations.append(("conversation", conversation_location.lower()))
+                    if self.debug_mode:
+                        print(f"💬 Found in conversation history: {conversation_location}")
+            except Exception as e:
+                if self.debug_mode:
+                    print(f"⚠️ Could not check conversation history: {str(e)}")
+        
         if found_locations:
             # Prioritization logic:
             # 1. Direct query locations first
-            # 2. Among context locations, prefer provinces over cities
-            # 3. Use the most specific match
+            # 2. Among context locations, prefer provinces over cities  
+            # 3. Conversation history locations (fallback)
+            # 4. Use the most specific match
             
             query_locations = [loc for source, loc in found_locations if source == "query"]
             context_locations = [loc for source, loc in found_locations if source == "context"]
+            conversation_locations = [loc for source, loc in found_locations if source == "conversation"]
             
             if query_locations:
                 # If found in query, use that
@@ -812,16 +849,20 @@ class TravelPlannerAgent:
                     selected = context_locations[0]  # First city found
                     if self.debug_mode:
                         print(f"🏙️ Selected city from context: {selected}")
+            elif conversation_locations:
+                # Use conversation history location as fallback
+                selected = conversation_locations[0]
+                if self.debug_mode:
+                    print(f"🏙️ Selected from conversation history: {selected}")
             else:
-                selected = "hà nội"  # Fallback
+                selected = None  # No fallback
             
-            return selected.title()
+            return selected.title() if selected else None
         
-        # Default fallback
-        default_city = "Hà Nội"
+        # No default fallback - return None when location not found
         if self.debug_mode:
-            print(f"🏙️ No location found, using default: {default_city}")
-        return default_city
+            print(f"🏙️ No location found in query or context")
+        return None
     
     def _detect_forecast_intent(self, query: str) -> bool:
         """Detect if user wants weather forecast vs current weather"""
@@ -885,7 +926,7 @@ class TravelPlannerAgent:
             "customer_phone": self._extract_phone_number(query, context),
             "customer_email": self._extract_email(query, context),
             "hotel_name": self._extract_hotel_name(query, context),
-            "location": self._extract_city_from_query(query),
+            "location": self._extract_city_from_query_with_context(query, context, self._get_conversation_id()),
             "check_in_date": self._extract_date(query, context),
             "check_out_date": None,  # Will be calculated from nights
             "nights": self._extract_nights(query, context),
@@ -1227,8 +1268,8 @@ class TravelPlannerAgent:
                 if len(location) > 2:
                     return location
         
-        # Try to extract from context if available
-        city = self._extract_city_from_query(query)
+        # Try to extract from context if available using enhanced method
+        city = self._extract_city_from_query_with_context(query, context, self._get_conversation_id())
         if city:
             return f"Sân bay {city}"  # Default to airport
         
@@ -1349,7 +1390,7 @@ class TravelPlannerAgent:
             'customer_name': "👤 Tên khách hàng",
             'customer_phone': "📞 Số điện thoại liên hệ",
             'hotel_name': "🏨 Tên khách sạn mong muốn",
-            'location': "📍 Địa điểm (thành phố)",
+            'location': "📍 Địa điểm (Ví dụ: Hà Nội, Đà Nẵng, Hồ Chí Minh...)",
             'check_in_date': "📅 Ngày nhận phòng (dd/mm/yyyy)",
             'nights': "🌙 Số đêm lưu trú"
         }
@@ -2065,3 +2106,11 @@ Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin.
                 return location.title()
         
         return None
+    
+    def _get_conversation_id(self) -> Optional[str]:
+        """Get current conversation ID from session state"""
+        try:
+            import streamlit as st
+            return st.session_state.get('active_conversation_id')
+        except:
+            return None
