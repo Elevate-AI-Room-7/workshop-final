@@ -391,32 +391,24 @@ if selected_page == "💬 Chat":
         
         with col1:
             if st.button("🌤️ Kiểm tra thời tiết", key="weather_prompt", use_container_width=True):
-                st.session_state["messages"].append({
-                    "role": "user", 
-                    "content": "Kiểm tra thời tiết Hà Nội hôm nay"
-                })
+                # Use the same suggestion system as inline suggestions
+                handle_suggestion_click("Kiểm tra thời tiết Hà Nội hôm nay")
                 st.rerun()
                 
             if st.button("🏨 Đặt khách sạn", key="hotel_prompt", use_container_width=True):
-                st.session_state["messages"].append({
-                    "role": "user", 
-                    "content": "Đặt khách sạn ở Đà Nẵng cho ngày 25/12/2025, 2 đêm"
-                })
+                # Use the same suggestion system as inline suggestions
+                handle_suggestion_click("Đặt khách sạn ở Đà Nẵng cho ngày 25/12/2025, 2 đêm")
                 st.rerun()
         
         with col2:
             if st.button("🗺️ Lên kế hoạch du lịch", key="planning_prompt", use_container_width=True):
-                st.session_state["messages"].append({
-                    "role": "user", 
-                    "content": "Lập kế hoạch du lịch Sapa 3 ngày 2 đêm"
-                })
+                # Use the same suggestion system as inline suggestions
+                handle_suggestion_click("Lập kế hoạch du lịch Sapa 3 ngày 2 đêm")
                 st.rerun()
                 
             if st.button("🚗 Đặt xe", key="car_prompt", use_container_width=True):
-                st.session_state["messages"].append({
-                    "role": "user", 
-                    "content": "Đặt xe từ Hà Nội đi Hạ Long ngày 25/12/2025"
-                })
+                # Use the same suggestion system as inline suggestions
+                handle_suggestion_click("Đặt xe từ Hà Nội đi Hạ Long ngày 25/12/2025")
                 st.rerun()
 
     # Check for pending suggestion
