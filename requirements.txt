@@ -13,11 +13,12 @@ python-dotenv>=1.0.0
 openai>=1.6.0
 
 # Vector Database
-pinecone-client>=3.0.0
+pinecone>=3.0.0
 
 # LangChain Framework
 langchain>=0.1.0
 langchain-openai>=0.0.5
+langchain-community>=0.0.10
 
 # Text-to-Speech
 gTTS>=2.4.0
