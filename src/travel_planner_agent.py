@@ -17,6 +17,7 @@ from .conversational_car_booking import ConversationalCarBookingAgent
 from .simple_car_booking import SimpleCarBooking
 from .llm_car_booking import LLMCarBooking
 from .llm_hotel_booking import LLMHotelBooking
+from .llm_travel_planning import LLMTravelPlanning
 
 
 class TravelPlannerAgent:
@@ -57,6 +58,9 @@ class TravelPlannerAgent:
         
         # Initialize LLM hotel booking (preferred)
         self.llm_hotel_booking = LLMHotelBooking()
+        
+        # Initialize LLM travel planning (simple demo)
+        self.llm_travel_planning = LLMTravelPlanning()
         
         # Initialize conversational car booking agent (backup)
         self.car_booking_agent = ConversationalCarBookingAgent(
@@ -632,62 +636,27 @@ class TravelPlannerAgent:
     
     def _execute_travel_planning(self, user_input: str, context: str, chat_history: List) -> Dict[str, Any]:
         """
-        Execute travel planning with interactive conversation flow
+        Execute simple LLM travel planning with conversation state management
         """
         try:
-            # Extract travel plan information from user input, context, and chat history
-            travel_info = self._extract_travel_plan_info(user_input, context, chat_history)
+            # Use the new LLM travel planning system
+            result = self.llm_travel_planning.process(user_input, context)
             
-            # Get required vs optional questions based on user specification
-            required_questions = [
-                'destination', 'dates', 'duration', 'participants', 
-                'budget', 'visa_requirements', 'health_requirements'
-            ]
+            # Add sources info for compatibility
+            result["sources"] = ["LLM Travel Planning System"]
+            result["rag_used"] = False
             
-            optional_questions = [
-                'travel_style', 'activities', 'accommodations', 
-                'transportation', 'meals', 'interests'
-            ]
-            
-            # Check what's missing from required information
-            missing_required = []
-            for question in required_questions:
-                if not travel_info.get(question):
-                    missing_required.append(question)
-            
-            if missing_required:
-                # Request missing required information
-                missing_info_message = self._request_missing_travel_info(missing_required, travel_info)
-                return {
-                    "success": False,
-                    "response": missing_info_message,
-                    "sources": ["AI Travel Planning System"],
-                    "rag_used": False,
-                    "tool_used": "TRAVEL_PLAN_VALIDATION",
-                    "travel_info": travel_info,
-                    "missing_required": missing_required
-                }
-            
-            # All required information is complete - show confirmation
-            confirmation_message = self._generate_travel_plan_confirmation(travel_info)
-            
-            return {
-                "success": True,
-                "response": confirmation_message,
-                "sources": ["AI Travel Planning System"],
-                "rag_used": False,
-                "tool_used": "TRAVEL_PLAN_CONFIRMATION",
-                "context": context,
-                "travel_info": travel_info,
-                "awaiting_confirmation": True
-            }
+            return result
             
         except Exception as e:
+            if self.debug_mode:
+                print(f"🐛 [DEBUG] Travel planning error: {str(e)}")
+            
             return {
                 "success": False,
                 "response": f"Lỗi lên kế hoạch du lịch: {str(e)}",
                 "error": str(e),
-                "tool_used": "TRAVEL_PLAN"
+                "tool_used": "LLM_TRAVEL_PLANNING"
             }
     
     def _execute_general_response(self, user_input: str, context: str) -> Dict[str, Any]:
