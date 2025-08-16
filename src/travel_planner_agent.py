@@ -12,6 +12,7 @@ import json
 from .pinecone_rag_system import PineconeRAGSystem
 from .config_manager import ConfigManager
 from .suggestion_engine import SuggestionEngine, SuggestionContext, ToolType
+from .location_function_calling import LocationFunctionCaller
 
 
 class TravelPlannerAgent:
@@ -39,6 +40,12 @@ class TravelPlannerAgent:
         
         # Initialize Suggestion Engine
         self.suggestion_engine = SuggestionEngine(self.config_manager)
+        
+        # Initialize function calling for location detection
+        self.location_function_caller = LocationFunctionCaller(
+            openai_api_key=self.openai_api_key,
+            model="gpt-3.5-turbo"
+        )
         
         # Initialize variables for tracking sources and fallback
         self.last_rag_sources = []
@@ -470,31 +477,32 @@ class TravelPlannerAgent:
     
     def _execute_weather_query(self, user_input: str, context: str) -> Dict[str, Any]:
         """
-        Execute weather query with context-aware city extraction
+        Execute weather query using LangChain function calling for location detection
         """
         try:
-            # Get conversation ID for context tracking
-            conversation_id = None
-            try:
-                import streamlit as st
-                conversation_id = st.session_state.get('active_conversation_id')
-            except:
-                pass
-            
-            # Extract city from user input AND context
-            city = self._extract_city_from_query_with_context(user_input, context, conversation_id)
+            # Use function calling for location detection
+            location_result = self._detect_location_with_function_calling(
+                user_query=user_input,
+                query_type="weather",
+                context=context
+            )
             
             # Check if location was found
-            if not city:
+            if not location_result.get("location_found", False):
+                # Return the function calling response (location request)
                 return {
                     "success": True,
-                    "response": "🏙️ **Tôi cần biết địa điểm để kiểm tra thời tiết.**\n\nVui lòng cho tôi biết bạn muốn xem thời tiết ở đâu? (Ví dụ: Hà Nội, Đà Nẵng, Hồ Chí Minh...)",
+                    "response": location_result.get("response", "Tôi cần biết địa điểm để kiểm tra thời tiết."),
                     "sources": [],
                     "rag_used": False,
-                    "tool_used": "WEATHER",
+                    "tool_used": "WEATHER_LOCATION_REQUEST",
                     "weather_type": "location_missing",
-                    "city": None
+                    "city": None,
+                    "needs_location": True
                 }
+            
+            # Extract the city from function calling result
+            city = location_result.get("location")
             
             # Debug output
             if self.debug_mode:
@@ -926,7 +934,7 @@ class TravelPlannerAgent:
             "customer_phone": self._extract_phone_number(query, context),
             "customer_email": self._extract_email(query, context),
             "hotel_name": self._extract_hotel_name(query, context),
-            "location": self._extract_city_from_query_with_context(query, context, self._get_conversation_id()),
+            "location": self._extract_location_for_booking(query, "hotel", context),
             "check_in_date": self._extract_date(query, context),
             "check_out_date": None,  # Will be calculated from nights
             "nights": self._extract_nights(query, context),
@@ -1268,10 +1276,10 @@ class TravelPlannerAgent:
                 if len(location) > 2:
                     return location
         
-        # Try to extract from context if available using enhanced method
-        city = self._extract_city_from_query_with_context(query, context, self._get_conversation_id())
-        if city:
-            return f"Sân bay {city}"  # Default to airport
+        # Try to extract from context using function calling
+        location = self._extract_location_for_booking(query, "car", context)
+        if location:
+            return f"Sân bay {location}"  # Default to airport
         
         return ""
     
@@ -1293,6 +1301,11 @@ class TravelPlannerAgent:
                 destination = match.group(1).strip()
                 if len(destination) > 2:
                     return destination
+        
+        # Try to extract using function calling as fallback
+        location = self._extract_location_for_booking(query, "car", context)
+        if location:
+            return location
         
         return ""
     
@@ -2106,6 +2119,138 @@ Trả lời "**Không**" hoặc "**Sửa**" để điều chỉnh thông tin.
                 return location.title()
         
         return None
+    
+    def _detect_location_with_function_calling(
+        self, 
+        user_query: str, 
+        query_type: str, 
+        context: str = ""
+    ) -> Dict[str, Any]:
+        """
+        Use LangChain function calling to detect location or request it from user
+        
+        Args:
+            user_query: User's query text
+            query_type: Type of query (weather, hotel, car, travel_plan)
+            context: Additional context
+            
+        Returns:
+            Dict with location information or request message
+        """
+        try:
+            # Get conversation history for context
+            conversation_history = ""
+            try:
+                import streamlit as st
+                conversation_id = st.session_state.get('active_conversation_id')
+                if conversation_id:
+                    from .config_manager import ConfigManager
+                    config_manager = ConfigManager()
+                    history = config_manager.get_conversation_history(conversation_id)
+                    # Convert history to text
+                    conversation_history = " ".join([
+                        entry[1] for entry in history[-5:] if len(entry) >= 2  # Last 5 messages
+                    ])
+            except:
+                pass
+            
+            # Use function calling to detect location
+            result = self.location_function_caller.detect_and_handle_location(
+                user_query=user_query,
+                query_type=query_type,
+                conversation_history=conversation_history,
+                context=context
+            )
+            
+            if self.debug_mode:
+                print(f"\n🔧 [DEBUG] Function Calling Location Detection:")
+                print(f"📝 Query: {user_query}")
+                print(f"🎯 Type: {query_type}")
+                print(f"✅ Success: {result.get('success', False)}")
+                print(f"📍 Location Found: {result.get('location_found', False)}")
+                print(f"🏙️ Location: {result.get('location', 'None')}")
+                print(f"🔧 Tool Used: {result.get('tool_used', 'Unknown')}")
+            
+            return result
+            
+        except Exception as e:
+            if self.debug_mode:
+                print(f"\n❌ [ERROR] Function calling failed: {str(e)}")
+            
+            # Fallback to original method
+            return self._fallback_location_detection(user_query, query_type, context)
+    
+    def _fallback_location_detection(
+        self, 
+        user_query: str, 
+        query_type: str, 
+        context: str = ""
+    ) -> Dict[str, Any]:
+        """Fallback location detection using original methods"""
+        
+        conversation_id = self._get_conversation_id()
+        location = self._extract_city_from_query_with_context(user_query, context, conversation_id)
+        
+        if location:
+            return {
+                "success": True,
+                "location_found": True,
+                "location": location,
+                "confidence": 0.8,
+                "tool_used": "FALLBACK_EXTRACTION"
+            }
+        else:
+            # Generate location request message
+            query_prompts = {
+                "weather": "🏙️ **Tôi cần biết địa điểm để kiểm tra thời tiết.**\n\nBạn muốn xem thời tiết ở đâu? (Ví dụ: Hà Nội, Đà Nẵng, Hồ Chí Minh...)",
+                "hotel": "🏨 **Tôi cần biết địa điểm để tìm khách sạn.**\n\nBạn muốn đặt khách sạn ở thành phố nào? (Ví dụ: Hà Nội, Đà Nẵng, Hồ Chí Minh...)",
+                "car": "🚗 **Tôi cần biết điểm đón và điểm đến để đặt xe.**\n\nBạn muốn đi từ đâu đến đâu?",
+                "travel_plan": "🧳 **Tôi cần biết điểm đến để lập kế hoạch du lịch.**\n\nBạn muốn du lịch ở đâu?"
+            }
+            
+            message = query_prompts.get(query_type, query_prompts["weather"])
+            
+            return {
+                "success": True,
+                "location_found": False,
+                "needs_location": True,
+                "response": message,
+                "tool_used": "FALLBACK_REQUEST"
+            }
+    
+    def _extract_location_for_booking(self, query: str, booking_type: str, context: str = "") -> Optional[str]:
+        """
+        Extract location for booking using function calling with fallback
+        
+        Args:
+            query: User query text
+            booking_type: Type of booking (hotel, car, travel_plan)
+            context: Additional context
+            
+        Returns:
+            Location if found, None otherwise
+        """
+        try:
+            # Use function calling to detect location
+            location_result = self._detect_location_with_function_calling(
+                user_query=query,
+                query_type=booking_type,
+                context=context
+            )
+            
+            if location_result.get("location_found", False):
+                return location_result.get("location")
+            else:
+                # No location found - return None so booking validation can handle
+                return None
+                
+        except Exception as e:
+            if self.debug_mode:
+                print(f"\n❌ [ERROR] Location extraction for booking failed: {str(e)}")
+            
+            # Fallback to original method
+            conversation_id = self._get_conversation_id()
+            return self._extract_city_from_query_with_context(query, context, conversation_id)
     
     def _get_conversation_id(self) -> Optional[str]:
         """Get current conversation ID from session state"""
