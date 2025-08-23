@@ -154,6 +154,14 @@ Desktop.ini
 
 # Log files
 *.log
+streamlit_debug.log
+debug_*.log
+
+# Audio cache
+audio_cache/
+generated_audio/
+*.wav
+*.mp3
 
 # Temporary files
 *.tmp

@@ -4,7 +4,7 @@
 [![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)](https://streamlit.io/)
 [![Pinecone](https://img.shields.io/badge/pinecone-3.0+-green.svg)](https://www.pinecone.io/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/version-v1.0.0-blue.svg)](https://github.com/Elevate-AI-Room-7/workshop-final/releases)
+[![Release](https://img.shields.io/badge/version-v1.0.0-blue.svg)](https://github.com/saitamacoder196/travel-planner-app/releases)
 
 Trợ lý du lịch thông minh sử dụng **Retrieval-Augmented Generation (RAG)** với Pinecone vector database, tích hợp Weather API và Hotel booking system.
 

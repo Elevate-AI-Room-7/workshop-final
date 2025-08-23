@@ -36,7 +36,6 @@ def render_conversation_title_display(config_manager):
                     
                 # Display current conversation title
                 st.sidebar.markdown("---")
-                st.sidebar.markdown(f"**💬 Current:** {display_title}")
                 
                 # Show quick tip
                 st.sidebar.markdown("*💡 Tip: Sử dụng '📜 Lịch sử hội thoại' để xem tất cả*")
